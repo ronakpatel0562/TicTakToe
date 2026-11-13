@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#090b12">
+    <title>Arcade X | Tic-Tac-Toe, Sudoku & Aviator</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tictactoe.css">
+    <link rel="stylesheet" href="css/sudoku.css">
+    <link rel="stylesheet" href="css/aviator.css">
+    <link rel="stylesheet" href="css/rocket.css">
+    <link rel="stylesheet" href="css/colorselector.css">
+    <link rel="stylesheet" href="css/roulette.css">
+    <link rel="stylesheet" href="css/plinko.css">
+    <link rel="stylesheet" href="css/connect4.css">
+    <link rel="stylesheet" href="css/minesweeper.css">
+    <link rel="stylesheet" href="css/game2048.css">
+    <link rel="stylesheet" href="css/snake.css">
+    <link rel="stylesheet" href="css/memory.css">
+    <link rel="stylesheet" href="css/wordle.css">
+    <link rel="stylesheet" href="css/payment.css">
+    <!-- Razorpay Checkout Gateway SDK (For live/test integration) -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+    <!-- Global Navigation Header -->
+    <header class="arcade-navbar">
+        <div class="brand-container return-home-btn">
+            <div class="brand-icon">
+                <i class="fa-solid fa-gamepad"></i>
+            </div>
+            <div>
+                <span class="brand-title">ARCADE X</span>
+                <span class="brand-tag">PRO SUITE</span>
+            </div>
+        </div>
+
+        <div class="nav-actions">
+            <!-- Home / Lobby Button (visible inside games) -->
+            <button id="nav-lobby-btn" class="nav-btn return-home-btn" style="display: none;">
+                <i class="fa-solid fa-house"></i>
+                <span>Lobby</span>
+            </button>
+
+            <!-- Virtual Balance Indicator -->
+            <div class="nav-balance-chip">
+                <i class="fa-solid fa-wallet"></i>
+                <span id="nav-wallet-balance">$1,000.00</span>
+                <button id="nav-add-funds-btn" class="add-funds-btn" title="Add Funds">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+
+            <!-- Theme Toggle Button -->
+            <button id="nav-theme-btn" class="nav-btn" title="Toggle Theme">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
+            <!-- Sound Toggle Button -->
+            <button id="nav-sound-btn" class="nav-btn" title="Toggle Sound">
+                <i class="fa-solid fa-volume-high"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Views Container -->
+    <main>
+
+        <!-- ================= HOME SCREEN ================= -->
+        <section id="view-home" class="app-view active">
+            <div class="home-hero">
+                <div class="home-badge">
+                    <i class="fa-solid fa-shapes"></i> 13 PRO GAMES SUITE
+                </div>
+                <h1 class="home-title">Select Your <span class="text-accent">Game</span></h1>
+                <p class="home-subtitle">A curated collection of 13 premium logic, strategy, crash multiplier, and live multiplayer games with responsive mobile controls.</p>
+            </div>
+
+            <!-- Category 1: Multiplier, Crash & Multiplayer Arena (ALL IN SAME ROW) -->
+            <div class="lobby-category-block">
+                <div class="lobby-category-header">
+                    <div class="lobby-category-title">
+                        <i class="fa-solid fa-chart-line-up" style="color:#ef4444;"></i>
+                        <span>Crash, Multiplier & Multiplayer Arena</span>
+                    </div>
+                    <span class="lobby-category-badge hot"><i class="fa-solid fa-fire"></i> All 5 in Same Row</span>
+                </div>
+
+                <div class="multiplier-games-row">
+                    <!-- Game 1: Aviator Pro -->
+                    <div id="card-aviator" class="game-card card-aviator">
+                        <div>
+                            <div class="card-preview">
+                                <div class="aviator-preview-display">
+                                    <i class="fa-solid fa-plane-up aviator-preview-plane"></i>
+                                    <span class="aviator-preview-multiplier">7.42x</span>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag hot">Crash Game</span>
+                                    <span class="tag">Dual Bet</span>
+                                </div>
+                                <h2 class="card-title">Aviator Pro</h2>
+                                <p class="card-desc">Watch the multiplier climb and time your cashout before the aircraft flies away in this betting simulator.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-coins"></i> Dual Bets</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 2: Rocket Launch (Crash Multiplier like Aviator) -->
+                    <div id="card-rocket" class="game-card card-rocket">
+                        <div>
+                            <div class="card-preview">
+                                <div class="rocket-preview-display">
+                                    <i class="fa-solid fa-rocket rocket-preview-rocket"></i>
+                                    <span class="rocket-preview-multiplier">14.20x</span>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag hot">Space Crash</span>
+                                    <span class="tag">Like Aviator</span>
+                                </div>
+                                <h2 class="card-title">Rocket Launch</h2>
+                                <p class="card-desc">Thrusters ignite as the rocket surges into orbit. Cash out before deep space burn-up with dual bets.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-users"></i> Live Crew</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 3: Color Prediction (Win Go Live Multiplayer) -->
+                    <div id="card-colorselector" class="game-card card-colorselector">
+                        <div>
+                            <div class="card-preview">
+                                <div class="cp-preview-roulette">
+                                    <div class="cp-preview-ball g">3</div>
+                                    <div class="cp-preview-ball v">0</div>
+                                    <div class="cp-preview-ball r">8</div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag hot">Win Go</span>
+                                    <span class="tag">Multiplayer</span>
+                                </div>
+                                <h2 class="card-title">Color Prediction</h2>
+                                <p class="card-desc">Predict Green, Violet, Red, or exact numbers with live multi-person community rounds & up to 9x returns.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-users"></i> Live Feed</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 4: Roulette Royale (NEW - Live Multiplayer European Roulette) -->
+                    <div id="card-roulette" class="game-card card-roulette">
+                        <div>
+                            <div class="card-preview">
+                                <div class="roulette-preview-display">
+                                    <div class="roulette-preview-wheel">
+                                        <span style="color:#10b981;">0</span>
+                                    </div>
+                                    <div style="font-size:0.75rem; font-weight:800; color:var(--text-secondary); margin-top:2px;">Green 0 • 36x</div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag hot">Multiplayer</span>
+                                    <span class="tag">Live Table</span>
+                                </div>
+                                <h2 class="card-title">Roulette Royale</h2>
+                                <p class="card-desc">Spin the European wheel featuring the Green 0 pocket, Red/Black, and straight numbers paying up to 36x with live players.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-users"></i> Live Table</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 5: Plinko Multiplier -->
+                    <div id="card-plinko" class="game-card card-plinko">
+                        <div>
+                            <div class="card-preview">
+                                <div class="plinko-preview-display">
+                                    <div class="plinko-preview-row">
+                                        <div class="plinko-p-dot"></div>
+                                        <div class="plinko-p-dot"></div>
+                                        <div class="plinko-p-dot"></div>
+                                    </div>
+                                    <div class="plinko-p-ball"></div>
+                                    <div class="plinko-preview-row" style="font-size:0.75rem; font-weight:800; gap:8px;">
+                                        <span style="color:#f59e0b;">29x</span>
+                                        <span style="color:#ef4444;">0x</span>
+                                        <span style="color:#f59e0b;">29x</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag hot">Drop Physics</span>
+                                    <span class="tag">0x Loss Risk</span>
+                                </div>
+                                <h2 class="card-title">Plinko Multiplier</h2>
+                                <p class="card-desc">Drop bouncy balls down the peg pyramid with real-time elasticity into 0x loss zones or high multipliers up to 29x.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-trophy"></i> 29x Max</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 2: Board & Strategy Battles (Games like Tic-Tac-Toe) -->
+            <div class="lobby-category-block">
+                <div class="lobby-category-header">
+                    <div class="lobby-category-title">
+                        <i class="fa-solid fa-chess-board" style="color:var(--color-accent);"></i>
+                        <span>Board & Strategy Battles (Games like Tic-Tac-Toe)</span>
+                    </div>
+                    <span class="lobby-category-badge"><i class="fa-solid fa-robot"></i> Minimax AI & PvP</span>
+                </div>
+
+                <div class="game-cards-grid">
+                    <!-- Game 5: Tic-Tac-Toe -->
+                    <div id="card-tictactoe" class="game-card card-ttt">
+                        <div>
+                            <div class="card-preview">
+                                <div class="ttt-icon-display">
+                                    <span class="x-mark">✕</span>
+                                    <span class="o-mark">○</span>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Strategy</span>
+                                    <span class="tag">Classic</span>
+                                </div>
+                                <h2 class="card-title">Tic-Tac-Toe</h2>
+                                <p class="card-desc">Challenge an unbeatable Minimax AI or battle a friend locally in a clean, high-contrast board.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-robot"></i> 3 Difficulties</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 6: Connect Four (NEW - Tic-Tac-Toe Evolution) -->
+                    <div id="card-connect4" class="game-card card-connect4">
+                        <div>
+                            <div class="card-preview">
+                                <div class="c4-preview-board">
+                                    <div class="c4-preview-circle r"></div>
+                                    <div class="c4-preview-circle y"></div>
+                                    <div class="c4-preview-circle r"></div>
+                                    <div class="c4-preview-circle y"></div>
+                                    <div class="c4-preview-circle y"></div>
+                                    <div class="c4-preview-circle r"></div>
+                                    <div class="c4-preview-circle r"></div>
+                                    <div class="c4-preview-circle y"></div>
+                                    <div class="c4-preview-circle r"></div>
+                                    <div class="c4-preview-circle r"></div>
+                                    <div class="c4-preview-circle r"></div>
+                                    <div class="c4-preview-circle r"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Like Tic-Tac-Toe</span>
+                                    <span class="tag">4-in-a-Row</span>
+                                </div>
+                                <h2 class="card-title">Connect Four</h2>
+                                <p class="card-desc">The vertical evolution of Tic-Tac-Toe. Drop tokens into a 7x6 grid to connect 4 in a line against AI or PvP.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-robot"></i> 3 Difficulties</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 7: Minesweeper -->
+                    <div id="card-minesweeper" class="game-card card-minesweeper">
+                        <div>
+                            <div class="card-preview">
+                                <div class="ms-preview-radar">
+                                    <i class="fa-solid fa-crosshairs ms-preview-icon"></i>
+                                    <span class="ms-preview-badge">SECTOR ALPHA</span>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Tactical</span>
+                                    <span class="tag">Grid Deduce</span>
+                                </div>
+                                <h2 class="card-title">Minesweeper</h2>
+                                <p class="card-desc">Clear minefields with tactical chord reveals, flag beacons, and safe first-click protection.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-shield-halved"></i> 3 Sectors</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category 3: Logic, Reflex & Mind Games -->
+            <div class="lobby-category-block">
+                <div class="lobby-category-header">
+                    <div class="lobby-category-title">
+                        <i class="fa-solid fa-brain" style="color:#10b981;"></i>
+                        <span>Logic, Reflex & Mind Games</span>
+                    </div>
+                    <span class="lobby-category-badge"><i class="fa-solid fa-puzzle-piece"></i> 5 Brain Trainers</span>
+                </div>
+
+                <div class="game-cards-grid row-5">
+                    <!-- Game 8: Sudoku -->
+                    <div id="card-sudoku" class="game-card card-sudoku">
+                        <div>
+                            <div class="card-preview">
+                                <div class="sudoku-preview-grid">
+                                    <div class="preview-tile filled">5</div>
+                                    <div class="preview-tile">3</div>
+                                    <div class="preview-tile filled">7</div>
+                                    <div class="preview-tile">6</div>
+                                    <div class="preview-tile filled">9</div>
+                                    <div class="preview-tile">2</div>
+                                    <div class="preview-tile filled">8</div>
+                                    <div class="preview-tile">1</div>
+                                    <div class="preview-tile filled">4</div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Logic</span>
+                                    <span class="tag">Infinite</span>
+                                </div>
+                                <h2 class="card-title">Sudoku</h2>
+                                <p class="card-desc">Procedurally generated puzzles with pencil notes, conflict detection, hints, and timer.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-puzzle-piece"></i> 4 Levels</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 9: 2048 -->
+                    <div id="card-game2048" class="game-card card-2048">
+                        <div>
+                            <div class="card-preview">
+                                <div class="g2048-preview-grid">
+                                    <div class="g2048-preview-tile t1">1024</div>
+                                    <div class="g2048-preview-tile t2">2048</div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Numbers</span>
+                                    <span class="tag">Puzzle</span>
+                                </div>
+                                <h2 class="card-title">2048</h2>
+                                <p class="card-desc">Slide and merge numerical tiles to reach the 2048 milestone with touch swipe & undo.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-trophy"></i> Best Score</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 10: Snake -->
+                    <div id="card-snake" class="game-card card-snake">
+                        <div>
+                            <div class="card-preview">
+                                <div class="snake-preview-display">
+                                    <div class="snake-preview-trail">
+                                        <div class="snake-seg tail"></div>
+                                        <div class="snake-seg mid"></div>
+                                        <div class="snake-seg"></div>
+                                        <div class="snake-seg head"></div>
+                                    </div>
+                                    <div class="snake-food-dot"></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Arcade</span>
+                                    <span class="tag">Speed</span>
+                                </div>
+                                <h2 class="card-title">Snake</h2>
+                                <p class="card-desc">Navigate the arena, consume food pellets, grow length, and avoid collisions at customizable speeds.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-bolt"></i> 3 Speeds</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 11: Memory Match -->
+                    <div id="card-memory" class="game-card card-memory">
+                        <div>
+                            <div class="card-preview">
+                                <div class="memory-preview-grid">
+                                    <div class="memory-p-card"><i class="fa-solid fa-gem"></i></div>
+                                    <div class="memory-p-card"><i class="fa-solid fa-bolt"></i></div>
+                                    <div class="memory-p-card"><i class="fa-solid fa-gem"></i></div>
+                                    <div class="memory-p-card"><i class="fa-solid fa-bolt"></i></div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Memory</span>
+                                    <span class="tag">Acuity</span>
+                                </div>
+                                <h2 class="card-title">Memory Match</h2>
+                                <p class="card-desc">Flip cards in a 4x4 matrix, uncover matching pairs, and test your visual pattern acuity.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-stopwatch"></i> Speed Run</span>
+                        </div>
+                    </div>
+
+                    <!-- Game 12: Wordle Master -->
+                    <div id="card-wordle" class="game-card card-wordle">
+                        <div>
+                            <div class="card-preview">
+                                <div class="wordle-preview-grid">
+                                    <div class="wordle-p-cell c">S</div>
+                                    <div class="wordle-p-cell p">M</div>
+                                    <div class="wordle-p-cell a">A</div>
+                                    <div class="wordle-p-cell c">R</div>
+                                    <div class="wordle-p-cell c">T</div>
+                                </div>
+                            </div>
+                            <div class="card-content">
+                                <div class="card-tags">
+                                    <span class="tag">Word Puzzle</span>
+                                    <span class="tag">Deduce</span>
+                                </div>
+                                <h2 class="card-title">Wordle Master</h2>
+                                <p class="card-desc">Crack the secret 5-letter word in 6 attempts using color-coded hints, streaks, and virtual keyboard.</p>
+                            </div>
+                        </div>
+                        <div class="card-action-row">
+                            <span class="play-link">Play Game <i class="fa-solid fa-arrow-right"></i></span>
+                            <span class="card-stats-pill"><i class="fa-solid fa-fire"></i> Streaks</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TIC-TAC-TOE VIEW ================= -->
+        <section id="view-tictactoe" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-xmark text-cyan"></i>
+                    <span>Tic-Tac-Toe</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="ttt-wrapper">
+                <!-- Controls & Modes -->
+                <div class="ttt-controls">
+                    <div class="ttt-mode-switch">
+                        <button class="ttt-mode-btn active" data-mode="ai">
+                            <i class="fa-solid fa-robot"></i> vs AI
+                        </button>
+                        <button class="ttt-mode-btn" data-mode="pvp">
+                            <i class="fa-solid fa-user-group"></i> 2 Players
+                        </button>
+                    </div>
+
+                    <div id="ttt-difficulty-container" class="ttt-diff-wrapper">
+                        <label for="ttt-difficulty-select">AI Mode:</label>
+                        <select id="ttt-difficulty-select" class="ttt-select">
+                            <option value="easy">Casual (Easy)</option>
+                            <option value="medium">Challenging</option>
+                            <option value="unbeatable" selected>Master (Unbeatable)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Scoreboard -->
+                <div class="ttt-scoreboard">
+                    <div class="ttt-score-card player-x">
+                        <div class="score-label"><i class="fa-solid fa-x"></i> Player X</div>
+                        <div id="ttt-score-x" class="score-value">0</div>
+                    </div>
+                    <div class="ttt-score-card ties">
+                        <div class="score-label"><i class="fa-solid fa-handshake"></i> Draws</div>
+                        <div id="ttt-score-ties" class="score-value">0</div>
+                    </div>
+                    <div class="ttt-score-card player-o">
+                        <div class="score-label"><i class="fa-solid fa-o"></i> Player O</div>
+                        <div id="ttt-score-o" class="score-value">0</div>
+                    </div>
+                </div>
+
+                <!-- Turn Status Banner -->
+                <div class="ttt-status-row">
+                    <div id="ttt-status" class="ttt-status-text">Your Turn (X)</div>
+                    <div id="ttt-turn-badge" class="ttt-turn-badge x">X TURN</div>
+                </div>
+
+                <!-- 3x3 Board Arena -->
+                <div class="ttt-board-container">
+                    <!-- Dynamic Strike-through SVG line -->
+                    <div id="ttt-strike-line" class="ttt-strike-line"></div>
+
+                    <div class="ttt-grid">
+                        <div class="ttt-cell" data-index="0"></div>
+                        <div class="ttt-cell" data-index="1"></div>
+                        <div class="ttt-cell" data-index="2"></div>
+                        <div class="ttt-cell" data-index="3"></div>
+                        <div class="ttt-cell" data-index="4"></div>
+                        <div class="ttt-cell" data-index="5"></div>
+                        <div class="ttt-cell" data-index="6"></div>
+                        <div class="ttt-cell" data-index="7"></div>
+                        <div class="ttt-cell" data-index="8"></div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="ttt-actions">
+                    <button id="ttt-reset-btn" class="ttt-action-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Reset Board
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SUDOKU VIEW ================= -->
+        <section id="view-sudoku" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-border-all text-accent"></i>
+                    <span>Sudoku</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="sudoku-wrapper">
+                <!-- Meta Bar -->
+                <div class="sudoku-meta-bar">
+                    <div class="sudoku-diff-box">
+                        <label for="sudoku-diff-select" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">Difficulty:</label>
+                        <select id="sudoku-diff-select" class="ttt-select">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
+
+                    <div class="sudoku-stats-box">
+                        <div class="stat-item mistakes">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            <span>Mistakes: <strong id="sudoku-mistakes">0/3</strong></span>
+                        </div>
+                        <div class="stat-item timer">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            <span id="sudoku-timer">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 9x9 Board -->
+                <div class="sudoku-board-container">
+                    <div id="sudoku-grid" class="sudoku-grid">
+                        <!-- Generated via JS -->
+                    </div>
+                </div>
+
+                <!-- Action Tools -->
+                <div class="sudoku-actions-toolbar">
+                    <button id="sudoku-undo-btn" class="tool-btn" title="Undo Last Move">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                        <span>Undo</span>
+                    </button>
+                    <button id="sudoku-erase-btn" class="tool-btn" title="Erase Cell">
+                        <i class="fa-solid fa-eraser"></i>
+                        <span>Erase</span>
+                    </button>
+                    <button id="sudoku-notes-toggle" class="tool-btn" title="Toggle Pencil Notes">
+                        <i class="fa-solid fa-pencil"></i>
+                        <span>Notes</span>
+                    </button>
+                    <button id="sudoku-hint-btn" class="tool-btn" title="Reveal Cell">
+                        <i class="fa-solid fa-lightbulb" style="color: var(--primary-gold);"></i>
+                        <span>Hint</span>
+                    </button>
+                </div>
+
+                <!-- 1-9 Number Input Bar -->
+                <div class="sudoku-numpad">
+                    <button class="sudoku-numpad-btn" data-num="1">1</button>
+                    <button class="sudoku-numpad-btn" data-num="2">2</button>
+                    <button class="sudoku-numpad-btn" data-num="3">3</button>
+                    <button class="sudoku-numpad-btn" data-num="4">4</button>
+                    <button class="sudoku-numpad-btn" data-num="5">5</button>
+                    <button class="sudoku-numpad-btn" data-num="6">6</button>
+                    <button class="sudoku-numpad-btn" data-num="7">7</button>
+                    <button class="sudoku-numpad-btn" data-num="8">8</button>
+                    <button class="sudoku-numpad-btn" data-num="9">9</button>
+                </div>
+
+                <!-- Bottom Auxiliary Buttons -->
+                <div style="display: flex; gap: 1rem; width: 100%;">
+                    <button id="sudoku-pause-btn" class="ttt-action-btn">
+                        <i class="fa-solid fa-pause"></i> Pause
+                    </button>
+                    <button id="sudoku-new-game-btn" class="ttt-action-btn">
+                        <i class="fa-solid fa-plus"></i> New Game
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= AVIATOR VIEW ================= -->
+        <section id="view-aviator" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-plane text-danger"></i>
+                    <span>Aviator</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button class="in-game-deposit-btn open-payment-gateway-btn">
+                        <i class="fa-solid fa-wallet"></i> Add Cash
+                    </button>
+                    <button class="nav-btn return-home-btn">
+                        <i class="fa-solid fa-arrow-left"></i> Change Game
+                    </button>
+                </div>
+            </div>
+
+            <div class="aviator-wrapper">
+                <!-- Recent Multipliers Bar -->
+                <div id="aviator-history-chips" class="aviator-history-bar">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Flight Stage & Community Feed Grid -->
+                <div class="aviator-main-layout">
+                    
+                    <!-- Left: Canvas Flight Arena + Dual Bet Panels -->
+                    <div>
+                        <div class="aviator-stage">
+                            <canvas id="aviator-canvas"></canvas>
+                            <div id="aviator-multiplier" class="aviator-multiplier-val waiting">1.00x</div>
+                            <div id="aviator-status-banner" class="aviator-status-banner waiting"></div>
+                        </div>
+
+                        <!-- Dual Bet Panels (Authentic Aviator feature!) -->
+                        <div class="aviator-panels-container">
+                            
+                            <!-- Bet Panel 1 -->
+                            <div class="aviator-bet-panel">
+                                <div class="panel-header">
+                                    <span class="panel-title"><i class="fa-solid fa-ticket"></i> Bet Panel 1</span>
+                                    <label class="auto-cashout-toggle">
+                                        <input type="checkbox" id="aviator-auto-check-1">
+                                        Auto Cash:
+                                        <input type="number" id="aviator-auto-val-1" value="2.00" step="0.10" min="1.05" disabled>
+                                    </label>
+                                </div>
+                                <div class="bet-input-action-row">
+                                    <div class="bet-stepper">
+                                        <input type="number" id="aviator-bet-amount-1" class="bet-amount-input" value="10" min="1">
+                                        <div class="bet-quick-buttons">
+                                            <button class="aviator-quick-1" data-action="1">$1</button>
+                                            <button class="aviator-quick-1" data-action="5">$5</button>
+                                            <button class="aviator-quick-1" data-action="10">$10</button>
+                                            <button class="aviator-quick-1" data-action="25">$25</button>
+                                            <button class="aviator-quick-1" data-action="50">$50</button>
+                                            <button class="aviator-quick-1" data-action="100">$100</button>
+                                            <button class="aviator-quick-1" data-action="half">½</button>
+                                            <button class="aviator-quick-1" data-action="2x">2×</button>
+                                        </div>
+                                    </div>
+                                    <button id="aviator-action-btn-1" class="aviator-btn bet-btn">
+                                        <span>BET</span>
+                                        <small>$10.00</small>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Bet Panel 2 -->
+                            <div class="aviator-bet-panel">
+                                <div class="panel-header">
+                                    <span class="panel-title"><i class="fa-solid fa-ticket"></i> Bet Panel 2</span>
+                                    <label class="auto-cashout-toggle">
+                                        <input type="checkbox" id="aviator-auto-check-2">
+                                        Auto Cash:
+                                        <input type="number" id="aviator-auto-val-2" value="1.50" step="0.10" min="1.05" disabled>
+                                    </label>
+                                </div>
+                                <div class="bet-input-action-row">
+                                    <div class="bet-stepper">
+                                        <input type="number" id="aviator-bet-amount-2" class="bet-amount-input" value="20" min="1">
+                                        <div class="bet-quick-buttons">
+                                            <button class="aviator-quick-2" data-action="1">$1</button>
+                                            <button class="aviator-quick-2" data-action="5">$5</button>
+                                            <button class="aviator-quick-2" data-action="10">$10</button>
+                                            <button class="aviator-quick-2" data-action="25">$25</button>
+                                            <button class="aviator-quick-2" data-action="50">$50</button>
+                                            <button class="aviator-quick-2" data-action="100">$100</button>
+                                            <button class="aviator-quick-2" data-action="half">½</button>
+                                            <button class="aviator-quick-2" data-action="2x">2×</button>
+                                        </div>
+                                    </div>
+                                    <button id="aviator-action-btn-2" class="aviator-btn bet-btn">
+                                        <span>BET</span>
+                                        <small>$20.00</small>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Right: Simulated Live Players Table -->
+                    <div class="aviator-live-sidebar">
+                        <div class="sidebar-title">
+                            <i class="fa-solid fa-satellite-dish"></i> Live Community Bets
+                        </div>
+                        <div id="aviator-sim-bets" class="sim-bets-table">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                        <div style="display:flex; gap:0.5rem; margin-top: auto;">
+                            <button id="aviator-open-gateway-btn" class="in-game-deposit-btn" style="flex:1; justify-content:center; padding:0.65rem; border-radius:var(--radius-md);">
+                                <i class="fa-solid fa-credit-card"></i> Deposit Cash
+                            </button>
+                            <button id="aviator-refill-btn" class="ttt-action-btn" style="width: auto; padding:0.65rem 0.85rem;" title="Quick +$500">
+                                <i class="fa-solid fa-coins"></i> +$500
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= 2048 VIEW ================= -->
+        <section id="view-game2048" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-cube text-warning"></i>
+                    <span>2048</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="g2048-wrapper">
+                <!-- Header & Scores -->
+                <div class="g2048-header-row">
+                    <button id="g2048-undo-btn" class="nav-btn">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Undo
+                    </button>
+                    <div class="g2048-scores-box">
+                        <div class="g2048-score-chip">
+                            <div class="g2048-score-label">Score</div>
+                            <div id="g2048-score" class="g2048-score-val">0</div>
+                        </div>
+                        <div class="g2048-score-chip">
+                            <div class="g2048-score-label">Best</div>
+                            <div id="g2048-best-score" class="g2048-score-val">0</div>
+                        </div>
+                    </div>
+                    <button id="g2048-restart-btn" class="nav-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+
+                <!-- 4x4 Grid Board -->
+                <div id="g2048-board" class="g2048-board-container">
+                    <div id="g2048-grid" class="g2048-grid">
+                        <!-- Generated via JS -->
+                    </div>
+
+                    <!-- Overlay for Game Over -->
+                    <div id="g2048-overlay" class="g2048-overlay">
+                        <div id="g2048-overlay-title" class="g2048-overlay-title">Game Over!</div>
+                        <button id="g2048-overlay-btn" class="ttt-action-btn" style="width: 180px;">
+                            <i class="fa-solid fa-rotate-right"></i> Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Touch D-Pad for Mobile Comfort -->
+                <div class="g2048-dpad">
+                    <div class="dpad-row">
+                        <button class="dpad-btn" data-dir="up"><i class="fa-solid fa-chevron-up"></i></button>
+                    </div>
+                    <div class="dpad-row">
+                        <button class="dpad-btn" data-dir="left"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="dpad-btn" data-dir="down"><i class="fa-solid fa-chevron-down"></i></button>
+                        <button class="dpad-btn" data-dir="right"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MINESWEEPER VIEW ================= -->
+        <section id="view-minesweeper" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-crosshairs text-success"></i>
+                    <span>Minesweeper</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="ms-wrapper">
+                <!-- Meta Bar -->
+                <div class="ms-meta-bar">
+                    <div class="ms-display-panel">
+                        <div class="ms-counter-box mines">
+                            <i class="fa-solid fa-bomb"></i>
+                            <span id="ms-mines-count">10</span>
+                        </div>
+                    </div>
+
+                    <button id="ms-face-btn" class="ms-face-btn" title="Restart">
+                        <i class="fa-solid fa-face-smile"></i>
+                    </button>
+
+                    <div class="ms-display-panel">
+                        <div class="ms-counter-box timer">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            <span id="ms-timer">00:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Minefield Board -->
+                <div class="ms-board-container">
+                    <div id="ms-grid" class="ms-grid">
+                        <!-- Generated via JS -->
+                    </div>
+                </div>
+
+                <!-- Tools & Controls -->
+                <div class="ms-tools-row">
+                    <div class="ttt-diff-wrapper">
+                        <label for="ms-diff-select">Sector:</label>
+                        <select id="ms-diff-select" class="ttt-select">
+                            <option value="easy" selected>Alpha (8x8 • 10 Mines)</option>
+                            <option value="medium">Beta (12x12 • 22 Mines)</option>
+                            <option value="hard">Omega (14x14 • 38 Mines)</option>
+                        </select>
+                    </div>
+
+                    <button id="ms-flag-mode-btn" class="ms-tool-btn">
+                        <i class="fa-solid fa-flag"></i> Flag Mode
+                    </button>
+
+                    <button id="ms-new-game-btn" class="ms-tool-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SNAKE VIEW ================= -->
+        <section id="view-snake" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-worm text-accent"></i>
+                    <span>Snake</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="snake-wrapper">
+                <!-- Header Scorebar -->
+                <div class="snake-header-bar">
+                    <div class="snake-score-pill current">
+                        <i class="fa-solid fa-bolt"></i> Score: <span id="snake-score">0</span>
+                    </div>
+                    <div class="snake-score-pill best">
+                        <i class="fa-solid fa-trophy"></i> Best: <span id="snake-best-score">0</span>
+                    </div>
+                </div>
+
+                <!-- Canvas Arena -->
+                <div class="snake-stage">
+                    <canvas id="snake-canvas"></canvas>
+
+                    <!-- Overlay for Game Over -->
+                    <div id="snake-overlay" class="snake-overlay">
+                        <div class="snake-overlay-title">SYSTEM HALTED</div>
+                        <div id="snake-overlay-score" class="snake-overlay-score">Score: 0</div>
+                        <button id="snake-overlay-btn" class="ttt-action-btn" style="width: 180px;">
+                            <i class="fa-solid fa-rotate-right"></i> Reboot
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Options Bar -->
+                <div class="snake-options-bar">
+                    <div class="snake-opt-group">
+                        <label for="snake-speed-select">Speed:</label>
+                        <select id="snake-speed-select" class="ttt-select">
+                            <option value="slow">Casual</option>
+                            <option value="normal" selected>Arcade</option>
+                            <option value="turbo">Hyperspeed</option>
+                        </select>
+                    </div>
+
+                    <div class="snake-opt-group">
+                        <label for="snake-wall-select">Boundary:</label>
+                        <select id="snake-wall-select" class="ttt-select">
+                            <option value="wrap" selected>Portal Wrap</option>
+                            <option value="solid">Solid Walls</option>
+                        </select>
+                    </div>
+
+                    <button id="snake-pause-btn" class="nav-btn">
+                        <i class="fa-solid fa-pause"></i> Pause
+                    </button>
+                    <button id="snake-restart-btn" class="nav-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Reset
+                    </button>
+                </div>
+
+                <!-- Virtual D-Pad for Mobile -->
+                <div class="snake-dpad">
+                    <div class="dpad-row">
+                        <button class="dpad-btn snake-dpad-btn" data-dir="up"><i class="fa-solid fa-chevron-up"></i></button>
+                    </div>
+                    <div class="dpad-row">
+                        <button class="dpad-btn snake-dpad-btn" data-dir="left"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="dpad-btn snake-dpad-btn" data-dir="down"><i class="fa-solid fa-chevron-down"></i></button>
+                        <button class="dpad-btn snake-dpad-btn" data-dir="right"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= COLOR PREDICTION VIEW ================= -->
+        <section id="view-colorselector" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-dice text-accent"></i>
+                    <span>Color Prediction (Win Go)</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button class="in-game-deposit-btn open-payment-gateway-btn">
+                        <i class="fa-solid fa-wallet"></i> Add Cash
+                    </button>
+                    <button class="nav-btn return-home-btn">
+                        <i class="fa-solid fa-arrow-left"></i> Change Game
+                    </button>
+                </div>
+            </div>
+
+            <div class="cp-wrapper">
+                <!-- Meta Bar: Period ID & Countdown Timer -->
+                <div class="cp-meta-bar">
+                    <div class="cp-period-chip">
+                        <i class="fa-solid fa-hashtag text-accent"></i>
+                        <span>Period:</span>
+                        <strong id="cp-period-val" class="cp-period-val">#20261113001</strong>
+                    </div>
+
+                    <button id="cp-open-gateway-btn" class="in-game-deposit-btn" style="border-radius:var(--radius-sm); padding:0.35rem 0.75rem;">
+                        <i class="fa-solid fa-bolt"></i> Quick Deposit
+                    </button>
+
+                    <div class="cp-timer-box">
+                        <span class="cp-timer-label"><i class="fa-regular fa-clock"></i> Time Left:</span>
+                        <span id="cp-timer-clock" class="cp-timer-clock">00:30</span>
+                    </div>
+                </div>
+
+                <!-- History Dots Ribbon -->
+                <div id="cp-history-bar" class="cp-history-bar">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <!-- Central Reveal Stage -->
+                <div class="cp-stage">
+                    <span id="cp-stage-status" class="cp-stage-status">Betting Open</span>
+                    
+                    <div class="cp-reveal-display">
+                        <div id="cp-reveal-orb" class="cp-reveal-orb">?</div>
+                        <div id="cp-result-banner" class="cp-result-banner">Waiting for countdown...</div>
+                    </div>
+
+                    <div class="cp-pool-bar">
+                        <div class="cp-pool-item green">
+                            <span class="cp-dot green"></span>
+                            <span>Green Pool: <strong id="cp-pool-green">$12,500</strong></span>
+                        </div>
+                        <div class="cp-pool-item violet">
+                            <span class="cp-dot violet"></span>
+                            <span>Violet Pool: <strong id="cp-pool-violet">$3,400</strong></span>
+                        </div>
+                        <div class="cp-pool-item red">
+                            <span class="cp-dot red"></span>
+                            <span>Red Pool: <strong id="cp-pool-red">$14,200</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- 5s Lock Overlay -->
+                    <div id="cp-lock-overlay" class="cp-lock-overlay">
+                        <span class="cp-lock-label"><i class="fa-solid fa-lock"></i> BETTING LOCKED</span>
+                        <span id="cp-lock-countdown" class="cp-lock-countdown">5</span>
+                    </div>
+                </div>
+
+                <!-- Betting Controls Card -->
+                <div class="cp-bet-container">
+                    
+                    <!-- 3 Primary Colors -->
+                    <div class="cp-colors-row">
+                        <button class="cp-btn-color cp-btn-green selected" data-color="green">
+                            <span><i class="fa-solid fa-circle-check"></i> Join Green</span>
+                            <span class="multi">2.0x Payout (1, 3, 7, 9)</span>
+                        </button>
+                        <button class="cp-btn-color cp-btn-violet" data-color="violet">
+                            <span><i class="fa-solid fa-gem"></i> Join Violet</span>
+                            <span class="multi">4.5x Payout (0, 5)</span>
+                        </button>
+                        <button class="cp-btn-color cp-btn-red" data-color="red">
+                            <span><i class="fa-solid fa-fire"></i> Join Red</span>
+                            <span class="multi">2.0x Payout (2, 4, 6, 8)</span>
+                        </button>
+                    </div>
+
+                    <!-- 10 Direct Numbers (9x Multiplier!) -->
+                    <div class="cp-numbers-grid">
+                        <button class="cp-btn-num num-split-red" data-num="0">
+                            <span>0</span>
+                            <span class="num-badge">9x • 🔴🟣</span>
+                        </button>
+                        <button class="cp-btn-num num-green" data-num="1">
+                            <span>1</span>
+                            <span class="num-badge">9x • 🟢</span>
+                        </button>
+                        <button class="cp-btn-num num-red" data-num="2">
+                            <span>2</span>
+                            <span class="num-badge">9x • 🔴</span>
+                        </button>
+                        <button class="cp-btn-num num-green" data-num="3">
+                            <span>3</span>
+                            <span class="num-badge">9x • 🟢</span>
+                        </button>
+                        <button class="cp-btn-num num-red" data-num="4">
+                            <span>4</span>
+                            <span class="num-badge">9x • 🔴</span>
+                        </button>
+                        <button class="cp-btn-num num-split-green" data-num="5">
+                            <span>5</span>
+                            <span class="num-badge">9x • 🟢🟣</span>
+                        </button>
+                        <button class="cp-btn-num num-red" data-num="6">
+                            <span>6</span>
+                            <span class="num-badge">9x • 🔴</span>
+                        </button>
+                        <button class="cp-btn-num num-green" data-num="7">
+                            <span>7</span>
+                            <span class="num-badge">9x • 🟢</span>
+                        </button>
+                        <button class="cp-btn-num num-red" data-num="8">
+                            <span>8</span>
+                            <span class="num-badge">9x • 🔴</span>
+                        </button>
+                        <button class="cp-btn-num num-green" data-num="9">
+                            <span>9</span>
+                            <span class="num-badge">9x • 🟢</span>
+                        </button>
+                    </div>
+
+                    <!-- Big / Small 2x -->
+                    <div class="cp-size-row">
+                        <button class="cp-btn-size" data-size="big">
+                            <span>BIG (5 - 9)</span>
+                            <small>2.0x Payout</small>
+                        </button>
+                        <button class="cp-btn-size" data-size="small">
+                            <span>SMALL (0 - 4)</span>
+                            <small>2.0x Payout</small>
+                        </button>
+                    </div>
+
+                    <!-- Bet Config: Chips & Action Button -->
+                    <div class="cp-config-box">
+                        <div class="cp-chips-row">
+                            <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Amount:</span>
+                            <button class="cp-chip-btn" data-val="5">$5</button>
+                            <button class="cp-chip-btn active" data-val="10">$10</button>
+                            <button class="cp-chip-btn" data-val="50">$50</button>
+                            <button class="cp-chip-btn" data-val="100">$100</button>
+                            <button class="cp-chip-btn" data-val="500">$500</button>
+                        </div>
+
+                        <div class="cp-action-row">
+                            <div id="cp-bet-summary" class="cp-bet-summary">
+                                Bet: <strong>GREEN</strong> (2.0x) • Amount: <strong>$10</strong>
+                            </div>
+                            <button id="cp-confirm-btn" class="cp-confirm-btn">
+                                <i class="fa-solid fa-check"></i> Confirm Bet
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tabs: Live Community Bets, My Bets, Parity Record -->
+                <div class="cp-tabs-section">
+                    <div class="cp-tabs-header">
+                        <button class="cp-tab-btn active" data-tab="community">
+                            <i class="fa-solid fa-users"></i> Live Community Bets
+                        </button>
+                        <button class="cp-tab-btn" data-tab="mybets">
+                            <i class="fa-solid fa-ticket"></i> My Bets
+                        </button>
+                        <button class="cp-tab-btn" data-tab="parity">
+                            <i class="fa-solid fa-chart-line"></i> Parity History
+                        </button>
+                    </div>
+
+                    <!-- Tab 1: Live Community Bets -->
+                    <div id="cp-tab-community" class="cp-tab-pane active">
+                        <div id="cp-live-list" class="cp-live-list">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: My Bets -->
+                    <div id="cp-tab-mybets" class="cp-tab-pane">
+                        <table id="cp-my-bets-table" class="cp-table">
+                            <!-- Populated dynamically via JS -->
+                        </table>
+                    </div>
+
+                    <!-- Tab 3: Parity History -->
+                    <div id="cp-tab-parity" class="cp-tab-pane">
+                        <table id="cp-parity-table" class="cp-table">
+                            <!-- Populated dynamically via JS -->
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= ROCKET LAUNCH VIEW (CRASH MULTIPLIER) ================= -->
+        <section id="view-rocket" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-rocket" style="color:#8b5cf6;"></i>
+                    <span>Rocket Launch (Space Crash)</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="rocket-wrapper">
+                <!-- History Ribbon -->
+                <div class="rocket-history-bar" id="rocket-history-chips"></div>
+
+                <div class="rocket-main-layout">
+                    <!-- Left: Flight Stage & Dual Bet Panels -->
+                    <div>
+                        <div class="rocket-stage">
+                            <canvas id="rocket-canvas"></canvas>
+                            <div class="rocket-overlay-info">
+                                <div id="rocket-multiplier" class="rocket-multiplier-val">1.00x</div>
+                            </div>
+                            <div id="rocket-status-banner" class="rocket-status-banner">Next launch in 5.0s</div>
+                        </div>
+
+                        <!-- Dual Bet Panels -->
+                        <div class="rocket-panels-container">
+                            <!-- Panel 1 -->
+                            <div class="rocket-bet-panel">
+                                <div class="rocket-panel-header">
+                                    <span style="font-weight:700;">Bet 1 (Primary)</span>
+                                    <div class="rocket-auto-toggle">
+                                        <input type="checkbox" id="rocket-auto-check-1">
+                                        <label for="rocket-auto-check-1">Auto Cashout</label>
+                                        <input type="number" id="rocket-auto-val-1" value="2.00" step="0.1" min="1.05" class="rocket-auto-input" disabled>
+                                    </div>
+                                </div>
+                                <div class="rocket-input-row">
+                                    <div class="rocket-input-wrap">
+                                        <span class="rocket-curr-sym">$</span>
+                                        <input type="number" id="rocket-bet-amount-1" value="10" min="1" class="rocket-number-input">
+                                    </div>
+                                    <button id="rocket-action-btn-1" class="rocket-btn bet-btn">BET $10</button>
+                                </div>
+                                <div class="rocket-quick-amounts">
+                                    <button class="rocket-quick-btn rocket-quick-1" data-action="5">$5</button>
+                                    <button class="rocket-quick-btn rocket-quick-1" data-action="10">$10</button>
+                                    <button class="rocket-quick-btn rocket-quick-1" data-action="25">$25</button>
+                                    <button class="rocket-quick-btn rocket-quick-1" data-action="50">$50</button>
+                                    <button class="rocket-quick-btn rocket-quick-1" data-action="2x">2x</button>
+                                </div>
+                            </div>
+
+                            <!-- Panel 2 -->
+                            <div class="rocket-bet-panel">
+                                <div class="rocket-panel-header">
+                                    <span style="font-weight:700;">Bet 2 (Secondary)</span>
+                                    <div class="rocket-auto-toggle">
+                                        <input type="checkbox" id="rocket-auto-check-2">
+                                        <label for="rocket-auto-check-2">Auto Cashout</label>
+                                        <input type="number" id="rocket-auto-val-2" value="1.50" step="0.1" min="1.05" class="rocket-auto-input" disabled>
+                                    </div>
+                                </div>
+                                <div class="rocket-input-row">
+                                    <div class="rocket-input-wrap">
+                                        <span class="rocket-curr-sym">$</span>
+                                        <input type="number" id="rocket-bet-amount-2" value="20" min="1" class="rocket-number-input">
+                                    </div>
+                                    <button id="rocket-action-btn-2" class="rocket-btn bet-btn">BET $20</button>
+                                </div>
+                                <div class="rocket-quick-amounts">
+                                    <button class="rocket-quick-btn rocket-quick-2" data-action="5">$5</button>
+                                    <button class="rocket-quick-btn rocket-quick-2" data-action="10">$10</button>
+                                    <button class="rocket-quick-btn rocket-quick-2" data-action="20">$20</button>
+                                    <button class="rocket-quick-btn rocket-quick-2" data-action="100">$100</button>
+                                    <button class="rocket-quick-btn rocket-quick-2" data-action="2x">2x</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Community Pilots Feed -->
+                    <div class="rocket-side-card">
+                        <div class="rocket-side-title">
+                            <i class="fa-solid fa-users" style="color:var(--color-accent);"></i>
+                            <span>Live Flight Crew</span>
+                        </div>
+                        <div id="rocket-sim-bets" class="rocket-bets-list"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= CONNECT FOUR VIEW (LIKE TIC-TAC-TOE) ================= -->
+        <section id="view-connect4" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-circle-nodes" style="color:#3b82f6;"></i>
+                    <span>Connect Four (4-in-a-Row)</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="c4-wrapper">
+                <!-- Mode & Settings -->
+                <div class="c4-controls">
+                    <div class="c4-mode-switch">
+                        <button class="c4-mode-btn active" data-mode="ai">
+                            <i class="fa-solid fa-robot"></i> vs AI
+                        </button>
+                        <button class="c4-mode-btn" data-mode="pvp">
+                            <i class="fa-solid fa-user-group"></i> 2 Players
+                        </button>
+                    </div>
+
+                    <div id="c4-diff-wrapper" class="c4-diff-wrapper">
+                        <label for="c4-diff-select">AI Level:</label>
+                        <select id="c4-diff-select" class="c4-select">
+                            <option value="easy">Casual</option>
+                            <option value="medium" selected>Challenging</option>
+                            <option value="master">Master (Minimax)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Scoreboard -->
+                <div class="c4-scoreboard">
+                    <div class="c4-score-card">
+                        <span class="c4-score-label red"><i class="fa-solid fa-circle"></i> Player 1 (Red)</span>
+                        <span id="c4-score-p1" class="c4-score-val">0</span>
+                    </div>
+                    <div class="c4-score-card">
+                        <span class="c4-score-label"><i class="fa-solid fa-handshake"></i> Draws</span>
+                        <span id="c4-score-ties" class="c4-score-val">0</span>
+                    </div>
+                    <div class="c4-score-card">
+                        <span id="c4-p2-label" class="c4-score-label yellow"><i class="fa-solid fa-circle"></i> AI (Yellow)</span>
+                        <span id="c4-score-p2" class="c4-score-val">0</span>
+                    </div>
+                </div>
+
+                <!-- 7x6 Board Grid -->
+                <div class="c4-board-container">
+                    <div class="c4-drop-row">
+                        <button class="c4-col-drop-btn" onclick="window.c4Instance && window.c4Instance.handleColumnClick(0)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="c4-col-drop-btn" onclick="window.c4Instance && window.c4Instance.handleColumnClick(1)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="c4-col-drop-btn" onclick="window.c4Instance && window.c4Instance.handleColumnClick(2)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="c4-col-drop-btn" onclick="window.c4Instance && window.c4Instance.handleColumnClick(3)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="c4-col-drop-btn" onclick="window.c4Instance && window.c4Instance.handleColumnClick(4)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="c4-col-drop-btn" onclick="window.c4Instance && window.c4Instance.handleColumnClick(5)"><i class="fa-solid fa-arrow-down"></i></button>
+                        <button class="c4-col-drop-btn" onclick="window.c4Instance && window.c4Instance.handleColumnClick(6)"><i class="fa-solid fa-arrow-down"></i></button>
+                    </div>
+                    <div id="c4-grid" class="c4-grid"></div>
+                </div>
+
+                <!-- Status & Action Row -->
+                <div class="c4-actions-bar">
+                    <div class="c4-status-box">
+                        <span id="c4-status-text">Your turn (Red) - Click any column to drop</span>
+                    </div>
+                    <button id="c4-reset-btn" class="action-btn secondary-btn">
+                        <i class="fa-solid fa-rotate-right"></i> Reset Match
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PLINKO MULTIPLIER VIEW ================= -->
+        <section id="view-plinko" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-network-wired" style="color:#f59e0b;"></i>
+                    <span>Plinko Multiplier Drop</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="plinko-wrapper">
+                <div class="plinko-main-layout">
+                    <!-- Left: Pyramid Canvas & Bottom Buckets -->
+                    <div class="plinko-stage-box">
+                        <div class="plinko-stage">
+                            <canvas id="plinko-canvas"></canvas>
+                        </div>
+                        <div id="plinko-buckets-row" class="plinko-buckets-row"></div>
+                    </div>
+
+                    <!-- Right: Betting & Controls Panel -->
+                    <div class="plinko-panel">
+                        <div class="plinko-panel-title">
+                            <i class="fa-solid fa-sliders"></i> Drop Controls
+                        </div>
+
+                        <!-- Risk Selector -->
+                        <div class="plinko-field">
+                            <label for="plinko-risk-select">Volatility / Risk:</label>
+                            <select id="plinko-risk-select" class="plinko-select">
+                                <option value="low">Low (Up to 5.6x)</option>
+                                <option value="medium" selected>Medium (Up to 13x)</option>
+                                <option value="high">High (Up to 29x)</option>
+                            </select>
+                        </div>
+
+                        <!-- Bet Input -->
+                        <div class="plinko-field">
+                            <label for="plinko-bet-input">Bet Per Ball ($):</label>
+                            <div class="plinko-input-wrap">
+                                <span>$</span>
+                                <input type="number" id="plinko-bet-input" value="10" min="1" step="1">
+                            </div>
+                        </div>
+
+                        <!-- Quick Chips -->
+                        <div class="plinko-chips-grid">
+                            <button class="plinko-chip-btn" data-amount="5">$5</button>
+                            <button class="plinko-chip-btn active" data-amount="10">$10</button>
+                            <button class="plinko-chip-btn" data-amount="25">$25</button>
+                            <button class="plinko-chip-btn" data-amount="50">$50</button>
+                        </div>
+
+                        <!-- Drop Action Button -->
+                        <button id="plinko-drop-btn" class="plinko-drop-btn">
+                            <i class="fa-solid fa-circle-down"></i> DROP BALL
+                        </button>
+
+                        <div class="plinko-hint">
+                            <i class="fa-solid fa-circle-info"></i> Each ball bounces down 8 rows of pins into multiplier bins up to 29x your stake.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= MEMORY MATCH VIEW ================= -->
+        <section id="view-memory" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-brain" style="color:#06b6d4;"></i>
+                    <span>Memory Match (4x4 Matrix)</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="memory-wrapper">
+                <!-- Stats Bar -->
+                <div class="memory-stats-bar">
+                    <div class="memory-stat-pill">
+                        <i class="fa-solid fa-shoe-prints"></i>
+                        <span>Moves:</span>
+                        <strong id="memory-moves">0</strong>
+                    </div>
+                    <div class="memory-stat-pill">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>Time:</span>
+                        <strong id="memory-time">00:00</strong>
+                    </div>
+                    <button id="memory-reset-btn" class="action-btn secondary-btn" style="padding:0.4rem 0.8rem; font-size:0.85rem;">
+                        <i class="fa-solid fa-rotate-right"></i> Restart
+                    </button>
+                </div>
+
+                <!-- 4x4 Grid -->
+                <div id="memory-grid" class="memory-grid"></div>
+            </div>
+        </section>
+
+        <!-- ================= WORDLE MASTER VIEW ================= -->
+        <section id="view-wordle" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-spell-check" style="color:#10b981;"></i>
+                    <span>Wordle Master (5-Letter Logic)</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="wordle-wrapper">
+                <!-- Stats Header -->
+                <div class="wordle-meta-bar">
+                    <div class="wordle-stats-group">
+                        <div class="wordle-stat-item">Played: <strong id="wordle-played">0</strong></div>
+                        <div class="wordle-stat-item">Win Rate: <strong id="wordle-winpct">0%</strong></div>
+                        <div class="wordle-stat-item">Streak: <strong id="wordle-streak">0</strong></div>
+                    </div>
+                    <button id="btn-wordle-new" class="action-btn secondary-btn">
+                        <i class="fa-solid fa-plus"></i> New Word
+                    </button>
+                </div>
+
+                <!-- Status Feedback -->
+                <div id="wordle-status-msg" class="wordle-status-box">
+                    Guess the 5-letter hidden word!
+                </div>
+
+                <!-- 6x5 Board -->
+                <div id="wordle-board" class="wordle-board"></div>
+
+                <!-- Virtual Keyboard -->
+                <div id="wordle-keyboard" class="wordle-keyboard"></div>
+            </div>
+        </section>
+
+        <!-- ================= ROULETTE ROYALE VIEW (LIVE MULTIPLAYER) ================= -->
+        <section id="view-roulette" class="app-view">
+            <div class="game-header-bar">
+                <div class="game-header-title">
+                    <i class="fa-solid fa-dharmachakra" style="color:#ef4444;"></i>
+                    <span>Roulette Royale (Live Multiplayer)</span>
+                </div>
+                <button class="nav-btn return-home-btn">
+                    <i class="fa-solid fa-arrow-left"></i> Change Game
+                </button>
+            </div>
+
+            <div class="roulette-wrapper">
+                <!-- Meta Bar: Period & Countdown -->
+                <div class="roulette-meta-bar">
+                    <div class="roulette-period-chip">
+                        <i class="fa-solid fa-users" style="color:var(--color-accent);"></i>
+                        <span>Live Table:</span>
+                        <strong id="roulette-period" class="roulette-period-val">#ROU1001</strong>
+                    </div>
+
+                    <!-- Result Display -->
+                    <div class="roulette-result-pill">
+                        <span>Winning Pocket:</span>
+                        <span id="roulette-result-num" class="roulette-result-num zero">0</span>
+                        <small id="roulette-result-desc" style="color:var(--text-muted);">GREEN ZERO</small>
+                    </div>
+
+                    <!-- Timer -->
+                    <div class="roulette-timer-box">
+                        <span class="roulette-timer-label">Spin In:</span>
+                        <span id="roulette-timer" class="roulette-timer-clock">00:25</span>
+                    </div>
+                </div>
+
+                <!-- Recent Pockets Ribbon -->
+                <div class="roulette-history-bar" id="roulette-history-chips"></div>
+
+                <!-- Main Layout -->
+                <div class="roulette-main-layout">
+                    <!-- Left: Wheel Canvas & Betting Board -->
+                    <div class="roulette-stage-box">
+                        <!-- Canvas Wheel -->
+                        <div class="roulette-wheel-container">
+                            <div class="roulette-pointer"></div>
+                            <canvas id="roulette-canvas"></canvas>
+                        </div>
+
+                        <!-- Betting Board -->
+                        <div class="roulette-board">
+                            <!-- Top Row: Green Zero & Numbers -->
+                            <div class="roulette-board-top">
+                                <!-- Green 0 Pocket (36x return, beats all outside bets) -->
+                                <button class="roulette-zero-cell" data-num="0">
+                                    <span>0</span>
+                                    <small>36x</small>
+                                </button>
+
+                                <!-- 36 Numbers Grid -->
+                                <div class="roulette-numbers-grid">
+                                    <!-- Row 3: 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36 -->
+                                    <button class="roulette-num-cell red" data-num="3">3</button>
+                                    <button class="roulette-num-cell black" data-num="6">6</button>
+                                    <button class="roulette-num-cell red" data-num="9">9</button>
+                                    <button class="roulette-num-cell red" data-num="12">12</button>
+                                    <button class="roulette-num-cell black" data-num="15">15</button>
+                                    <button class="roulette-num-cell red" data-num="18">18</button>
+                                    <button class="roulette-num-cell red" data-num="21">21</button>
+                                    <button class="roulette-num-cell black" data-num="24">24</button>
+                                    <button class="roulette-num-cell red" data-num="27">27</button>
+                                    <button class="roulette-num-cell red" data-num="30">30</button>
+                                    <button class="roulette-num-cell black" data-num="33">33</button>
+                                    <button class="roulette-num-cell red" data-num="36">36</button>
+
+                                    <!-- Row 2: 2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35 -->
+                                    <button class="roulette-num-cell black" data-num="2">2</button>
+                                    <button class="roulette-num-cell red" data-num="5">5</button>
+                                    <button class="roulette-num-cell black" data-num="8">8</button>
+                                    <button class="roulette-num-cell black" data-num="11">11</button>
+                                    <button class="roulette-num-cell red" data-num="14">14</button>
+                                    <button class="roulette-num-cell black" data-num="17">17</button>
+                                    <button class="roulette-num-cell black" data-num="20">20</button>
+                                    <button class="roulette-num-cell red" data-num="23">23</button>
+                                    <button class="roulette-num-cell black" data-num="26">26</button>
+                                    <button class="roulette-num-cell black" data-num="29">29</button>
+                                    <button class="roulette-num-cell red" data-num="32">32</button>
+                                    <button class="roulette-num-cell black" data-num="35">35</button>
+
+                                    <!-- Row 1: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34 -->
+                                    <button class="roulette-num-cell red" data-num="1">1</button>
+                                    <button class="roulette-num-cell black" data-num="4">4</button>
+                                    <button class="roulette-num-cell red" data-num="7">7</button>
+                                    <button class="roulette-num-cell black" data-num="10">10</button>
+                                    <button class="roulette-num-cell black" data-num="13">13</button>
+                                    <button class="roulette-num-cell red" data-num="16">16</button>
+                                    <button class="roulette-num-cell red" data-num="19">19</button>
+                                    <button class="roulette-num-cell black" data-num="22">22</button>
+                                    <button class="roulette-num-cell red" data-num="25">25</button>
+                                    <button class="roulette-num-cell black" data-num="28">28</button>
+                                    <button class="roulette-num-cell black" data-num="31">31</button>
+                                    <button class="roulette-num-cell red" data-num="34">34</button>
+                                </div>
+                            </div>
+
+                            <!-- Dozens Row (3x) -->
+                            <div class="roulette-outside-row">
+                                <button class="roulette-outside-btn" data-type="dozen" data-val="1">
+                                    <span>1st 12 (1 - 12)</span>
+                                    <small>3.0x Payout</small>
+                                </button>
+                                <button class="roulette-outside-btn" data-type="dozen" data-val="2">
+                                    <span>2nd 12 (13 - 24)</span>
+                                    <small>3.0x Payout</small>
+                                </button>
+                                <button class="roulette-outside-btn" data-type="dozen" data-val="3">
+                                    <span>3rd 12 (25 - 36)</span>
+                                    <small>3.0x Payout</small>
+                                </button>
+                            </div>
+
+                            <!-- Outside 2x Bets: Low/High, Even/Odd, Red/Black -->
+                            <div class="roulette-outside-row" style="grid-template-columns: repeat(6, 1fr);">
+                                <button class="roulette-outside-btn" data-type="range" data-val="low">
+                                    <span>1-18</span>
+                                    <small>2x</small>
+                                </button>
+                                <button class="roulette-outside-btn" data-type="parity" data-val="even">
+                                    <span>EVEN</span>
+                                    <small>2x</small>
+                                </button>
+                                <button class="roulette-outside-btn bet-red" data-type="color" data-val="red">
+                                    <span>RED</span>
+                                    <small>2x</small>
+                                </button>
+                                <button class="roulette-outside-btn bet-black" data-type="color" data-val="black">
+                                    <span>BLACK</span>
+                                    <small>2x</small>
+                                </button>
+                                <button class="roulette-outside-btn" data-type="parity" data-val="odd">
+                                    <span>ODD</span>
+                                    <small>2x</small>
+                                </button>
+                                <button class="roulette-outside-btn" data-type="range" data-val="high">
+                                    <span>19-36</span>
+                                    <small>2x</small>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Action Bar: Chips & Clear -->
+                        <div class="roulette-action-bar">
+                            <div class="roulette-chips-row">
+                                <span style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">Chip:</span>
+                                <button class="roulette-chip-selector" data-val="5">$5</button>
+                                <button class="roulette-chip-selector active" data-val="10">$10</button>
+                                <button class="roulette-chip-selector" data-val="25">$25</button>
+                                <button class="roulette-chip-selector" data-val="50">$50</button>
+                                <button class="roulette-chip-selector" data-val="100">$100</button>
+                            </div>
+
+                            <div style="display:flex; align-items:center; gap:0.75rem;">
+                                <span id="roulette-bet-summary" style="font-size:0.85rem; font-weight:700; color:var(--text-secondary);">Total Staked: $0</span>
+                                <button id="roulette-clear-btn" class="action-btn secondary-btn" style="padding:0.4rem 0.85rem; font-size:0.8rem;">
+                                    <i class="fa-solid fa-trash-can"></i> Clear
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Lock Bets Overlay -->
+                        <div id="roulette-lock-overlay" class="roulette-lock-overlay">
+                            <i class="fa-solid fa-lock" style="font-size:2rem; color:var(--color-warning);"></i>
+                            <div style="font-family:var(--font-display); font-size:2.8rem; font-weight:800; color:#fff;" id="roulette-lock-sec">5</div>
+                            <div style="font-size:0.95rem; font-weight:800; text-transform:uppercase; color:var(--color-warning); letter-spacing:1px;">No More Bets • Wheel Spinning</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live Community Players Feed -->
+                    <div class="roulette-side-card">
+                        <div class="roulette-side-title">
+                            <i class="fa-solid fa-users" style="color:var(--color-accent);"></i>
+                            <span>Live Table Players</span>
+                        </div>
+                        <div id="roulette-sim-bets" class="roulette-bets-list"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Payment Gateway & Cashier Modal -->
+    <div id="payment-gateway-modal" class="pg-modal-overlay">
+        <div class="pg-card">
+            <!-- Header -->
+            <div class="pg-header">
+                <div class="pg-brand">
+                    <div class="pg-brand-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <div class="pg-brand-title">Arcade Pay</div>
+                        <div class="pg-security-badge"><i class="fa-solid fa-lock"></i> 256-Bit SSL Encrypted</div>
+                    </div>
+                </div>
+                <button id="pg-close-btn" class="pg-close-btn" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="pg-tabs-bar">
+                <button class="pg-tab-btn active" data-tab="deposit"><i class="fa-solid fa-circle-plus"></i> Add Cash</button>
+                <button class="pg-tab-btn" data-tab="withdraw"><i class="fa-solid fa-money-bill-transfer"></i> Withdraw</button>
+                <button class="pg-tab-btn" data-tab="transactions"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+                <button class="pg-tab-btn" data-tab="settings"><i class="fa-solid fa-gear"></i> Gateway API</button>
+            </div>
+
+            <div class="pg-body">
+                <!-- Balance Banner -->
+                <div class="pg-balance-banner">
+                    <div>
+                        <div class="pg-bal-label">Current Arcade Balance</div>
+                        <div id="pg-balance-val" class="pg-bal-val">$1,000.00</div>
+                    </div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-align:right;">
+                        Instant Wallet Credit<br>Zero Processing Fee
+                    </div>
+                </div>
+
+                <!-- Tab 1: Deposit View -->
+                <div id="pg-tab-deposit" class="pg-tab-pane active">
+                    <div id="pg-deposit-view" style="display: flex; flex-direction: column; gap: 1.1rem;">
+                        <!-- Amount Selector -->
+                        <div>
+                            <div class="pg-section-label">
+                                <span>Select Deposit Amount</span>
+                                <span style="font-size:0.75rem; color:var(--color-success); font-weight:700;">+10% Bonus on $50+</span>
+                            </div>
+                            <div class="pg-amount-grid">
+                                <button class="pg-amt-btn" data-amount="10">$10<small>Min</small></button>
+                                <button class="pg-amt-btn" data-amount="25">$25<small>Quick</small></button>
+                                <button class="pg-amt-btn active" data-amount="50">$50<small>Popular</small></button>
+                                <button class="pg-amt-btn" data-amount="100">$100<small>+Bonus</small></button>
+                                <button class="pg-amt-btn" data-amount="250">$250<small>High Roller</small></button>
+                                <button class="pg-amt-btn" data-amount="500">$500<small>VIP</small></button>
+                            </div>
+                        </div>
+
+                        <!-- Custom Amount -->
+                        <div class="pg-input-box">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <input type="number" id="pg-custom-amt" class="pg-input" placeholder="Or enter custom amount (e.g. 75)" min="5">
+                        </div>
+
+                        <!-- Payment Method Selection -->
+                        <div>
+                            <div class="pg-section-label">Select Payment Gateway / Method</div>
+                            <div class="pg-methods-grid">
+                                <div class="pg-method-card active" data-method="upi">
+                                   <div class="pg-method-icon upi"><i class="fa-solid fa-qrcode"></i></div>
+                                   <div class="pg-method-info">
+                                       <span class="pg-method-title">Instant UPI & QR</span>
+                                       <span class="pg-method-sub">GPay, PhonePe, Paytm</span>
+                                   </div>
+                               </div>
+                               <div class="pg-method-card" data-method="card">
+                                   <div class="pg-method-icon card"><i class="fa-solid fa-credit-card"></i></div>
+                                   <div class="pg-method-info">
+                                       <span class="pg-method-title">Cards (Debit / Credit)</span>
+                                       <span class="pg-method-sub">Visa, Mastercard, RuPay</span>
+                                   </div>
+                               </div>
+                               <div class="pg-method-card" data-method="bank">
+                                   <div class="pg-method-icon bank"><i class="fa-solid fa-building-columns"></i></div>
+                                   <div class="pg-method-info">
+                                       <span class="pg-method-title">Net Banking</span>
+                                       <span class="pg-method-sub">SBI, HDFC, ICICI, Axis</span>
+                                   </div>
+                               </div>
+                               <div class="pg-method-card" data-method="crypto">
+                                   <div class="pg-method-icon crypto"><i class="fa-brands fa-bitcoin"></i></div>
+                                   <div class="pg-method-info">
+                                       <span class="pg-method-title">Crypto (USDT / BTC)</span>
+                                       <span class="pg-method-sub">TRC-20, Web3</span>
+                                   </div>
+                               </div>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Details Panel (UPI QR / Card Form / Bank / Crypto) -->
+                        <div id="pg-details-panel" class="pg-details-panel"></div>
+
+                        <!-- Pay Action Button -->
+                        <button id="pg-pay-btn" class="pg-pay-btn">
+                            <i class="fa-solid fa-lock"></i>
+                            <span>Pay $50.00 Securely</span>
+                        </button>
+                    </div>
+
+                    <!-- Processing Screen -->
+                    <div id="pg-processing-view" class="pg-processing-view">
+                        <div class="pg-spinner"></div>
+                        <div id="pg-proc-title" class="pg-proc-title">Connecting to Payment Gateway...</div>
+                        <div id="pg-proc-desc" class="pg-proc-desc">Authorizing transaction with secure banking server...</div>
+                    </div>
+
+                    <!-- Receipt Screen -->
+                    <div id="pg-receipt-view" class="pg-receipt-view">
+                        <div class="pg-receipt-icon"><i class="fa-solid fa-check"></i></div>
+                        <div class="pg-receipt-amount" id="pg-receipt-amt">+$50.00</div>
+                        <div style="font-weight:700; color:var(--color-success);">Funds Added Successfully!</div>
+                        <div class="pg-receipt-table">
+                            <div class="pg-receipt-row"><span>Transaction ID:</span> <strong id="pg-receipt-txn">TXN_984124</strong></div>
+                            <div class="pg-receipt-row"><span>Payment Method:</span> <strong id="pg-receipt-method">UPI Gateway</strong></div>
+                            <div class="pg-receipt-row"><span>Timestamp:</span> <strong id="pg-receipt-time">Just Now</strong></div>
+                            <div class="pg-receipt-row"><span>Status:</span> <strong style="color:var(--color-success)">VERIFIED & SETTLED</strong></div>
+                        </div>
+                        <button id="pg-return-btn" class="action-btn primary-btn" style="width:100%;">
+                            <i class="fa-solid fa-gamepad"></i> Return to Game & Play
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Withdraw View -->
+                <div id="pg-tab-withdraw" class="pg-tab-pane">
+                    <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+                        Request an instant payout directly to your bank account, UPI VPA, or Crypto wallet.
+                    </div>
+                    <div class="pg-input-box">
+                        <i class="fa-solid fa-dollar-sign"></i>
+                        <input type="number" id="pg-withdraw-amt" class="pg-input" placeholder="Withdrawal Amount ($)" min="10">
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">Payout Method:</label>
+                        <select id="pg-withdraw-method" class="pg-input" style="background:var(--bg-input); border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-md);">
+                            <option value="UPI">UPI (Google Pay / PhonePe / Paytm)</option>
+                            <option value="Bank Transfer">Bank Transfer (NEFT / IMPS)</option>
+                            <option value="USDT (TRC-20)">Crypto USDT (TRC-20)</option>
+                        </select>
+                    </div>
+                    <div class="pg-input-box">
+                        <i class="fa-solid fa-address-card"></i>
+                        <input type="text" id="pg-withdraw-dest" class="pg-input" placeholder="Enter UPI ID (e.g. name@okhdfcbank) or Account #">
+                    </div>
+                    <button id="pg-withdraw-btn" class="pg-pay-btn" style="background:var(--color-accent);">
+                        <i class="fa-solid fa-arrow-up-from-bracket"></i> Request Payout
+                    </button>
+                </div>
+
+                <!-- Tab 3: Transactions History -->
+                <div id="pg-tab-transactions" class="pg-tab-pane">
+                    <div id="pg-history-list" class="pg-history-list"></div>
+                </div>
+
+                <!-- Tab 4: Developer Gateway Settings -->
+                <div id="pg-tab-settings" class="pg-tab-pane">
+                    <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">
+                        Configure a real payment gateway (Razorpay / Stripe) or use the built-in Sandbox Simulator:
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">Gateway Mode:</label>
+                        <select id="pg-setting-mode" class="pg-input" style="background:var(--bg-input); border:1px solid var(--border-color); padding:0.6rem; border-radius:var(--radius-md);">
+                            <option value="simulator">Interactive Sandbox Gateway Simulator (Recommended for Testing)</option>
+                            <option value="razorpay">Razorpay Live / Test API (Requires Key)</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                        <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary);">Razorpay Key ID (optional):</label>
+                        <div class="pg-input-box">
+                            <i class="fa-solid fa-key"></i>
+                            <input type="text" id="pg-setting-rzp-key" class="pg-input" placeholder="rzp_test_YourKeyHere">
+                        </div>
+                    </div>
+                    <button id="pg-save-settings-btn" class="action-btn secondary-btn" style="width:100%;">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Gateway Configuration
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/wallet.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/tictactoe.js"></script>
+    <script src="js/sudoku.js"></script>
+    <script src="js/aviator.js"></script>
+    <script src="js/rocket.js"></script>
+    <script src="js/colorselector.js"></script>
+    <script src="js/plinko.js"></script>
+    <script src="js/connect4.js"></script>
+    <script src="js/game2048.js"></script>
+    <script src="js/minesweeper.js"></script>
+    <script src="js/snake.js"></script>
+    <script src="js/memory.js"></script>
+    <script src="js/wordle.js"></script>
+    <script src="js/roulette.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,233 @@
+/* Minesweeper Styling */
+
+.ms-wrapper {
+    max-width: 560px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+/* Header & Status Bar */
+.ms-meta-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.2rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.ms-display-panel {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ms-counter-box {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.ms-counter-box.mines {
+    color: var(--color-danger);
+}
+
+.ms-counter-box.timer {
+    color: var(--color-accent);
+}
+
+.ms-face-btn {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--color-warning);
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    box-shadow: var(--card-shadow);
+}
+
+.ms-face-btn:hover {
+    transform: scale(1.08);
+    border-color: var(--border-hover);
+}
+
+/* Minefield Board */
+.ms-board-container {
+    position: relative;
+    width: min(94vw, 480px);
+    aspect-ratio: 1;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: clamp(6px, 2vw, 10px);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.ms-grid {
+    display: grid;
+    width: 100%;
+    height: 100%;
+    gap: 2px;
+}
+
+.ms-cell {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 0.1s;
+    position: relative;
+}
+
+.ms-cell:hover:not(.revealed) {
+    background: var(--bg-surface-hover);
+    border-color: var(--border-hover);
+}
+
+.ms-cell.revealed {
+    background: var(--bg-input);
+    border-color: var(--border-subtle);
+    cursor: default;
+}
+
+/* Clean, crisp numbers without fuzzy drop shadows */
+.ms-cell[data-num="1"] { color: #2563eb; }
+.ms-cell[data-num="2"] { color: #059669; }
+.ms-cell[data-num="3"] { color: #dc2626; }
+.ms-cell[data-num="4"] { color: #7c3aed; }
+.ms-cell[data-num="5"] { color: #b45309; }
+.ms-cell[data-num="6"] { color: #0891b2; }
+.ms-cell[data-num="7"] { color: var(--text-primary); }
+.ms-cell[data-num="8"] { color: #991b1b; }
+
+.ms-cell.flagged {
+    color: var(--color-danger);
+}
+
+.ms-cell.mine {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.ms-cell.detonated {
+    background: var(--color-danger);
+    color: #ffffff;
+}
+
+/* Tools & Flag Mode */
+.ms-tools-row {
+    width: 100%;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.ms-tool-btn {
+    flex: 1;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.7rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: all 0.15s;
+    box-shadow: var(--card-shadow);
+}
+
+.ms-tool-btn.active {
+    background: var(--bg-surface-elevated);
+    border-color: var(--color-danger);
+    color: var(--color-danger);
+}
+
+.ms-tool-btn:hover {
+    background: var(--bg-surface-elevated);
+    border-color: var(--border-hover);
+}
+
+@media (max-width: 480px) {
+    .ms-wrapper {
+        gap: 0.9rem;
+    }
+    .ms-meta-bar {
+        padding: 0.6rem 0.8rem;
+    }
+    .ms-counter-box {
+        font-size: 1rem;
+        padding: 0.3rem 0.6rem;
+    }
+    .ms-face-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1.15rem;
+    }
+    .ms-tools-row {
+        gap: 0.5rem;
+    }
+    .ms-tool-btn {
+        font-size: 0.8rem;
+        padding: 0.55rem 0.6rem;
+        min-height: 42px;
+    }
+}
+
+@media (max-width: 375px) {
+    .ms-board-container {
+        width: min(94vw, 300px);
+        padding: 4px;
+    }
+    .ms-grid {
+        gap: 1.5px;
+    }
+    .ms-tools-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .ms-tools-row .ttt-diff-wrapper {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .ms-tools-row .ttt-select {
+        flex: 1;
+        max-width: 200px;
+    }
+    .ms-tool-btn {
+        flex: 1;
+    }
+}

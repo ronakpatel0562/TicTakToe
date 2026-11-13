@@ -1,0 +1,371 @@
+/* Rocket Launch (Space Crash Multiplier Game) */
+
+.rocket-wrapper {
+    max-width: 1040px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+/* History Ribbon */
+.rocket-history-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+}
+
+.rocket-history-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.rocket-chip {
+    flex-shrink: 0;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    animation: slideIn 0.2s ease-out;
+}
+
+.rocket-chip.low { color: var(--color-accent); }
+.rocket-chip.mid { color: #8b5cf6; border-color: rgba(139, 92, 246, 0.4); }
+.rocket-chip.high { color: var(--color-warning); border-color: rgba(245, 158, 11, 0.4); }
+
+/* Main Stage */
+.rocket-stage {
+    position: relative;
+    width: 100%;
+    height: clamp(240px, 42vh, 380px);
+    background: #060913;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+#rocket-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Overlay & Multiplier */
+.rocket-overlay-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    pointer-events: none;
+    text-align: center;
+}
+
+.rocket-multiplier-val {
+    font-family: var(--font-display);
+    font-size: clamp(3.2rem, 8vw, 5.5rem);
+    font-weight: 800;
+    color: #ffffff;
+    pointer-events: none;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    transition: color 0.3s;
+    user-select: none;
+}
+
+.rocket-multiplier-val.crashed {
+    color: var(--color-danger);
+    animation: shake 0.4s ease-in-out;
+}
+
+.rocket-status-banner {
+    position: absolute;
+    bottom: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Dual Bet Panels Grid */
+.rocket-panels-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.rocket-bet-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    box-shadow: var(--card-shadow);
+}
+
+.rocket-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.rocket-auto-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.rocket-auto-toggle input[type="checkbox"] {
+    accent-color: var(--color-success);
+    cursor: pointer;
+}
+
+.rocket-auto-input {
+    width: 60px;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 700;
+    outline: none;
+    text-align: center;
+}
+
+.rocket-auto-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Input Row & Stepper */
+.rocket-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.rocket-input-wrap {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0 0.75rem;
+}
+
+.rocket-curr-sym {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+.rocket-number-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    padding: 0.55rem 0.4rem;
+    text-align: center;
+}
+
+/* Quick Bets Grid */
+.rocket-quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+}
+
+.rocket-quick-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.35rem 0;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+}
+
+.rocket-quick-btn:hover {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+.rocket-btn {
+    width: 100%;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+
+.rocket-btn.bet-btn {
+    background: var(--color-success);
+    color: #ffffff;
+}
+
+.rocket-btn.bet-btn:hover { background: #059669; }
+
+.rocket-btn.cashout-btn {
+    background: var(--color-warning);
+    color: #000000;
+    animation: pulse 1s infinite;
+}
+
+.rocket-btn.waiting-btn {
+    background: var(--bg-surface-elevated);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* Layout with Community Bets Sidebar */
+.rocket-main-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.2rem;
+}
+
+.rocket-side-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    box-shadow: var(--card-shadow);
+    height: 100%;
+}
+
+.rocket-side-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+}
+
+.rocket-bets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    overflow-y: auto;
+    max-height: 420px;
+}
+
+
+@media (max-width: 860px) {
+    .rocket-main-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .rocket-panels-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .rocket-stage {
+        height: clamp(210px, 36vh, 280px);
+    }
+    .rocket-input-row {
+        grid-template-columns: 1fr;
+        gap: 0.65rem;
+    }
+    .rocket-btn {
+        min-height: 48px;
+        padding: 0.65rem;
+        font-size: 1.15rem;
+    }
+    .rocket-quick-btn {
+        padding: 0.45rem 0;
+        font-size: 0.8rem;
+    }
+    .rocket-side-card {
+        padding: 0.85rem;
+    }
+    .rocket-bets-list {
+        max-height: 240px;
+    }
+}
+
+@media (max-width: 375px) {
+    .rocket-multiplier-val {
+        font-size: 3rem;
+    }
+    .rocket-panel {
+        padding: 0.85rem;
+    }
+}
+
+/* Home Card Preview */
+.rocket-preview-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+.rocket-preview-rocket {
+    font-size: 2.8rem;
+    color: #8b5cf6;
+    transform: rotate(-45deg);
+    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+}
+.rocket-preview-multiplier {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #a855f7;
+}
+

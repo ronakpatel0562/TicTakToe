@@ -1,0 +1,285 @@
+/* Connect Four (4-in-a-Row — Classic Grid Strategy like Tic-Tac-Toe) */
+
+.c4-wrapper {
+    max-width: 540px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+/* Controls & Modes */
+.c4-controls {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    padding: 0.85rem 1.2rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+}
+
+.c4-mode-switch {
+    display: flex;
+    background: var(--bg-surface-elevated);
+    padding: 3px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.c4-mode-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.4rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.c4-mode-btn.active {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.c4-diff-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.c4-diff-wrapper label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.c4-select {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-family: var(--font-main);
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Scoreboard */
+
+.c4-scoreboard {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.8rem;
+}
+
+.c4-score-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.6rem;
+    text-align: center;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.2s;
+}
+
+.c4-score-card.active-turn {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+.c4-score-card.p1 { border-top: 3px solid #ef4444; }
+.c4-score-card.ties { border-top: 3px solid var(--text-muted); }
+.c4-score-card.p2 { border-top: 3px solid #f59e0b; }
+
+.c4-score-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.c4-score-val {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+/* 7x6 Grid Board */
+.c4-board-container {
+    width: min(94vw, 460px);
+    background: #1e3a8a;
+    border: 4px solid #172554;
+    border-radius: var(--radius-xl);
+    padding: clamp(8px, 2vw, 14px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
+    user-select: none;
+    touch-action: manipulation;
+}
+
+.c4-drop-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: clamp(4px, 1.2vw, 8px);
+    margin-bottom: 8px;
+}
+
+.c4-col-drop-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    padding: 6px 0;
+    color: #ffffff;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.c4-col-drop-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(2px);
+}
+
+.c4-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    gap: clamp(4px, 1.2vw, 8px);
+    aspect-ratio: 7 / 6;
+}
+
+.c4-slot {
+    position: relative;
+    background: var(--bg-page);
+    border-radius: 50%;
+    aspect-ratio: 1;
+    cursor: pointer;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    transition: background 0.1s;
+}
+
+.c4-disc {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: discDrop 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+}
+
+@keyframes discDrop {
+    0% { transform: translateY(-300%); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+.c4-disc.red {
+    background: #ef4444;
+    border: 2px solid #dc2626;
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 3px 0 rgba(255, 255, 255, 0.25);
+}
+
+.c4-disc.yellow {
+    background: #f59e0b;
+    border: 2px solid #d97706;
+    box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2), inset 0 3px 0 rgba(255, 255, 255, 0.25);
+}
+
+.c4-disc.win-disc {
+    animation: c4Pulse 0.6s infinite alternate;
+    box-shadow: 0 0 15px #ffffff, inset 0 0 8px #ffffff;
+}
+
+@keyframes c4Pulse {
+    from { transform: scale(0.92); }
+    to { transform: scale(1.08); }
+}
+
+/* Turn / Status Action Bar */
+.c4-actions-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.2rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    gap: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.c4-status-box {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
+/* Home Card Preview */
+.c4-preview-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4px;
+    padding: 8px;
+    background: #1e3a8a;
+    border-radius: 8px;
+}
+
+.c4-preview-circle {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg-page);
+}
+
+.c4-preview-circle.r { background: #ef4444; }
+.c4-preview-circle.y { background: #f59e0b; }
+
+@media (max-width: 480px) {
+    .c4-controls { padding: 0.65rem 0.8rem; }
+    .c4-mode-btn { padding: 0.35rem 0.6rem; font-size: 0.78rem; }
+    .c4-score-card { padding: 0.55rem 0.3rem; }
+    .c4-score-val { font-size: 1.25rem; }
+    .c4-board-container { padding: 6px; }
+}
+
+@media (max-width: 375px) {
+    .c4-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    .c4-diff-wrapper {
+        justify-content: space-between;
+    }
+    .c4-board-container {
+        width: 100%;
+        padding: 4px;
+    }
+    .c4-grid-matrix {
+        gap: 3px;
+    }
+}
+

@@ -1,0 +1,685 @@
+/* Payment Gateway & Cashier Styling */
+
+.pg-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.pg-modal-overlay.active {
+    display: flex;
+}
+
+.pg-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.pg-header {
+    padding: 1.25rem 1.4rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-surface-elevated);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.pg-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.pg-brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--color-success);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.pg-brand-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.pg-security-badge {
+    font-size: 0.72rem;
+    color: var(--color-success);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    padding: 0.2rem 0.55rem;
+    border-radius: 12px;
+}
+
+.pg-close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+
+.pg-close-btn:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+}
+
+/* Navigation Tabs */
+.pg-tabs-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-surface);
+}
+
+.pg-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 0.85rem 0.5rem;
+    font-family: var(--font-main);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    transition: all 0.15s;
+    border-bottom: 2px solid transparent;
+}
+
+.pg-tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.pg-tab-btn.active {
+    color: var(--color-accent);
+    border-bottom-color: var(--color-accent);
+    background: var(--bg-surface-elevated);
+}
+
+/* Body Content */
+.pg-body {
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.pg-tab-pane {
+    display: none;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.pg-tab-pane.active {
+    display: flex;
+}
+
+/* Balance Banner */
+.pg-balance-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.1rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.pg-bal-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.pg-bal-val {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--color-success);
+}
+
+/* Amount Selector Grid */
+.pg-section-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.pg-amount-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+}
+
+.pg-amt-btn {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.5rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    touch-action: manipulation;
+}
+
+.pg-amt-btn small {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--color-warning);
+}
+
+.pg-amt-btn:hover {
+    border-color: var(--color-accent);
+}
+
+.pg-amt-btn.active {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+}
+
+.pg-amt-btn.active small {
+    color: #ffffff;
+    opacity: 0.9;
+}
+
+/* Custom Amount Input */
+.pg-input-box {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.85rem;
+    gap: 0.5rem;
+}
+
+.pg-input-box i {
+    color: var(--text-muted);
+}
+
+.pg-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-primary);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    width: 100%;
+}
+
+/* Payment Method Cards */
+.pg-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+}
+
+.pg-method-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+
+.pg-method-card:hover {
+    border-color: var(--border-hover);
+}
+
+.pg-method-card.active {
+    border-color: var(--color-accent);
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.pg-method-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+}
+
+.pg-method-icon.upi { color: #10b981; }
+.pg-method-icon.card { color: #3b82f6; }
+.pg-method-icon.bank { color: #f59e0b; }
+.pg-method-icon.crypto { color: #ec4899; }
+
+.pg-method-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.pg-method-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.pg-method-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+/* Dynamic Details Container (UPI QR, Card Inputs, Bank Select, Crypto) */
+.pg-details-panel {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* UPI QR Section */
+.pg-upi-qr-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.65rem;
+    text-align: center;
+}
+
+.pg-qr-frame {
+    width: 150px;
+    height: 150px;
+    background: #ffffff;
+    border-radius: var(--radius-md);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.pg-qr-frame img, .pg-qr-frame svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.pg-upi-id-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.pg-copy-btn {
+    background: transparent;
+    border: none;
+    color: var(--color-accent);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.pg-copy-btn:hover {
+    background: var(--bg-surface-elevated);
+}
+
+/* Card Inputs Row */
+.pg-card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.pg-form-row {
+    display: flex;
+    gap: 0.6rem;
+}
+
+/* Action Checkout Button */
+.pg-pay-btn {
+    background: var(--color-success);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.95rem;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+
+.pg-pay-btn:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-1px);
+}
+
+.pg-pay-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Processing Overlay */
+.pg-processing-view {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    gap: 1.2rem;
+}
+
+.pg-processing-view.active {
+    display: flex;
+}
+
+.pg-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--color-accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.pg-proc-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.pg-proc-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Success Receipt Screen */
+.pg-receipt-view {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.4rem;
+    text-align: center;
+    gap: 1.1rem;
+}
+
+.pg-receipt-view.active {
+    display: flex;
+}
+
+.pg-receipt-icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.15);
+    border: 2px solid var(--color-success);
+    color: var(--color-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pg-receipt-amount {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.pg-receipt-table {
+    width: 100%;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.pg-receipt-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text-secondary);
+}
+
+.pg-receipt-row strong {
+    color: var(--text-primary);
+}
+
+/* Transactions Ledger Table */
+.pg-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.pg-txn-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 0.95rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+}
+
+.pg-txn-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pg-txn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+}
+
+.pg-txn-icon.deposit {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--color-success);
+}
+
+.pg-txn-icon.withdraw {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--color-danger);
+}
+
+.pg-txn-desc {
+    display: flex;
+    flex-direction: column;
+}
+
+.pg-txn-title {
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.pg-txn-time {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.pg-txn-right {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.pg-txn-amount {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.pg-txn-amount.pos { color: var(--color-success); }
+.pg-txn-amount.neg { color: var(--color-danger); }
+
+.pg-txn-status {
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--color-success);
+}
+
+/* In-game Deposit Trigger Buttons */
+.in-game-deposit-btn {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid var(--color-success);
+    color: var(--color-success);
+    padding: 0.35rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+
+.in-game-deposit-btn:hover {
+    background: var(--color-success);
+    color: #ffffff;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .pg-card {
+        max-height: 94vh;
+        border-radius: var(--radius-lg);
+    }
+    .pg-header {
+        padding: 1rem 1.1rem;
+    }
+    .pg-body {
+        padding: 1.1rem;
+        gap: 1rem;
+    }
+    .pg-amount-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.45rem;
+    }
+    .pg-amt-btn {
+        padding: 0.65rem 0.35rem;
+        font-size: 1.05rem;
+    }
+    .pg-methods-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    .pg-tab-btn {
+        padding: 0.75rem 0.35rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .pg-amount-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .pg-brand-title {
+        font-size: 1rem;
+    }
+    .pg-security-badge {
+        display: none;
+    }
+    .pg-upi-id-row {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.6rem;
+    }
+}
+

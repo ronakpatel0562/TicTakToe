@@ -1,0 +1,321 @@
+/* Sudoku Styling */
+
+.sudoku-wrapper {
+    max-width: 580px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+/* Header & Meta Bar */
+.sudoku-meta-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.8rem 1.2rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.sudoku-diff-box {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.sudoku-stats-box {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.stat-item.mistakes {
+    color: var(--color-danger);
+}
+
+.stat-item.timer {
+    color: var(--color-accent);
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+}
+
+/* 9x9 Grid Container */
+.sudoku-board-container {
+    position: relative;
+    width: min(94vw, 460px);
+    height: min(94vw, 460px);
+    aspect-ratio: 1;
+    background: var(--bg-surface);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    padding: 1px;
+}
+
+.sudoku-grid {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    width: 100%;
+    height: 100%;
+}
+
+.sudoku-cell {
+    position: relative;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background: var(--bg-surface);
+    transition: background-color 0.1s;
+    user-select: none;
+}
+
+/* 3x3 Block Thicker Boundaries */
+.sudoku-cell.border-top-thick {
+    border-top: 2px solid var(--border-hover);
+}
+.sudoku-cell.border-left-thick {
+    border-left: 2px solid var(--border-hover);
+}
+
+/* Cell Value & Typography */
+.cell-value {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 4.5vw, 1.45rem);
+    font-weight: 700;
+}
+
+/* Clue vs User Entered */
+.sudoku-cell.clue .cell-value {
+    color: var(--text-primary);
+    font-weight: 800;
+}
+
+.sudoku-cell.user-digit .cell-value {
+    color: var(--color-accent);
+}
+
+.sudoku-cell.error .cell-value {
+    color: var(--color-danger);
+    animation: shake 0.35s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+.sudoku-cell.hinted {
+    background: var(--bg-surface-elevated) !important;
+}
+
+/* Highlighting Logic */
+.sudoku-cell.highlighted {
+    background: var(--bg-surface-elevated);
+}
+
+.sudoku-cell.same-digit {
+    background: var(--bg-surface-hover);
+}
+
+.sudoku-cell.selected {
+    background: var(--bg-surface-hover) !important;
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+    z-index: 2;
+}
+
+/* Notes Grid (3x3 inside a cell) */
+.cell-notes-grid {
+    display: none;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    pointer-events: none;
+}
+
+.note-item {
+    font-size: clamp(0.42rem, 1.8vw, 0.65rem);
+    font-weight: 600;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* Paused State */
+.sudoku-grid.board-paused .sudoku-cell {
+    filter: blur(8px);
+    pointer-events: none;
+}
+
+/* Controls Toolbars */
+.sudoku-actions-toolbar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: clamp(0.4rem, 1.5vw, 0.75rem);
+}
+
+.tool-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.75rem 0.5rem;
+    border-radius: var(--radius-md);
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s;
+    box-shadow: var(--card-shadow);
+}
+
+.tool-btn i {
+    font-size: 1.05rem;
+}
+
+.tool-btn:hover {
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+.tool-btn.active {
+    background: var(--bg-surface-elevated);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+/* Numpad Bar */
+.sudoku-numpad {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: clamp(3px, 1.2vw, 6px);
+}
+
+.sudoku-numpad-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: clamp(0.55rem, 2vw, 0.8rem) 0;
+    min-height: 44px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 4vw, 1.35rem);
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--card-shadow);
+}
+
+.sudoku-numpad-btn:hover {
+    background: var(--bg-surface-elevated);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+}
+
+.sudoku-numpad-btn:active {
+    transform: scale(0.95);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 500px) {
+    .sudoku-wrapper {
+        gap: 0.9rem;
+    }
+    .sudoku-meta-bar {
+        padding: 0.6rem 0.8rem;
+    }
+    .sudoku-stats-box {
+        gap: 0.75rem;
+    }
+    .stat-item {
+        font-size: 0.8rem;
+    }
+    .stat-item.timer {
+        font-size: 0.95rem;
+    }
+    .sudoku-actions-toolbar {
+        gap: 0.4rem;
+    }
+    .tool-btn {
+        padding: 0.55rem 0.3rem;
+        font-size: 0.75rem;
+        min-height: 44px;
+    }
+    .tool-btn i {
+        font-size: 0.95rem;
+    }
+    .sudoku-numpad {
+        gap: 3px;
+    }
+    .sudoku-numpad-btn {
+        min-height: 44px;
+        padding: 0.45rem 0;
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .sudoku-meta-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        padding: 0.5rem 0.65rem;
+    }
+    .sudoku-diff-box {
+        justify-content: space-between;
+    }
+    .sudoku-stats-box {
+        justify-content: space-between;
+    }
+    .sudoku-actions-toolbar {
+        gap: 0.3rem;
+    }
+    .tool-btn {
+        padding: 0.5rem 0.15rem;
+        font-size: 0.7rem;
+    }
+    .sudoku-numpad {
+        gap: 2px;
+    }
+    .sudoku-numpad-btn {
+        min-height: 42px;
+        font-size: 1.15rem;
+        border-radius: var(--radius-sm);
+    }
+}

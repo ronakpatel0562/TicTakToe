@@ -1,0 +1,175 @@
+/* Snake Styling */
+
+.snake-wrapper {
+    max-width: 500px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+/* Header & Scorebar */
+.snake-header-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.2rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.snake-score-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.snake-score-pill.current {
+    color: var(--color-success);
+}
+
+.snake-score-pill.best {
+    color: var(--color-warning);
+}
+
+.snake-score-pill span {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+/* Canvas Arena */
+.snake-stage {
+    position: relative;
+    width: min(94vw, 420px);
+    aspect-ratio: 1;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+    touch-action: none;
+}
+
+#snake-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Overlay for Game Over */
+.snake-overlay {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.2rem;
+    z-index: 10;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.snake-overlay.active {
+    display: flex;
+}
+
+.snake-overlay-title {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.snake-overlay-score {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Options Bar */
+.snake-options-bar {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.snake-opt-group {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+/* Virtual D-Pad for Mobile Touch */
+.snake-dpad {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin-top: 0.2rem;
+}
+
+@media (max-width: 650px) {
+    .snake-dpad {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .snake-wrapper {
+        gap: 0.9rem;
+    }
+    .snake-header-bar {
+        padding: 0.6rem 0.8rem;
+    }
+    .snake-score-pill span {
+        font-size: 1.15rem;
+    }
+    .snake-options-bar {
+        justify-content: center;
+        gap: 0.5rem;
+    }
+    .snake-dpad-btn {
+        width: 52px;
+        height: 44px;
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .snake-stage {
+        width: min(94vw, 300px);
+        height: min(94vw, 300px);
+    }
+    .snake-options-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .snake-opt-group {
+        justify-content: space-between;
+        width: 100%;
+    }
+    .snake-dpad-btn {
+        width: 48px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
