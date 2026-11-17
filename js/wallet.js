@@ -1,6 +1,12 @@
 // Wallet & Global Arcade State Management
+// Global Casino Configuration: 10% House Edge across all casino games
+window.HOUSE_EDGE = 0.10;
+window.HOUSE_RTP = 0.90;
+
 class ArcadeWallet {
     constructor() {
+        this.houseEdge = 0.10;
+        this.houseRtp = 0.90;
         this.balanceKey = 'arcade_balance';
         this.statsKey = 'arcade_stats';
         this.txnKey = 'arcade_transactions';
@@ -78,6 +84,12 @@ class ArcadeWallet {
                 won: 0,
                 bestTime: null
             },
+            mines: {
+                totalBets: 0,
+                totalWon: 0,
+                highestMultiplier: 1.00,
+                biggestWin: 0
+            },
             snake: {
                 highScore: 0,
                 totalFood: 0
@@ -86,12 +98,6 @@ class ArcadeWallet {
                 highScore: 0,
                 bestLevel: 0,
                 highestRank: 'Novice'
-            },
-            rocket: {
-                totalBets: 0,
-                totalWon: 0,
-                highestMultiplier: 1.00,
-                biggestWin: 0
             },
             connect4: {
                 played: 0,

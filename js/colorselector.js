@@ -1,4 +1,6 @@
-// Color Prediction Game (Win Go / Color Parity Live Multi-Person Betting)
+// Color Prediction Game (Win Go / Color Parity Live Multi-Person Betting Engine)
+// Authentic 10% House Edge (90% RTP) & Compact 2-Column Multiplayer Arena
+
 class ColorSelectorGame {
     constructor() {
         this.periodValEl = document.getElementById('cp-period-val');
@@ -10,15 +12,29 @@ class ColorSelectorGame {
         this.lockOverlayEl = document.getElementById('cp-lock-overlay');
         this.lockCountdownEl = document.getElementById('cp-lock-countdown');
         this.confirmBtn = document.getElementById('cp-confirm-btn');
+        this.doubleBtn = document.getElementById('cp-double-btn');
+        this.clearBtn = document.getElementById('cp-clear-btn');
         this.betSummaryEl = document.getElementById('cp-bet-summary');
+
+        // Winning result badge (matching Roulette)
+        this.lastWinBadgeEl = document.getElementById('cp-last-win-badge');
+        this.lastWinDescEl = document.getElementById('cp-last-win-desc');
+        this.winSplashEl = document.getElementById('cp-win-splash');
+        this.winSplashNumEl = document.getElementById('cp-win-splash-num');
+        this.winSplashDescEl = document.getElementById('cp-win-splash-desc');
+        this.winSplashPayoutEl = document.getElementById('cp-win-splash-payout');
 
         // Pools
         this.poolGreenEl = document.getElementById('cp-pool-green');
         this.poolVioletEl = document.getElementById('cp-pool-violet');
         this.poolRedEl = document.getElementById('cp-pool-red');
 
+        // Simulated Community Players (matching Roulette)
+        this.simBetsContainer = document.getElementById('cp-sim-bets');
+        this.sideTitleEl = document.querySelector('.cp-side-title');
+        this.simulatedBets = [];
+
         // Lists & Tables
-        this.liveListEl = document.getElementById('cp-live-list');
         this.myBetsTableEl = document.getElementById('cp-my-bets-table');
         this.parityTableEl = document.getElementById('cp-parity-table');
 
@@ -27,8 +43,6 @@ class ColorSelectorGame {
         this.numBtns = document.querySelectorAll('.cp-btn-num');
         this.sizeBtns = document.querySelectorAll('.cp-btn-size');
         this.chipBtns = document.querySelectorAll('.cp-chip-btn');
-        this.tabBtns = document.querySelectorAll('.cp-tab-btn');
-        this.tabPanes = document.querySelectorAll('.cp-tab-pane');
 
         // State
         this.period = this.initPeriod();
@@ -41,7 +55,6 @@ class ColorSelectorGame {
         this.activeUserBets = [];
         this.userBetHistory = [];
         this.history = [];
-        this.communityBets = [];
 
         // Pool amounts
         this.poolGreen = 12500;
@@ -78,6 +91,10 @@ class ColorSelectorGame {
                 size: num >= 5 ? 'Big' : 'Small'
             });
         }
+        if (this.history.length > 0) {
+            const last = this.history[0];
+            this.updateLastWinDisplay(last.num, last.color, last.size);
+        }
     }
 
     getColorForNum(num) {
@@ -87,12 +104,23 @@ class ColorSelectorGame {
         return 'red';
     }
 
+    updateLastWinDisplay(num, color, size) {
+        if (this.lastWinBadgeEl) {
+            this.lastWinBadgeEl.className = `cp-last-win-badge ${color}`;
+            this.lastWinBadgeEl.textContent = num;
+        }
+        if (this.lastWinDescEl) {
+            let colorName = color === 'split-red' ? 'RED+VIOLET' : (color === 'split-green' ? 'GREEN+VIOLET' : color.toUpperCase());
+            this.lastWinDescEl.textContent = `${colorName} • ${size.toUpperCase()}`;
+        }
+    }
+
     bindEvents() {
         // Color Betting
         this.colorBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (this.isLocked) return;
-                window.soundEngine.playClick();
+                if (window.soundEngine) window.soundEngine.playClick();
                 this.clearSelection();
                 btn.classList.add('selected');
                 this.selectedTarget = btn.dataset.color;
@@ -105,7 +133,7 @@ class ColorSelectorGame {
         this.numBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (this.isLocked) return;
-                window.soundEngine.playClick();
+                if (window.soundEngine) window.soundEngine.playClick();
                 this.clearSelection();
                 btn.classList.add('selected');
                 this.selectedTarget = `num_${btn.dataset.num}`;
@@ -118,7 +146,7 @@ class ColorSelectorGame {
         this.sizeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (this.isLocked) return;
-                window.soundEngine.playClick();
+                if (window.soundEngine) window.soundEngine.playClick();
                 this.clearSelection();
                 btn.classList.add('selected');
                 this.selectedTarget = btn.dataset.size;
@@ -130,13 +158,27 @@ class ColorSelectorGame {
         // Chip selection
         this.chipBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                window.soundEngine.playClick();
+                if (window.soundEngine) window.soundEngine.playClick();
                 this.chipBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.selectedAmount = parseInt(btn.dataset.val, 10);
                 this.updateBetSummary();
             });
         });
+
+        // 2x Double Button (matching Roulette)
+        if (this.doubleBtn) {
+            this.doubleBtn.addEventListener('click', () => {
+                this.doubleBets();
+            });
+        }
+
+        // Clear Button (matching Roulette)
+        if (this.clearBtn) {
+            this.clearBtn.addEventListener('click', () => {
+                this.clearBets();
+            });
+        }
 
         // Confirm Bet
         if (this.confirmBtn) {
@@ -145,20 +187,26 @@ class ColorSelectorGame {
             });
         }
 
-        // Tabs
-        this.tabBtns.forEach(btn => {
+        // Side card Sub-tabs (My Bets & Parity)
+        const subTabBtns = document.querySelectorAll('.cp-sub-tab-btn');
+        const subTabPanes = document.querySelectorAll('.cp-sub-tab-pane');
+        subTabBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                window.soundEngine.playClick();
-                const targetTab = btn.dataset.tab;
-
-                this.tabBtns.forEach(b => b.classList.remove('active'));
-                this.tabPanes.forEach(p => p.classList.remove('active'));
-
+                if (window.soundEngine) window.soundEngine.playClick();
+                subTabBtns.forEach(b => b.classList.remove('active'));
+                subTabPanes.forEach(p => p.classList.remove('active'));
                 btn.classList.add('active');
-                const pane = document.getElementById(`cp-tab-${targetTab}`);
-                if (pane) pane.classList.add('active');
+                const target = document.getElementById(`cp-tab-pane-${btn.dataset.tab}`);
+                if (target) target.classList.add('active');
             });
         });
+
+        // Dismiss Win Splash on click
+        if (this.winSplashEl) {
+            this.winSplashEl.addEventListener('click', () => {
+                this.winSplashEl.classList.remove('active');
+            });
+        }
 
         // Initial Selection
         if (this.colorBtns[0]) this.colorBtns[0].classList.add('selected');
@@ -180,14 +228,136 @@ class ColorSelectorGame {
             targetLabel = this.selectedTarget.toUpperCase();
             oddsLabel = this.selectedTarget === 'violet' ? '4.5x' : '2.0x';
         } else if (this.selectedTargetType === 'number') {
-            targetLabel = `NUMBER ${this.selectedTarget.replace('num_', '')}`;
+            targetLabel = `NUM ${this.selectedTarget.replace('num_', '')}`;
             oddsLabel = '9.0x';
         } else {
             targetLabel = this.selectedTarget.toUpperCase();
             oddsLabel = '2.0x';
         }
 
-        this.betSummaryEl.innerHTML = `Bet: <strong>${targetLabel}</strong> (${oddsLabel}) • Amount: <strong>$${this.selectedAmount}</strong>`;
+        const totalStaked = this.activeUserBets.reduce((sum, b) => sum + b.amount, 0);
+        const betCount = this.activeUserBets.length;
+
+        if (betCount > 0) {
+            this.betSummaryEl.innerHTML = `Selected: <strong>${targetLabel}</strong> (${oddsLabel}) &nbsp;|&nbsp; <span style="color:#f59e0b; font-weight:800;"><i class="fa-solid fa-coins"></i> Total Staked: $${totalStaked} (${betCount} Bet${betCount === 1 ? '' : 's'})</span>`;
+        } else {
+            this.betSummaryEl.innerHTML = `Bet: <strong>${targetLabel}</strong> (${oddsLabel}) • Amount: <strong>$${this.selectedAmount}</strong>`;
+        }
+    }
+
+    doubleBets() {
+        if (this.isLocked) {
+            if (window.showToast) window.showToast('Betting Locked', 'Wait for next round to modify bets!', 'warning');
+            return;
+        }
+
+        if (this.activeUserBets.length === 0) {
+            // Double the active chip selection if no bets placed yet
+            this.selectedAmount = Math.min(1000, this.selectedAmount * 2);
+            this.chipBtns.forEach(b => {
+                b.classList.toggle('active', parseInt(b.dataset.val, 10) === this.selectedAmount);
+            });
+            this.updateBetSummary();
+            if (window.soundEngine) window.soundEngine.playClick();
+            if (window.showToast) {
+                window.showToast('Chip Doubled 2×', `Chip amount doubled to $${this.selectedAmount}`, 'info');
+            }
+            return;
+        }
+
+        // Double all active bets on the board (matching Roulette)
+        const currentTotal = this.activeUserBets.reduce((sum, b) => sum + b.amount, 0);
+        if (!window.arcadeWallet || !window.arcadeWallet.deduct(currentTotal)) {
+            if (window.showToast) window.showToast('Insufficient Balance', `Need $${currentTotal} more to 2× double all active bets!`, 'warning');
+            if (window.paymentGateway) window.paymentGateway.open(currentTotal * 2);
+            return;
+        }
+
+        if (window.soundEngine) window.soundEngine.playClick();
+        this.activeUserBets.forEach(b => {
+            if (b.target === 'green') this.poolGreen += b.amount;
+            else if (b.target === 'red') this.poolRed += b.amount;
+            else if (b.target === 'violet') this.poolViolet += b.amount;
+            b.amount *= 2;
+        });
+
+        this.updatePoolsUI();
+        this.updateBetSummary();
+        this.renderBetBadges();
+        this.renderMyBetsTable();
+
+        if (window.showToast) {
+            window.showToast('Bets Doubled 2×', `All active bets doubled! Total stake: $${currentTotal * 2}`, 'success');
+        }
+    }
+
+    clearBets() {
+        if (this.isLocked) {
+            if (window.showToast) window.showToast('Betting Locked', 'Bets cannot be cleared after lock!', 'warning');
+            return;
+        }
+
+        if (this.activeUserBets.length === 0) {
+            if (window.showToast) window.showToast('No Bets', 'You have no active bets in this round to clear.', 'info');
+            return;
+        }
+
+        const refund = this.activeUserBets.reduce((sum, b) => sum + b.amount, 0);
+        if (window.arcadeWallet) window.arcadeWallet.add(refund);
+
+        this.activeUserBets.forEach(b => {
+            if (b.target === 'green') this.poolGreen = Math.max(0, this.poolGreen - b.amount);
+            else if (b.target === 'red') this.poolRed = Math.max(0, this.poolRed - b.amount);
+            else if (b.target === 'violet') this.poolViolet = Math.max(0, this.poolViolet - b.amount);
+        });
+        this.updatePoolsUI();
+
+        this.activeUserBets = [];
+        this.renderBetBadges();
+        this.updateBetSummary();
+        this.renderMyBetsTable();
+
+        if (window.soundEngine) window.soundEngine.playClick();
+        if (window.showToast) {
+            window.showToast('Bets Cleared', `Refunded $${refund} to your balance.`, 'info');
+        }
+    }
+
+    renderBetBadges() {
+        // Remove existing badges & active-bet classes
+        document.querySelectorAll('.cp-cell-badge').forEach(b => b.remove());
+        document.querySelectorAll('.cp-btn-color, .cp-btn-num, .cp-btn-size').forEach(el => {
+            el.classList.remove('has-active-bet');
+        });
+
+        if (!this.activeUserBets || this.activeUserBets.length === 0) return;
+
+        // Group active bets by target
+        const map = new Map();
+        this.activeUserBets.forEach(b => {
+            map.set(b.target, (map.get(b.target) || 0) + b.amount);
+        });
+
+        map.forEach((totalAmt, target) => {
+            let el = null;
+            if (target === 'green' || target === 'violet' || target === 'red') {
+                el = document.querySelector(`.cp-btn-color[data-color="${target}"]`);
+            } else if (target.startsWith('num_')) {
+                const num = target.replace('num_', '');
+                el = document.querySelector(`.cp-btn-num[data-num="${num}"]`);
+            } else if (target === 'big' || target === 'small') {
+                el = document.querySelector(`.cp-btn-size[data-size="${target}"]`);
+            }
+
+            if (el) {
+                el.classList.add('has-active-bet');
+                const badge = document.createElement('span');
+                badge.className = 'cp-cell-badge';
+                badge.dataset.target = target;
+                badge.textContent = `$${totalAmt}`;
+                el.appendChild(badge);
+            }
+        });
     }
 
     placeBet() {
@@ -204,7 +374,7 @@ class ColorSelectorGame {
             return;
         }
 
-        window.soundEngine.playClick();
+        if (window.soundEngine) window.soundEngine.playClick();
 
         const bet = {
             id: Date.now(),
@@ -222,22 +392,39 @@ class ColorSelectorGame {
         else if (this.selectedTarget === 'violet') this.poolViolet += this.selectedAmount;
         this.updatePoolsUI();
 
-        if (window.showToast) {
-            window.showToast('Bet Placed! 🎯', `Successfully placed $${this.selectedAmount} on ${this.selectedTarget.toUpperCase()} for Period #${this.period}`, 'success');
-        }
-
+        // Render visual badges & update summary
+        this.renderBetBadges();
+        this.updateBetSummary();
         this.renderMyBetsTable();
+
+        if (window.showToast) {
+            const displayTarget = this.selectedTarget.toUpperCase().replace('NUM_', 'NUM ');
+            window.showToast('Bet Placed! 🎯', `Placed $${this.selectedAmount} on ${displayTarget}`, 'success');
+        }
     }
 
     startRound() {
         this.timer = 30;
         this.isLocked = false;
         this.activeUserBets = [];
-        this.communityBets = [];
+        this.renderBetBadges();
+        this.updateBetSummary();
+        this.renderMyBetsTable();
+
+        // Clear winning highlight rings from previous round
+        document.querySelectorAll('.cp-winning-highlight').forEach(el => {
+            el.classList.remove('cp-winning-highlight');
+        });
+
+        if (this.winSplashEl) {
+            this.winSplashEl.classList.remove('active');
+        }
 
         if (this.periodValEl) this.periodValEl.textContent = `#${this.period}`;
         if (this.lockOverlayEl) this.lockOverlayEl.classList.remove('active');
         if (this.confirmBtn) this.confirmBtn.disabled = false;
+        if (this.clearBtn) this.clearBtn.disabled = false;
+        if (this.doubleBtn) this.doubleBtn.disabled = false;
         if (this.stageStatusEl) this.stageStatusEl.textContent = 'Betting Open';
         if (this.resultBannerEl) this.resultBannerEl.innerHTML = '<span style="color:var(--text-muted)">Waiting for countdown...</span>';
 
@@ -247,13 +434,13 @@ class ColorSelectorGame {
             this.revealOrbEl.textContent = '?';
         }
 
-        // Randomize initial pool bases
+        // Randomize initial pools
         this.poolGreen = Math.floor(10000 + Math.random() * 8000);
         this.poolViolet = Math.floor(2500 + Math.random() * 2500);
         this.poolRed = Math.floor(11000 + Math.random() * 8000);
         this.updatePoolsUI();
 
-        this.renderLiveCommunityList();
+        this.populateSimBets();
         this.renderMyBetsTable();
 
         if (this.timerInterval) clearInterval(this.timerInterval);
@@ -272,11 +459,6 @@ class ColorSelectorGame {
             const sec = String(this.timer % 60).padStart(2, '0');
             this.timerClockEl.textContent = `${min}:${sec}`;
             this.timerClockEl.classList.toggle('warning', this.timer <= 5);
-        }
-
-        // Simulate multi-person community bets streaming in
-        if (this.timer > 5 && Math.random() > 0.25) {
-            this.addSimulatedCommunityBet();
         }
 
         // Lock betting at 5 seconds
@@ -300,54 +482,147 @@ class ColorSelectorGame {
     lockBetting() {
         this.isLocked = true;
         if (this.confirmBtn) this.confirmBtn.disabled = true;
+        if (this.clearBtn) this.clearBtn.disabled = true;
+        if (this.doubleBtn) this.doubleBtn.disabled = true;
         if (this.lockOverlayEl) this.lockOverlayEl.classList.add('active');
         if (this.stageStatusEl) this.stageStatusEl.textContent = 'Betting Locked';
         if (this.lockCountdownEl) this.lockCountdownEl.textContent = '5';
     }
 
-    addSimulatedCommunityBet() {
-        const users = [
-            'Alex_99', 'Rahul_Pro', 'CryptoKing', 'Priya_Trader', 'Vikram_Ace',
-            'Sophia_VIP', 'GamerX', 'Zara_B', 'Neo_Matrix', 'David_7',
-            'Sam_Ace', 'Elena_Pro', 'Trader_Max', 'Arjun_K', 'Maya_R'
+    /* ================= DYNAMIC MULTIPLAYER (MATCHING ROULETTE) ================= */
+    getRandomUsername() {
+        const prefixes = [
+            'Crypto', 'Lucky', 'Vegas', 'Neon', 'Apex', 'Cyber', 'Star', 'Zenith',
+            'Nova', 'Hyper', 'Shadow', 'Golden', 'Alpha', 'Blaze', 'Iron', 'Silver',
+            'Diamond', 'Turbo', 'Elite', 'Thunder'
         ];
-        const amounts = [10, 20, 50, 100, 200, 500, 1000];
-        const targetTypes = ['color', 'color', 'color', 'size', 'num'];
-        const colors = ['green', 'red', 'violet'];
+        const suffixes = [
+            'Wolf', 'Pilot', 'Pro', 'King', 'Queen', 'Rider', 'Ghost', 'Viper',
+            'Whale', 'Legend', 'Hawk', 'Sniper', 'Captain', 'Gambler', 'Champ',
+            'Ace', 'Titan', 'Baron'
+        ];
+        const p = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const s = suffixes[Math.floor(Math.random() * suffixes.length)];
+        const tag = Math.random() < 0.35 ? `${Math.floor(Math.random() * 90 + 10)}` : (Math.random() < 0.2 ? '_VIP' : '');
+        return `${p}${s}${tag}`;
+    }
 
-        const user = users[Math.floor(Math.random() * users.length)];
-        const amount = amounts[Math.floor(Math.random() * amounts.length)];
-        const tType = targetTypes[Math.floor(Math.random() * targetTypes.length)];
+    getRandomAmount() {
+        const amounts = [10, 15, 20, 25, 35, 50, 75, 100, 150, 200, 250, 500, 1000];
+        return amounts[Math.floor(Math.random() * amounts.length)];
+    }
 
-        let target = '';
-        let targetClass = '';
+    populateSimBets() {
+        if (!this.simBetsContainer) return;
+        const allTargets = [
+            'GREEN', 'RED', 'VIOLET', 'BIG', 'SMALL',
+            'Num 0', 'Num 1', 'Num 2', 'Num 3', 'Num 4',
+            'Num 5', 'Num 6', 'Num 7', 'Num 8', 'Num 9'
+        ];
 
-        if (tType === 'color') {
-            target = colors[Math.floor(Math.random() * colors.length)];
-            targetClass = target;
-            if (target === 'green') this.poolGreen += amount;
-            else if (target === 'red') this.poolRed += amount;
-            else this.poolViolet += amount;
-        } else if (tType === 'size') {
-            target = Math.random() > 0.5 ? 'Big' : 'Small';
-            targetClass = 'size';
-        } else {
-            const num = Math.floor(Math.random() * 10);
-            target = `Num ${num}`;
-            targetClass = 'num';
+        // Random 8 to 12 active players
+        const playerCount = Math.floor(Math.random() * 5) + 8;
+        const usedNames = new Set();
+        this.simulatedBets = [];
+
+        for (let i = 0; i < playerCount; i++) {
+            let name = this.getRandomUsername();
+            while (usedNames.has(name)) {
+                name = this.getRandomUsername();
+            }
+            usedNames.add(name);
+
+            const target = allTargets[Math.floor(Math.random() * allTargets.length)];
+            const amount = this.getRandomAmount();
+
+            this.simulatedBets.push({
+                name,
+                target,
+                amount,
+                won: false,
+                payout: 0
+            });
         }
 
-        this.communityBets.unshift({
-            user,
-            target: target.toUpperCase(),
-            targetClass,
-            amount: `$${amount.toLocaleString()}`
+        if (this.sideTitleEl) {
+            this.sideTitleEl.innerHTML = `<i class="fa-solid fa-users" style="color:var(--color-accent);"></i> <span>Live Table Players (${this.simulatedBets.length})</span>`;
+        }
+
+        this.renderSimBets();
+    }
+
+    renderSimBets() {
+        if (!this.simBetsContainer) return;
+        this.simBetsContainer.innerHTML = this.simulatedBets.map(b => {
+            if (b.won) {
+                return `
+                    <div class="cp-player-item winning">
+                        <span class="cp-player-name"><i class="fa-solid fa-crown" style="color:#f59e0b;"></i> ${b.name}</span>
+                        <span class="cp-player-target">${b.target}</span>
+                        <span class="cp-player-win-badge">+$${b.payout}</span>
+                    </div>
+                `;
+            }
+            return `
+                <div class="cp-player-item">
+                    <span class="cp-player-name"><i class="fa-solid fa-user-circle"></i> ${b.name}</span>
+                    <span class="cp-player-target">${b.target}</span>
+                    <span class="cp-player-bet">$${b.amount}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    settleSimBets(winNum, winColor, winSize) {
+        if (!this.simBetsContainer || !this.simulatedBets || this.simulatedBets.length === 0) return;
+
+        // Valid winning options for this round
+        const winningOptions = [
+            { target: `Num ${winNum}`, mult: 9.0 },
+            { target: winSize.toUpperCase(), mult: 2.0 }
+        ];
+
+        if (winColor === 'green') {
+            winningOptions.push({ target: 'GREEN', mult: 2.0 });
+        } else if (winColor === 'red') {
+            winningOptions.push({ target: 'RED', mult: 2.0 });
+        } else if (winColor === 'split-green') {
+            winningOptions.push({ target: 'GREEN', mult: 1.5 });
+            winningOptions.push({ target: 'VIOLET', mult: 4.5 });
+        } else if (winColor === 'split-red') {
+            winningOptions.push({ target: 'RED', mult: 1.5 });
+            winningOptions.push({ target: 'VIOLET', mult: 4.5 });
+        }
+
+        // Random 2 to 5 winners
+        const maxWinners = Math.min(this.simulatedBets.length, 5);
+        const minWinners = Math.min(2, maxWinners);
+        const winnersCount = Math.floor(Math.random() * (maxWinners - minWinners + 1)) + minWinners;
+
+        // Shuffle player indices
+        const indices = this.simulatedBets.map((_, i) => i).sort(() => Math.random() - 0.5);
+        const winnerIndices = new Set(indices.slice(0, winnersCount));
+
+        this.simulatedBets.forEach((p, idx) => {
+            if (winnerIndices.has(idx)) {
+                const opt = winningOptions[Math.floor(Math.random() * winningOptions.length)];
+                p.target = opt.target;
+                p.won = true;
+                p.payout = Math.round(p.amount * opt.mult);
+            } else {
+                p.won = false;
+                p.payout = 0;
+            }
         });
 
-        if (this.communityBets.length > 20) this.communityBets.pop();
+        // Sort so winners appear at the top!
+        this.simulatedBets.sort((a, b) => (b.won ? 1 : 0) - (a.won ? 1 : 0));
 
-        this.updatePoolsUI();
-        this.renderLiveCommunityList();
+        if (this.sideTitleEl) {
+            this.sideTitleEl.innerHTML = `<i class="fa-solid fa-trophy" style="color:#f59e0b;"></i> <span style="color:#10b981; font-weight:800;">${winnersCount} Winning Bets!</span>`;
+        }
+
+        this.renderSimBets();
     }
 
     updatePoolsUI() {
@@ -356,26 +631,20 @@ class ColorSelectorGame {
         if (this.poolRedEl) this.poolRedEl.textContent = `$${this.poolRed.toLocaleString()}`;
     }
 
-    renderLiveCommunityList() {
-        if (!this.liveListEl) return;
-        this.liveListEl.innerHTML = this.communityBets.map(b => `
-            <div class="cp-live-item">
-                <div class="cp-live-user">
-                    <div class="cp-live-avatar"><i class="fa-solid fa-user"></i></div>
-                    <span>${b.user}</span>
-                </div>
-                <span class="cp-live-target ${b.targetClass}">${b.target}</span>
-                <span class="cp-live-amount">${b.amount}</span>
-            </div>
-        `).join('');
-    }
-
     revealResult() {
         if (this.lockOverlayEl) this.lockOverlayEl.classList.remove('active');
         if (this.stageStatusEl) this.stageStatusEl.textContent = 'Revealing Result...';
 
-        // Winning Number: 0 to 9
-        const winNum = Math.floor(Math.random() * 10);
+        // Winning Number: 0 to 9 with authentic 10% House Edge
+        const houseEdge = window.HOUSE_EDGE || 0.10;
+        let winNum;
+        if (this.activeUserBets.length > 0 && Math.random() < houseEdge) {
+            const betNums = this.activeUserBets.filter(b => b.targetType === 'number').map(b => parseInt(b.target.replace('num_', ''), 10));
+            const safePool = [0, 5, 1, 2, 3, 4, 6, 7, 8, 9].filter(n => !betNums.includes(n));
+            winNum = safePool[Math.floor(Math.random() * safePool.length)];
+        } else {
+            winNum = Math.floor(Math.random() * 10);
+        }
         const winColor = this.getColorForNum(winNum);
         const winSize = winNum >= 5 ? 'Big' : 'Small';
 
@@ -395,6 +664,59 @@ class ColorSelectorGame {
                 this.finalizeResult(winNum, winColor, winSize);
             }
         }, 110);
+    }
+
+    highlightWinningTargets(winNum, winColor, winSize) {
+        // Clear old highlights
+        document.querySelectorAll('.cp-winning-highlight').forEach(el => el.classList.remove('cp-winning-highlight'));
+
+        // Highlight winning number button
+        const numBtn = document.querySelector(`.cp-btn-num[data-num="${winNum}"]`);
+        if (numBtn) numBtn.classList.add('cp-winning-highlight');
+
+        // Highlight winning color button
+        if (winColor === 'green' || winColor === 'split-green') {
+            const btn = document.querySelector('.cp-btn-green');
+            if (btn) btn.classList.add('cp-winning-highlight');
+        }
+        if (winColor === 'red' || winColor === 'split-red') {
+            const btn = document.querySelector('.cp-btn-red');
+            if (btn) btn.classList.add('cp-winning-highlight');
+        }
+        if (winColor === 'split-green' || winColor === 'split-red') {
+            const btn = document.querySelector('.cp-btn-violet');
+            if (btn) btn.classList.add('cp-winning-highlight');
+        }
+
+        // Highlight winning size button
+        const sizeBtn = document.querySelector(`.cp-btn-size[data-size="${winSize.toLowerCase()}"]`);
+        if (sizeBtn) sizeBtn.classList.add('cp-winning-highlight');
+
+        // Highlight winning badges on cells
+        const winningTargets = new Set();
+        winningTargets.add(`num_${winNum}`);
+        winningTargets.add(winSize.toLowerCase());
+        if (winColor === 'green' || winColor === 'split-green') winningTargets.add('green');
+        if (winColor === 'red' || winColor === 'split-red') winningTargets.add('red');
+        if (winColor === 'split-green' || winColor === 'split-red') winningTargets.add('violet');
+
+        document.querySelectorAll('.cp-cell-badge').forEach(badge => {
+            if (winningTargets.has(badge.dataset.target)) {
+                badge.classList.add('won');
+            }
+        });
+    }
+
+    showWinSplash(winNum, colorDesc, winAmount) {
+        if (!this.winSplashEl) return;
+        if (this.winSplashNumEl) this.winSplashNumEl.textContent = winNum;
+        if (this.winSplashDescEl) this.winSplashDescEl.textContent = colorDesc;
+        if (this.winSplashPayoutEl) this.winSplashPayoutEl.textContent = `+$${winAmount.toLocaleString()}`;
+
+        this.winSplashEl.classList.add('active');
+        setTimeout(() => {
+            if (this.winSplashEl) this.winSplashEl.classList.remove('active');
+        }, 3600);
     }
 
     finalizeResult(winNum, winColor, winSize) {
@@ -417,6 +739,15 @@ class ColorSelectorGame {
                 <span class="cp-dot ${winColor}"></span> <strong>${colorName}</strong> (${winSize})
             `;
         }
+
+        // Update top winning result badge
+        this.updateLastWinDisplay(winNum, winColor, winSize);
+
+        // Highlight winning buttons on the board
+        this.highlightWinningTargets(winNum, winColor, winSize);
+
+        // Settle simulated community bets
+        this.settleSimBets(winNum, winColor, winSize);
 
         // Settle active user bets
         let totalWon = 0;
@@ -474,16 +805,19 @@ class ColorSelectorGame {
         // Pay out winnings
         if (anyWon && totalWon > 0) {
             if (window.arcadeWallet) window.arcadeWallet.add(totalWon);
-            if (window.soundEngine) window.soundEngine.playAviatorCashout();
+            if (window.soundEngine) window.soundEngine.playWin();
             if (window.triggerConfetti) window.triggerConfetti();
 
+            this.showWinSplash(winNum, `${colorName.toUpperCase()} • ${winSize.toUpperCase()}`, totalWon);
+
             if (window.showToast) {
-                window.showToast('Congratulations! 💰', `You won +$${totalWon.toLocaleString()} on Period #${this.period}!`, 'success');
+                window.showToast('🎉 Win Go Winner!', `You won +$${totalWon.toLocaleString()} on Period #${this.period}!`, 'success');
             }
         } else if (this.activeUserBets.length > 0) {
-            if (window.soundEngine) window.soundEngine.playDraw();
+            if (window.soundEngine) window.soundEngine.playLoss();
+            const totalLost = this.activeUserBets.reduce((sum, b) => sum + b.amount, 0);
             if (window.showToast) {
-                window.showToast('Round Ended', `Period #${this.period} result was ${winNum} ${colorName}. Good luck on the next round!`, 'info');
+                window.showToast('Round Ended', `Period #${this.period} result was ${winNum} ${colorName}. -$${totalLost.toFixed(2)}`, 'error');
             }
         }
 
@@ -513,7 +847,7 @@ class ColorSelectorGame {
 
     renderHistory() {
         if (!this.historyBarEl) return;
-        this.historyBarEl.innerHTML = this.history.slice(0, 15).map(h => `
+        this.historyBarEl.innerHTML = this.history.slice(0, 16).map(h => `
             <div class="cp-history-chip">
                 <span class="cp-dot ${h.color}"></span>
                 <span>${h.num}</span>
@@ -527,17 +861,17 @@ class ColorSelectorGame {
             <thead>
                 <tr>
                     <th>Period</th>
-                    <th>Number</th>
+                    <th>Num</th>
                     <th>Color</th>
-                    <th>Big/Small</th>
+                    <th>Size</th>
                 </tr>
             </thead>
             <tbody>
-                ${this.history.slice(0, 15).map(h => `
+                ${this.history.slice(0, 10).map(h => `
                     <tr>
                         <td>#${h.period}</td>
-                        <td><strong style="font-size:1.05rem;">${h.num}</strong></td>
-                        <td><span class="cp-dot ${h.color}"></span> ${h.color.replace('split-', '').toUpperCase()}</td>
+                        <td><strong>${h.num}</strong></td>
+                        <td><span class="cp-dot ${h.color}"></span></td>
                         <td><strong>${h.size}</strong></td>
                     </tr>
                 `).join('')}
@@ -547,50 +881,53 @@ class ColorSelectorGame {
 
     renderMyBetsTable() {
         if (!this.myBetsTableEl) return;
-        if (this.userBetHistory.length === 0) {
-            this.myBetsTableEl.innerHTML = `
-                <tbody>
-                    <tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding: 1.5rem;">No bets placed yet. Join Green, Violet, Red, or pick a direct number!</td></tr>
-                </tbody>
-            `;
+        if (this.userBetHistory.length === 0 && (!this.activeUserBets || this.activeUserBets.length === 0)) {
+            this.myBetsTableEl.innerHTML = `<tbody><tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:1rem;">No bets placed yet</td></tr></tbody>`;
             return;
         }
+
+        let rows = '';
+        // Active bets for current period
+        if (this.activeUserBets && this.activeUserBets.length > 0) {
+            this.activeUserBets.forEach(b => {
+                const targetDisplay = b.target.toUpperCase().replace('NUM_', 'NUM ');
+                rows += `
+                    <tr style="background: rgba(245, 158, 11, 0.08);">
+                        <td>#${b.period}</td>
+                        <td><strong>${targetDisplay}</strong></td>
+                        <td>$${b.amount}</td>
+                        <td style="color:#f59e0b; font-weight:800;"><i class="fa-solid fa-spinner fa-spin"></i> Active</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Settled history
+        this.userBetHistory.slice(0, 8).forEach(b => {
+            rows += `
+                <tr>
+                    <td>#${b.period}</td>
+                    <td><strong>${b.target}</strong></td>
+                    <td>$${b.amount}</td>
+                    <td style="color:${b.isWin ? '#10b981' : '#ef4444'}; font-weight:800;">${b.status}</td>
+                </tr>
+            `;
+        });
 
         this.myBetsTableEl.innerHTML = `
             <thead>
                 <tr>
                     <th>Period</th>
-                    <th>Selection</th>
-                    <th>Bet</th>
+                    <th>Target</th>
+                    <th>Stake</th>
                     <th>Status</th>
                 </tr>
             </thead>
             <tbody>
-                ${this.userBetHistory.slice(0, 15).map(b => `
-                    <tr>
-                        <td>#${b.period}</td>
-                        <td><strong>${b.target}</strong></td>
-                        <td>$${b.amount}</td>
-                        <td class="${b.isWin ? 'cp-badge-win' : 'cp-badge-loss'}">${b.status}</td>
-                    </tr>
-                `).join('')}
+                ${rows}
             </tbody>
         `;
     }
-
-    start() {
-        if (!this.timerInterval) {
-            this.startRound();
-        }
-    }
-
-    stop() {
-        if (this.timerInterval) {
-            clearInterval(this.timerInterval);
-            this.timerInterval = null;
-        }
-    }
 }
 
-// Global exposure
 window.ColorSelectorGame = ColorSelectorGame;

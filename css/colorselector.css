@@ -1,33 +1,47 @@
-/* Color Prediction Game (Win Go / Color Parity Live Multiplayer Betting) */
+/* ==========================================================================
+   COLOR PREDICTION (WIN GO LIVE MULTIPLAYER)
+   Single-Screen Compact 2-Column Responsive Layout (Matching Roulette)
+   ========================================================================== */
+
+#view-colorselector.app-view {
+    padding: 0.75rem 1.5rem 1.5rem;
+    max-width: 1520px;
+    margin: 0 auto;
+}
+
+#view-colorselector .game-header-bar {
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.45rem;
+}
 
 .cp-wrapper {
-    max-width: 980px;
+    max-width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
+    gap: 0.65rem;
 }
 
-/* Header & Period Bar */
+/* ================= META & PERIOD BAR ================= */
 .cp-meta-bar {
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.85rem 1.25rem;
+    padding: 0.6rem 1.15rem;
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--card-shadow);
     flex-wrap: wrap;
-    gap: 0.8rem;
+    gap: 0.75rem;
 }
 
 .cp-period-chip {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 700;
     color: var(--text-secondary);
 }
@@ -35,22 +49,54 @@
 .cp-period-val {
     font-family: var(--font-display);
     color: var(--text-primary);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     letter-spacing: 0.5px;
 }
+
+/* Result Pill (Matching Roulette Winning Pocket Badge) */
+.cp-result-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-surface-elevated);
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.cp-last-win-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 0.88rem;
+    color: #ffffff;
+}
+
+.cp-last-win-badge.green { background: #059669; }
+.cp-last-win-badge.red { background: #dc2626; }
+.cp-last-win-badge.violet { background: #7c3aed; }
+.cp-last-win-badge.split-green { background: linear-gradient(135deg, #059669 50%, #7c3aed 50%); }
+.cp-last-win-badge.split-red { background: linear-gradient(135deg, #dc2626 50%, #7c3aed 50%); }
 
 .cp-timer-box {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     background: var(--bg-surface-elevated);
-    padding: 0.35rem 0.85rem;
+    padding: 0.3rem 0.75rem;
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
 }
 
 .cp-timer-label {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     color: var(--text-muted);
@@ -58,10 +104,10 @@
 
 .cp-timer-clock {
     font-family: var(--font-display);
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 800;
     color: var(--color-accent);
-    min-width: 65px;
+    min-width: 58px;
     text-align: right;
     letter-spacing: 0.5px;
 }
@@ -76,15 +122,15 @@
     to { transform: scale(1.06); }
 }
 
-/* Parity History Ribbon */
+/* ================= PARITY HISTORY RIBBON ================= */
 .cp-history-bar {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.5rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: 0.6rem 0.9rem;
+    padding: 0.45rem 0.85rem;
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
@@ -99,80 +145,97 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.35rem 0.65rem;
+    gap: 0.3rem;
+    padding: 0.25rem 0.55rem;
     border-radius: var(--radius-sm);
     font-family: var(--font-display);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 800;
     border: 1px solid var(--border-color);
     background: var(--bg-surface-elevated);
     color: var(--text-primary);
-    animation: slideIn 0.2s ease-out;
 }
 
 .cp-dot {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     display: inline-block;
 }
 
-.cp-dot.green { background: var(--color-success); }
-.cp-dot.red { background: var(--color-danger); }
+.cp-dot.green { background: #059669; }
+.cp-dot.red { background: #dc2626; }
 .cp-dot.violet { background: #8b5cf6; }
-.cp-dot.split-red { background: linear-gradient(135deg, var(--color-danger) 50%, #8b5cf6 50%); }
-.cp-dot.split-green { background: linear-gradient(135deg, var(--color-success) 50%, #8b5cf6 50%); }
+.cp-dot.split-red { background: linear-gradient(135deg, #dc2626 50%, #8b5cf6 50%); }
+.cp-dot.split-green { background: linear-gradient(135deg, #059669 50%, #8b5cf6 50%); }
 
-/* Main Stage & Reveal Arena */
+/* ================= MAIN 2-COLUMN LAYOUT ================= */
+.cp-main-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 0.85rem;
+    align-items: stretch;
+}
+
+@media (max-width: 1080px) {
+    .cp-main-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.cp-stage-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+/* ================= REVEAL STAGE ================= */
 .cp-stage {
     position: relative;
     width: 100%;
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.6rem 1.4rem;
+    padding: 0.85rem 1.25rem;
     box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 200px;
+    min-height: 125px;
     overflow: hidden;
 }
 
 .cp-stage-status {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: 1.2px;
     color: var(--text-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
-/* Central Roulette Wheel / Reveal Orb */
 .cp-reveal-display {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 0.6rem;
-    margin: 0.5rem 0 1rem;
+    gap: 0.85rem;
+    margin: 0.25rem 0 0.55rem;
 }
 
 .cp-reveal-orb {
-    width: 90px;
-    height: 90px;
+    width: 68px;
+    height: 68px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-display);
-    font-size: 2.8rem;
-    font-weight: 800;
+    font-size: 2.2rem;
+    font-weight: 900;
     color: #ffffff;
     background: var(--bg-surface-elevated);
     border: 3px solid var(--border-color);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -189,40 +252,40 @@
 .cp-reveal-orb.green {
     background: #059669;
     border-color: #10b981;
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
 }
 
 .cp-reveal-orb.red {
     background: #dc2626;
     border-color: #ef4444;
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.5);
 }
 
 .cp-reveal-orb.violet {
     background: #7c3aed;
     border-color: #8b5cf6;
-    box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.5);
 }
 
 .cp-reveal-orb.split-green {
     background: linear-gradient(135deg, #059669 50%, #7c3aed 50%);
     border-color: #10b981;
-    box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.4);
 }
 
 .cp-reveal-orb.split-red {
     background: linear-gradient(135deg, #dc2626 50%, #7c3aed 50%);
     border-color: #ef4444;
-    box-shadow: 0 0 25px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
 }
 
 .cp-result-banner {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: var(--text-primary);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.45rem;
 }
 
 /* Pool Status Indicators */
@@ -232,23 +295,23 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    padding-top: 0.8rem;
+    padding-top: 0.5rem;
     border-top: 1px solid var(--border-color);
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 700;
 }
 
 .cp-pool-item {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
 }
 
-.cp-pool-item.green { color: var(--color-success); }
-.cp-pool-item.violet { color: #8b5cf6; }
-.cp-pool-item.red { color: var(--color-danger); }
+.cp-pool-item.green { color: #10b981; }
+.cp-pool-item.violet { color: #a78bfa; }
+.cp-pool-item.red { color: #f87171; }
 
-/* Lock Overlay when countdown <= 5s */
+/* 5s Lock Overlay */
 .cp-lock-overlay {
     display: none;
     position: absolute;
@@ -256,14 +319,13 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.78);
+    background: rgba(0, 0, 0, 0.82);
     backdrop-filter: blur(4px);
     z-index: 10;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.6rem;
-    animation: fadeIn 0.2s ease-out;
+    gap: 0.4rem;
 }
 
 .cp-lock-overlay.active {
@@ -272,8 +334,8 @@
 
 .cp-lock-countdown {
     font-family: var(--font-display);
-    font-size: 4.5rem;
-    font-weight: 800;
+    font-size: 3.8rem;
+    font-weight: 900;
     color: #ffffff;
     line-height: 1;
     animation: cpNumberPunch 0.9s cubic-bezier(0.16, 1, 0.3, 1) infinite;
@@ -286,48 +348,48 @@
 }
 
 .cp-lock-label {
-    font-size: 1rem;
+    font-size: 0.85rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 2px;
     color: var(--color-warning);
 }
 
-/* Betting Controls Area */
+/* ================= BETTING BOARD ================= */
 .cp-bet-container {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.4rem;
+    padding: 0.9rem 1rem;
     box-shadow: var(--card-shadow);
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 0.65rem;
 }
 
 /* 3 Primary Colors: Green, Violet, Red */
 .cp-colors-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.75rem;
+    gap: 0.6rem;
 }
 
 .cp-btn-color {
     border: none;
     border-radius: var(--radius-md);
-    padding: 1rem 0.6rem;
+    padding: 0.75rem 0.5rem;
     cursor: pointer;
     font-family: var(--font-display);
     font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.2rem;
     transition: transform 0.15s, filter 0.15s, box-shadow 0.15s;
     touch-action: manipulation;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .cp-btn-color:hover:not(:disabled) {
@@ -335,440 +397,473 @@
     filter: brightness(1.08);
 }
 
-.cp-btn-color:active:not(:disabled) {
-    transform: translateY(1px);
-}
-
 .cp-btn-color.selected {
-    box-shadow: 0 0 0 3px var(--text-primary), 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 3px #ffffff, 0 4px 15px rgba(0, 0, 0, 0.35);
 }
 
 .cp-btn-color span.multi {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    opacity: 0.85;
+    opacity: 0.9;
 }
 
 .cp-btn-green {
-    background: #059669;
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
     color: #ffffff;
 }
 
 .cp-btn-violet {
-    background: #7c3aed;
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
     color: #ffffff;
 }
 
 .cp-btn-red {
-    background: #dc2626;
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
     color: #ffffff;
 }
 
-/* 10 Direct Numbers (0 to 9) */
+/* 10 Direct Numbers (0-9) */
 .cp-numbers-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.6rem;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 0.4rem;
+}
+
+@media (max-width: 768px) {
+    .cp-numbers-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
 }
 
 .cp-btn-num {
     background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 0.65rem 0.2rem;
-    cursor: pointer;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.45rem 0.2rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.15rem;
+    cursor: pointer;
     font-family: var(--font-display);
+    font-size: 1.05rem;
     font-weight: 800;
-    font-size: 1.35rem;
     color: var(--text-primary);
     transition: all 0.15s;
-    touch-action: manipulation;
+    position: relative;
+    overflow: visible;
 }
 
-.cp-btn-num span.num-badge {
+.cp-btn-num:hover:not(:disabled) {
+    transform: translateY(-2px);
+    border-color: var(--color-accent);
+}
+
+.cp-btn-num.selected {
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.15);
+    box-shadow: 0 0 0 2px #38bdf8;
+}
+
+.cp-btn-num .num-badge {
     font-size: 0.65rem;
     font-weight: 700;
     color: var(--text-muted);
 }
 
-.cp-btn-num:hover:not(:disabled) {
-    background: var(--bg-surface-hover);
-    border-color: var(--border-hover);
-    transform: translateY(-1px);
-}
-
-.cp-btn-num.selected {
-    border-color: var(--color-accent);
-    background: var(--bg-surface-hover);
-    box-shadow: 0 0 0 2px var(--color-accent);
-}
-
-.cp-btn-num.num-green { color: var(--color-success); }
-.cp-btn-num.num-red { color: var(--color-danger); }
+/* Number Color accents */
+.cp-btn-num.num-green { color: #10b981; }
+.cp-btn-num.num-red { color: #f87171; }
 .cp-btn-num.num-split-red { color: #f43f5e; }
-.cp-btn-num.num-split-green { color: #10b981; }
+.cp-btn-num.num-split-green { color: #34d399; }
 
 /* Big / Small Row */
 .cp-size-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
+    gap: 0.6rem;
 }
 
 .cp-btn-size {
     background: var(--bg-surface-elevated);
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 0.75rem;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.05rem;
-    color: var(--text-primary);
-    cursor: pointer;
+    padding: 0.55rem 0.75rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    justify-content: space-between;
+    cursor: pointer;
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--text-primary);
     transition: all 0.15s;
-    touch-action: manipulation;
-}
-
-.cp-btn-size small {
-    font-size: 0.75rem;
-    color: var(--color-warning);
+    position: relative;
+    overflow: visible;
 }
 
 .cp-btn-size:hover:not(:disabled) {
-    background: var(--bg-surface-hover);
-    border-color: var(--border-hover);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
 }
 
 .cp-btn-size.selected {
-    border-color: var(--color-warning);
-    background: rgba(245, 158, 11, 0.1);
-    box-shadow: 0 0 0 2px var(--color-warning);
+    border-color: #38bdf8;
+    background: rgba(56, 189, 248, 0.15);
+    box-shadow: 0 0 0 2px #38bdf8;
 }
 
-/* Bet Config Bar: Chips & Confirm */
+.cp-btn-size small {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* ================= CHIPS & ACTION ROW ================= */
 .cp-config-box {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
-    padding-top: 0.8rem;
+    gap: 0.55rem;
+    padding-top: 0.4rem;
     border-top: 1px solid var(--border-color);
 }
 
 .cp-chips-row {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
     flex-wrap: wrap;
 }
 
 .cp-chip-btn {
+    padding: 0.35rem 0.65rem;
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 0.45rem 0.85rem;
-    border-radius: 20px;
-    font-family: var(--font-display);
-    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
-    touch-action: manipulation;
 }
 
-.cp-chip-btn:hover {
-    border-color: var(--color-accent);
+.cp-chip-btn:hover:not(:disabled) {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border-color: #10b981;
 }
 
 .cp-chip-btn.active {
-    background: var(--color-accent);
+    background: #10b981;
     color: #ffffff;
-    border-color: var(--color-accent);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    border-color: #10b981;
+    font-weight: 800;
 }
 
 .cp-action-row {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    justify-content: space-between;
+    gap: 0.65rem;
+    flex-wrap: wrap;
 }
 
 .cp-bet-summary {
-    flex: 1;
-    font-size: 0.95rem;
-    font-weight: 700;
+    font-size: 0.85rem;
     color: var(--text-secondary);
 }
 
-.cp-bet-summary strong {
-    color: var(--text-primary);
-}
-
 .cp-confirm-btn {
-    background: var(--color-success);
-    color: #ffffff;
+    padding: 0.55rem 1.4rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     border: none;
     border-radius: var(--radius-md);
-    padding: 0.85rem 1.8rem;
+    color: #ffffff;
     font-family: var(--font-display);
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 800;
     cursor: pointer;
-    transition: all 0.15s;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    touch-action: manipulation;
+    gap: 0.45rem;
+    transition: all 0.2s;
 }
 
 .cp-confirm-btn:hover:not(:disabled) {
-    background: #059669;
-    transform: translateY(-1px);
-}
-
-.cp-confirm-btn:active:not(:disabled) {
-    transform: translateY(1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
 }
 
 .cp-confirm-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    box-shadow: none;
 }
 
-/* Tabs: Live Community Bets, My Bets, Parity Record */
-.cp-tabs-section {
+/* ================= SIDEBAR LIVE PLAYERS (MATCHING ROULETTE) ================= */
+.cp-side-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    box-shadow: var(--card-shadow);
-    overflow: hidden;
-}
-
-.cp-tabs-header {
+    padding: 0.95rem 1rem;
     display: flex;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--bg-surface-elevated);
+    flex-direction: column;
+    gap: 0.65rem;
+    box-shadow: var(--card-shadow);
+    height: 100%;
 }
 
-.cp-tab-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    padding: 0.85rem 0.5rem;
-    font-family: var(--font-main);
-    font-size: 0.88rem;
-    font-weight: 700;
-    color: var(--text-secondary);
-    cursor: pointer;
+.cp-side-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    transition: all 0.15s;
-    border-bottom: 2px solid transparent;
-}
-
-.cp-tab-btn:hover {
+    gap: 0.5rem;
     color: var(--text-primary);
 }
 
-.cp-tab-btn.active {
-    color: var(--color-accent);
-    border-bottom-color: var(--color-accent);
-    background: var(--bg-surface);
-}
-
-.cp-tab-pane {
-    display: none;
-    padding: 1.1rem;
-    max-height: 280px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.cp-tab-pane.active {
-    display: block;
-}
-
-/* Multi-Person Live Community Bets Feed */
-.cp-live-list {
+.cp-bets-list {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.35rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 0.2rem;
 }
 
-.cp-live-item {
+.cp-player-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.6rem 0.85rem;
+    padding: 0.45rem 0.65rem;
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    animation: fadeIn 0.25s ease-out;
-}
-
-.cp-live-user {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-}
-
-.cp-live-avatar {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: var(--bg-input);
-    border: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
-    color: var(--color-accent);
-}
-
-.cp-live-target {
-    font-weight: 700;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     font-size: 0.8rem;
+    transition: all 0.2s;
 }
 
-.cp-live-target.green { background: rgba(16, 185, 129, 0.15); color: var(--color-success); border: 1px solid var(--color-success); }
-.cp-live-target.violet { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border: 1px solid #8b5cf6; }
-.cp-live-target.red { background: rgba(239, 68, 68, 0.15); color: var(--color-danger); border: 1px solid var(--color-danger); }
-.cp-live-target.num { background: rgba(59, 130, 246, 0.15); color: var(--color-accent); border: 1px solid var(--color-accent); }
-.cp-live-target.size { background: rgba(245, 158, 11, 0.15); color: var(--color-warning); border: 1px solid var(--color-warning); }
+.cp-player-item.winning {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: #10b981;
+    animation: cpWinnerPulse 1.2s infinite alternate;
+}
 
-.cp-live-amount {
-    font-family: var(--font-display);
+@keyframes cpWinnerPulse {
+    from { box-shadow: 0 0 5px rgba(16, 185, 129, 0.3); }
+    to { box-shadow: 0 0 16px rgba(16, 185, 129, 0.6); }
+}
+
+.cp-player-name {
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.cp-player-target {
+    font-weight: 800;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    background: var(--bg-main);
+    color: var(--text-secondary);
+}
+
+.cp-player-bet {
     font-weight: 800;
     color: var(--text-primary);
 }
 
-/* My Bets Table */
+.cp-player-win-badge {
+    font-weight: 800;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.2);
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+}
+
+/* Sub-tabs for My Bets & Parity in Side card */
+.cp-sub-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: auto;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.5rem;
+}
+
+.cp-sub-tabs-header {
+    display: flex;
+    gap: 0.35rem;
+}
+
+.cp-sub-tab-btn {
+    flex: 1;
+    padding: 0.3rem 0.45rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.cp-sub-tab-btn.active {
+    background: var(--color-accent);
+    color: #ffffff;
+    border-color: var(--color-accent);
+}
+
+.cp-sub-tab-pane {
+    display: none;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.cp-sub-tab-pane.active {
+    display: block;
+}
+
 .cp-table {
     width: 100%;
+    font-size: 0.75rem;
     border-collapse: collapse;
-    font-size: 0.85rem;
 }
 
 .cp-table th, .cp-table td {
-    padding: 0.65rem 0.5rem;
+    padding: 0.35rem 0.45rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
 
-.cp-table th {
-    font-size: 0.75rem;
+/* ================= WINNING ANIMATION & CELEBRATION (MATCHING ROULETTE) ================= */
+.cp-winning-highlight {
+    animation: cpWinningHighlightPulse 1.2s infinite alternate !important;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.85) !important;
+    border-color: #f59e0b !important;
+    z-index: 5;
+}
+
+@keyframes cpWinningHighlightPulse {
+    0% { transform: scale(1); filter: brightness(1); }
+    100% { transform: scale(1.06); filter: brightness(1.3); }
+}
+
+/* Win Splash Overlay */
+.cp-win-splash {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: rgba(15, 23, 42, 0.95);
+    border: 2px solid #f59e0b;
+    border-radius: var(--radius-xl);
+    padding: 1.5rem 2.5rem;
+    text-align: center;
+    box-shadow: 0 0 50px rgba(245, 158, 11, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1000;
+}
+
+.cp-win-splash.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
+
+.cp-win-splash-badge {
+    font-size: 0.95rem;
+    font-weight: 800;
     text-transform: uppercase;
-    color: var(--text-muted);
-    font-weight: 700;
+    color: #f59e0b;
+    letter-spacing: 1px;
+    margin-bottom: 0.35rem;
 }
 
-.cp-badge-win {
-    color: var(--color-success);
-    font-weight: 800;
-}
-
-.cp-badge-loss {
-    color: var(--color-danger);
-    font-weight: 800;
-}
-
-.cp-badge-wait {
-    color: var(--color-warning);
-    font-weight: 800;
-}
-
-/* Home Card Preview */
-.cp-preview-roulette {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 14px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-}
-
-.cp-preview-ball {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.cp-win-splash-num {
+    font-size: 3.5rem;
+    font-weight: 900;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 0.85rem;
     color: #ffffff;
+    line-height: 1;
 }
 
-.cp-preview-ball.g { background: #059669; }
-.cp-preview-ball.v { background: #7c3aed; }
-.cp-preview-ball.r { background: #dc2626; }
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-    .cp-meta-bar {
-        padding: 0.65rem 0.9rem;
-    }
-    .cp-colors-row {
-        gap: 0.5rem;
-    }
-    .cp-btn-color {
-        padding: 0.85rem 0.4rem;
-        font-size: 0.95rem;
-    }
-    .cp-numbers-grid {
-        gap: 0.4rem;
-    }
-    .cp-btn-num {
-        font-size: 1.15rem;
-        padding: 0.5rem 0.15rem;
-    }
-    .cp-action-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .cp-confirm-btn {
-        width: 100%;
-        justify-content: center;
-    }
+.cp-win-splash-desc {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #38bdf8;
+    margin: 0.35rem 0;
 }
 
-@media (max-width: 375px) {
-    .cp-meta-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.5rem;
-    }
-    .cp-period-chip {
-        justify-content: space-between;
-    }
-    .cp-timer-box {
-        justify-content: space-between;
-    }
-    .cp-pool-bar {
-        font-size: 0.75rem;
-        flex-direction: column;
-        gap: 0.3rem;
-    }
-    .cp-btn-color {
-        font-size: 0.85rem;
-        padding: 0.7rem 0.2rem;
-    }
+.cp-win-splash-payout {
+    font-size: 1.8rem;
+    font-weight: 900;
+    font-family: var(--font-display);
+    color: #10b981;
 }
+
+/* ================= ACTIVE STAKE BADGES & CHIPS (MATCHING ROULETTE) ================= */
+.cp-cell-badge {
+    position: absolute;
+    top: -7px;
+    right: -6px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #0f172a;
+    font-size: 0.68rem;
+    font-weight: 900;
+    font-family: var(--font-display);
+    padding: 2px 6px;
+    border-radius: 9999px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), 0 0 10px rgba(245, 158, 11, 0.4);
+    pointer-events: none;
+    z-index: 20;
+    line-height: 1.15;
+    border: 1.5px solid #ffffff;
+    letter-spacing: 0.02em;
+    animation: cpBadgePop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes cpBadgePop {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.cp-cell-badge.won {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    border-color: #a7f3d0;
+    box-shadow: 0 0 16px rgba(16, 185, 129, 0.9), 0 2px 8px rgba(0, 0, 0, 0.6);
+    animation: cpBadgeWinPulse 0.7s infinite alternate ease-in-out;
+}
+
+@keyframes cpBadgeWinPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.15); }
+}
+
+.cp-btn-color.has-active-bet {
+    box-shadow: 0 0 0 2px #f59e0b, 0 4px 15px rgba(245, 158, 11, 0.35) !important;
+}
+
+.cp-btn-num.has-active-bet {
+    border-color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.15) !important;
+    box-shadow: 0 0 0 2px #f59e0b !important;
+}
+
+.cp-btn-size.has-active-bet {
+    border-color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.15) !important;
+    box-shadow: 0 0 0 2px #f59e0b !important;
+}
+

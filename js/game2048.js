@@ -63,14 +63,16 @@ class Game2048 {
                     else if (dir === 'down') this.move(2);
                     else if (dir === 'left') this.move(3);
                 };
+                btn.addEventListener('pointerdown', handleDpad);
                 btn.addEventListener('touchstart', handleDpad, { passive: false });
                 btn.addEventListener('click', handleDpad);
             });
         }
 
-        // Bind Touch Swipe
+        // Bind Touch & Mouse Swipe on Board
         const board = document.getElementById('g2048-board');
         if (board) {
+            // Touch Swipe
             board.addEventListener('touchstart', (e) => {
                 if (e.touches.length > 0) {
                     this.touchStartX = e.touches[0].clientX;
@@ -89,7 +91,7 @@ class Game2048 {
                 const absDx = Math.abs(dx);
                 const absDy = Math.abs(dy);
 
-                if (Math.max(absDx, absDy) > 28) {
+                if (Math.max(absDx, absDy) > 24) {
                     if (absDx > absDy) {
                         this.move(dx > 0 ? 1 : 3); // 1 = right, 3 = left
                     } else {
@@ -97,19 +99,55 @@ class Game2048 {
                     }
                 }
             }, { passive: true });
+
+            // Mouse Drag on PC
+            let isMouseDown = false;
+            let mouseStartX = 0;
+            let mouseStartY = 0;
+
+            board.addEventListener('mousedown', (e) => {
+                isMouseDown = true;
+                mouseStartX = e.clientX;
+                mouseStartY = e.clientY;
+            });
+
+            window.addEventListener('mouseup', (e) => {
+                if (!isMouseDown) return;
+                isMouseDown = false;
+                const dx = e.clientX - mouseStartX;
+                const dy = e.clientY - mouseStartY;
+                const absDx = Math.abs(dx);
+                const absDy = Math.abs(dy);
+
+                if (Math.max(absDx, absDy) > 24) {
+                    if (absDx > absDy) {
+                        this.move(dx > 0 ? 1 : 3); // 1 = right, 3 = left
+                    } else {
+                        this.move(dy > 0 ? 2 : 0); // 2 = down, 0 = up
+                    }
+                }
+            });
         }
 
-        // Bind Keyboard
+        // Bind Keyboard (PC Support: Arrows + WASD + Numpad)
         window.addEventListener('keydown', (e) => {
             const view = document.getElementById('view-game2048');
             if (!view || !view.classList.contains('active')) return;
             if (this.over) return;
 
             let handled = false;
-            if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') { this.move(0); handled = true; }
-            else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') { this.move(1); handled = true; }
-            else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') { this.move(2); handled = true; }
-            else if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') { this.move(3); handled = true; }
+            const k = e.key;
+            const code = e.code;
+
+            if (k === 'ArrowUp' || k === 'w' || k === 'W' || code === 'KeyW' || code === 'ArrowUp' || k === 'Numpad8') {
+                this.move(0); handled = true;
+            } else if (k === 'ArrowRight' || k === 'd' || k === 'D' || code === 'KeyD' || code === 'ArrowRight' || k === 'Numpad6') {
+                this.move(1); handled = true;
+            } else if (k === 'ArrowDown' || k === 's' || k === 'S' || code === 'KeyS' || code === 'ArrowDown' || k === 'Numpad2') {
+                this.move(2); handled = true;
+            } else if (k === 'ArrowLeft' || k === 'a' || k === 'A' || code === 'KeyA' || code === 'ArrowLeft' || k === 'Numpad4') {
+                this.move(3); handled = true;
+            }
 
             if (handled) e.preventDefault();
         });
@@ -155,85 +193,79 @@ class Game2048 {
 
         let moved = false;
         let mergedScore = 0;
+        let newGrid = Array(4).fill(null).map(() => Array(4).fill(0));
 
-        // Rotate grid to normalize logic as sliding left
-        let rotated = this.rotateGrid(this.grid, dir);
+        const slideRow = (row) => {
+            let arr = row.filter(v => v !== 0);
+            let score = 0;
+            for (let i = 0; i < arr.length - 1; i++) {
+                if (arr[i] === arr[i + 1]) {
+                    arr[i] *= 2;
+                    score += arr[i];
+                    arr.splice(i + 1, 1);
+                }
+            }
+            while (arr.length < 4) arr.push(0);
+            return { row: arr, score };
+        };
 
-        for (let r = 0; r < 4; r++) {
-            const originalRow = [...rotated[r]];
-            const { row: newRow, scoreGained } = this.slideAndMergeRow(originalRow);
-            rotated[r] = newRow;
-            mergedScore += scoreGained;
-            if (!this.arraysEqual(originalRow, newRow)) {
-                moved = true;
+        if (dir === 3) { // LEFT
+            for (let r = 0; r < 4; r++) {
+                const res = slideRow(this.grid[r]);
+                newGrid[r] = res.row;
+                mergedScore += res.score;
+                if (this.grid[r].some((v, i) => v !== newGrid[r][i])) moved = true;
+            }
+        } else if (dir === 1) { // RIGHT
+            for (let r = 0; r < 4; r++) {
+                const reversed = [...this.grid[r]].reverse();
+                const res = slideRow(reversed);
+                newGrid[r] = res.row.reverse();
+                mergedScore += res.score;
+                if (this.grid[r].some((v, i) => v !== newGrid[r][i])) moved = true;
+            }
+        } else if (dir === 0) { // UP
+            for (let c = 0; c < 4; c++) {
+                const col = [this.grid[0][c], this.grid[1][c], this.grid[2][c], this.grid[3][c]];
+                const res = slideRow(col);
+                for (let r = 0; r < 4; r++) newGrid[r][c] = res.row[r];
+                mergedScore += res.score;
+                if (col.some((v, i) => v !== res.row[i])) moved = true;
+            }
+        } else if (dir === 2) { // DOWN
+            for (let c = 0; c < 4; c++) {
+                const col = [this.grid[3][c], this.grid[2][c], this.grid[1][c], this.grid[0][c]];
+                const res = slideRow(col);
+                for (let r = 0; r < 4; r++) newGrid[3 - r][c] = res.row[r];
+                mergedScore += res.score;
+                if (col.some((v, i) => v !== res.row[i])) moved = true;
             }
         }
 
-        // Rotate back to original orientation
-        this.grid = this.rotateGrid(rotated, (4 - dir) % 4);
-
         if (moved) {
+            this.grid = newGrid;
             this.history = { grid: prevGrid, score: prevScore };
             this.score += mergedScore;
             if (this.score > this.bestScore) {
                 this.bestScore = this.score;
                 localStorage.setItem('arcade_2048_best', this.bestScore);
-                if (window.arcadeWallet) {
+                if (window.arcadeWallet && window.arcadeWallet.stats && window.arcadeWallet.stats.game2048) {
                     window.arcadeWallet.stats.game2048.bestScore = this.bestScore;
                     window.arcadeWallet.saveStats();
                 }
             }
 
             if (mergedScore > 0) {
-                window.soundEngine.playMerge();
+                if (window.soundEngine) window.soundEngine.playMerge();
             } else {
-                window.soundEngine.playSlide();
+                if (window.soundEngine) window.soundEngine.playSlide();
             }
 
             const newTile = this.spawnRandomTile();
             this.render(newTile);
             this.updateScoreUI();
-
             this.checkGameStatus();
         }
-    }
-
-    slideAndMergeRow(row) {
-        // Filter zeros
-        let filtered = row.filter(val => val !== 0);
-        let scoreGained = 0;
-
-        for (let i = 0; i < filtered.length - 1; i++) {
-            if (filtered[i] === filtered[i + 1]) {
-                filtered[i] *= 2;
-                scoreGained += filtered[i];
-                filtered.splice(i + 1, 1);
-            }
-        }
-
-        while (filtered.length < 4) {
-            filtered.push(0);
-        }
-
-        return { row: filtered, scoreGained };
-    }
-
-    rotateGrid(grid, rotations) {
-        let current = grid.map(r => [...r]);
-        for (let i = 0; i < rotations; i++) {
-            const next = Array(4).fill(null).map(() => Array(4).fill(0));
-            for (let r = 0; r < 4; r++) {
-                for (let c = 0; c < 4; c++) {
-                    next[c][3 - r] = current[r][c];
-                }
-            }
-            current = next;
-        }
-        return current;
-    }
-
-    arraysEqual(a, b) {
-        return a.every((val, i) => val === b[i]);
     }
 
     undo() {

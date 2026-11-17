@@ -1,11 +1,21 @@
 /* Roulette Royale (Live Multi-Person European Roulette) */
 
+#view-roulette.app-view {
+    padding: 0.75rem 1.5rem 1.5rem;
+    max-width: 1520px;
+}
+
+#view-roulette .game-header-bar {
+    margin-bottom: 0.65rem;
+    padding-bottom: 0.45rem;
+}
+
 .roulette-wrapper {
-    max-width: 1040px;
+    max-width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 1.2rem;
+    gap: 0.75rem;
 }
 
 /* Meta & Countdown Bar */
@@ -14,20 +24,20 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.85rem 1.25rem;
+    padding: 0.6rem 1.25rem;
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--card-shadow);
     flex-wrap: wrap;
-    gap: 0.8rem;
+    gap: 0.75rem;
 }
 
 .roulette-period-chip {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 700;
     color: var(--text-secondary);
 }
@@ -35,17 +45,17 @@
 .roulette-period-val {
     font-family: var(--font-display);
     color: var(--text-primary);
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     letter-spacing: 0.5px;
 }
 
 .roulette-timer-box {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.5rem;
     background: var(--bg-surface-elevated);
     padding: 0.35rem 0.85rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
 }
 
@@ -58,7 +68,7 @@
 
 .roulette-timer-clock {
     font-family: var(--font-display);
-    font-size: 1.35rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: var(--color-accent);
     min-width: 55px;
@@ -78,11 +88,12 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: 0.6rem 0.9rem;
+    padding: 0.45rem 0.95rem;
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     box-shadow: var(--card-shadow);
+    min-height: 44px;
 }
 
 .roulette-history-bar::-webkit-scrollbar {
@@ -94,14 +105,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     font-family: var(--font-display);
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 800;
     color: #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.2s ease-out;
 }
 
@@ -112,8 +123,9 @@
 /* Main Table Layout */
 .roulette-main-layout {
     display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 1.2rem;
+    grid-template-columns: 1fr 280px;
+    gap: 0.9rem;
+    align-items: stretch;
 }
 
 /* Wheel Stage Area */
@@ -121,21 +133,27 @@
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    padding: 1.15rem 1.4rem;
     box-shadow: var(--card-shadow);
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-areas:
+        "wheel board"
+        "actions actions";
+    grid-template-columns: 370px 1fr;
+    column-gap: 1.5rem;
+    row-gap: 0.9rem;
     align-items: center;
-    gap: 1.2rem;
     position: relative;
     overflow: hidden;
 }
 
 .roulette-wheel-container {
+    grid-area: wheel;
     position: relative;
-    width: min(85vw, 320px);
-    height: min(85vw, 320px);
+    width: 370px;
+    height: 370px;
     aspect-ratio: 1;
+    margin: 0 auto;
 }
 
 #roulette-canvas {
@@ -151,10 +169,10 @@
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border-left: 9px solid transparent;
-    border-right: 9px solid transparent;
-    border-top: 16px solid var(--color-warning);
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-top: 20px solid #f59e0b;
+    filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.8));
     z-index: 5;
 }
 
@@ -162,17 +180,17 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.45rem 1.2rem;
+    padding: 0.35rem 1.1rem;
     border-radius: 20px;
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-color);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 700;
 }
 
 .roulette-result-num {
     font-family: var(--font-display);
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     font-weight: 800;
 }
 
@@ -182,6 +200,7 @@
 
 /* Interactive Betting Board */
 .roulette-board {
+    grid-area: board;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -191,7 +210,7 @@
 
 .roulette-board-top {
     display: grid;
-    grid-template-columns: 50px 1fr;
+    grid-template-columns: 56px 1fr;
     gap: 6px;
 }
 
@@ -211,6 +230,8 @@
     cursor: pointer;
     transition: all 0.15s;
     touch-action: manipulation;
+    height: 100%;
+    min-height: 130px;
 }
 
 .roulette-zero-cell:hover {
@@ -223,9 +244,9 @@
 }
 
 .roulette-zero-cell small {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    opacity: 0.9;
+    opacity: 0.95;
 }
 
 /* 3x12 Numbers Grid */
@@ -233,17 +254,17 @@
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: 4px;
+    gap: 5px;
 }
 
 .roulette-num-cell {
-    aspect-ratio: 1;
-    border-radius: 4px;
+    height: 42px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: var(--font-display);
-    font-size: 0.95rem;
+    font-size: 1.05rem;
     font-weight: 800;
     color: #ffffff;
     cursor: pointer;
@@ -284,10 +305,11 @@
 .roulette-outside-btn {
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 0.65rem 0.3rem;
+    border-radius: 6px;
+    padding: 0.55rem 0.35rem;
+    min-height: 42px;
     font-family: var(--font-display);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 800;
     color: var(--text-primary);
     cursor: pointer;
@@ -321,36 +343,37 @@
 }
 
 .roulette-outside-btn small {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
 }
 
 /* Chip Selector & Action Bar */
 .roulette-action-bar {
+    grid-area: actions;
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 0.8rem;
     flex-wrap: wrap;
-    padding-top: 0.8rem;
+    padding-top: 0.75rem;
     border-top: 1px solid var(--border-color);
 }
 
 .roulette-chips-row {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.5rem;
 }
 
 .roulette-chip-selector {
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    padding: 0.4rem 0.85rem;
+    padding: 0.42rem 0.95rem;
     border-radius: 20px;
     font-family: var(--font-display);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
@@ -372,10 +395,10 @@
     background: var(--bg-surface);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1.1rem;
+    padding: 1.1rem 1.15rem;
     display: flex;
     flex-direction: column;
-    gap: 0.85rem;
+    gap: 0.75rem;
     box-shadow: var(--card-shadow);
     height: 100%;
 }
@@ -396,7 +419,7 @@
     flex-direction: column;
     gap: 0.45rem;
     overflow-y: auto;
-    max-height: 480px;
+    max-height: 410px;
 }
 
 .roulette-player-item {
@@ -407,7 +430,7 @@
     background: var(--bg-surface-elevated);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     animation: fadeIn 0.2s ease-out;
 }
 
@@ -423,6 +446,49 @@
     font-family: var(--font-display);
     font-weight: 800;
     color: var(--text-primary);
+}
+
+.roulette-player-target {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.roulette-player-item.winning {
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.28));
+    border: 1px solid #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+    animation: winPulse 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes winPulse {
+    from { border-color: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.3); }
+    to { border-color: #34d399; box-shadow: 0 0 14px rgba(52, 211, 153, 0.6); }
+}
+
+.roulette-player-item.winning .roulette-player-name {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.roulette-player-item.winning .roulette-player-target {
+    color: #a7f3d0;
+    font-weight: 800;
+}
+
+.roulette-player-win-badge {
+    background: #059669;
+    color: #ffffff;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 2px 7px;
+    border-radius: 12px;
+    border: 1px solid #34d399;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    letter-spacing: 0.3px;
+    animation: popBadge 0.25s ease-out;
 }
 
 /* Lock Overlay */
@@ -471,9 +537,43 @@
 }
 
 /* Responsiveness */
+@media (max-width: 1279px) and (min-width: 881px) {
+    .roulette-stage-box {
+        grid-template-columns: 290px 1fr;
+        column-gap: 1.1rem;
+        padding: 0.95rem 1.1rem;
+    }
+    .roulette-wheel-container {
+        width: 290px;
+        height: 290px;
+    }
+    .roulette-num-cell {
+        height: 35px;
+        font-size: 0.95rem;
+    }
+    .roulette-outside-btn {
+        min-height: 35px;
+        font-size: 0.82rem;
+    }
+    .roulette-zero-cell {
+        font-size: 1.4rem;
+        min-height: 110px;
+    }
+}
+
 @media (max-width: 880px) {
     .roulette-main-layout {
         grid-template-columns: 1fr;
+    }
+    .roulette-stage-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    .roulette-wheel-container {
+        width: min(80vw, 300px);
+        height: min(80vw, 300px);
     }
 }
 
@@ -555,6 +655,195 @@
     }
     .roulette-result-num {
         font-size: 1.2rem;
+    }
+}
+
+/* Dynamic Chip Stake Badges */
+.roulette-zero-cell,
+.roulette-outside-btn {
+    position: relative;
+}
+
+.roulette-cell-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #f59e0b;
+    color: #0f172a;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 9px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+    z-index: 10;
+    line-height: 1.2;
+    border: 1px solid #ffffff;
+    animation: popBadge 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popBadge {
+    0% { transform: scale(0.4); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.roulette-chip.latest-chip {
+    box-shadow: 0 0 10px #f59e0b, 0 0 0 2px #f59e0b;
+    transform: scale(1.15);
+    z-index: 2;
+    animation: chipGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes chipGlow {
+    from { box-shadow: 0 0 4px #f59e0b, 0 0 0 2px #f59e0b; }
+    to { box-shadow: 0 0 14px #f59e0b, 0 0 0 3px #fcd34d; }
+}
+
+/* ================= ROULETTE WINNING CELEBRATION ANIMATIONS ================= */
+
+/* Win Splash Card (Over Center of Wheel) */
+.roulette-win-splash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    background: rgba(10, 15, 30, 0.94);
+    border: 2px solid #f59e0b;
+    box-shadow: 0 0 40px rgba(245, 158, 11, 0.65), 0 10px 40px rgba(0, 0, 0, 0.9);
+    border-radius: 20px;
+    padding: 1rem 1.4rem;
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(10px);
+    min-width: 170px;
+    text-align: center;
+}
+
+.roulette-win-splash.active {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    animation: winSplashPulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes winSplashPulse {
+    from {
+        box-shadow: 0 0 25px rgba(245, 158, 11, 0.5), 0 10px 30px rgba(0, 0, 0, 0.8);
+        border-color: #f59e0b;
+    }
+    to {
+        box-shadow: 0 0 45px rgba(16, 185, 129, 0.8), 0 10px 40px rgba(0, 0, 0, 0.95);
+        border-color: #10b981;
+    }
+}
+
+.roulette-win-pocket-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    border: 3px solid #ffffff;
+    animation: popBadge 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.roulette-win-pocket-badge.red { background: #dc2626; border-color: #ef4444; }
+.roulette-win-pocket-badge.black { background: #0f172a; border-color: #475569; }
+.roulette-win-pocket-badge.zero { background: #059669; border-color: #34d399; }
+
+.roulette-win-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #f59e0b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    text-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+}
+
+.roulette-win-amount {
+    font-family: var(--font-display);
+    font-size: 1.55rem;
+    font-weight: 900;
+    color: #10b981;
+    text-shadow: 0 0 16px rgba(16, 185, 129, 0.7);
+    letter-spacing: 0.5px;
+    animation: winAmtBounce 0.4s ease-out;
+}
+
+@keyframes winAmtBounce {
+    0% { transform: scale(0.6); opacity: 0; }
+    70% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.roulette-win-details {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    letter-spacing: 0.4px;
+}
+
+/* Board Cells Winning Neon Glow */
+.roulette-num-cell.roulette-winning-highlight,
+.roulette-zero-cell.roulette-winning-highlight,
+.roulette-outside-btn.roulette-winning-highlight {
+    box-shadow: 0 0 0 3px #f59e0b, 0 0 20px rgba(245, 158, 11, 0.8) !important;
+    transform: scale(1.08) !important;
+    z-index: 10 !important;
+    animation: winningCellGlow 0.7s ease-in-out infinite alternate !important;
+}
+
+@keyframes winningCellGlow {
+    from {
+        box-shadow: 0 0 0 2px #f59e0b, 0 0 12px rgba(245, 158, 11, 0.6);
+        filter: brightness(1.15);
+    }
+    to {
+        box-shadow: 0 0 0 4px #10b981, 0 0 26px rgba(16, 185, 129, 0.95);
+        filter: brightness(1.35);
+    }
+}
+
+/* Wheel Golden Aura */
+.roulette-wheel-container.winner-aura {
+    animation: wheelAuraGlow 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes wheelAuraGlow {
+    from {
+        filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.5));
+    }
+    to {
+        filter: drop-shadow(0 0 32px rgba(16, 185, 129, 0.85));
+    }
+}
+
+/* Pointer Celebration Bounce */
+.roulette-pointer.winner-bounce {
+    animation: pointerCelebrate 0.35s ease-in-out infinite alternate;
+}
+
+@keyframes pointerCelebrate {
+    from {
+        transform: translateX(-50%) translateY(0);
+        filter: drop-shadow(0 0 6px #f59e0b);
+    }
+    to {
+        transform: translateX(-50%) translateY(5px);
+        filter: drop-shadow(0 0 16px #10b981);
     }
 }
 

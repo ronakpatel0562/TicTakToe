@@ -1,7 +1,7 @@
 # 🎮 ARCADE X — Aesthetic Pro Gaming Suite (13 Games)
 
 A modern, aesthetic, web-based arcade gaming suite featuring **13 iconic games**, categorized into a unified lobby with dedicated rows:
-1. **Crash, Multiplier & Multiplayer Arena** (All 5 Multiplier/Multiplayer games in the same row: Aviator Pro, Rocket Launch, Color Prediction, Roulette Royale, Plinko)
+1. **Crash, Multiplier & Multiplayer Arena** (All 5 Multiplier/Multiplayer games in the same row: Aviator Pro, Color Prediction, Roulette Royale, Plinko Multiplier, Casino Mines)
 2. **Board & Strategy Battles** (Games like Tic-Tac-Toe: Connect Four, Tic-Tac-Toe, Minesweeper)
 3. **Logic, Reflex & Mind Games** (Sudoku, 2048, Snake, Memory Match, Wordle Master)
 
@@ -19,11 +19,11 @@ Complete with an integrated Payment Gateway (**Arcade Pay** with UPI QR, Cards, 
 * **Dual Bet Panels**: Place one or two simultaneous bets with auto-cashout targets and quick adjustments (`$5`, `$10`, `$50`, `½`, `2×`).
 * **Live Community Crew**: Real-time simulated player cashouts and history ribbon.
 
-#### 2. Rocket Launch (Space Crash Multiplier — Like Aviator)
-* **Mechanics**: Thrusters ignite as the rocket surges into deep space with exponential multipliers (`1.00x` to `100x+`).
-* **Canvas Simulation**: Space starfield, animated exhaust flame particles, trajectory curvature, and atmospheric burn-up effects.
-* **Dual Bet Panels**: Independent Primary & Secondary betting panels with auto-cashout checkboxes and quick bet buttons.
-* **Live Flight Crew**: Real-time simulated pilots and round multiplier history ribbon.
+#### 2. Casino Mines (Provably Fair 5x5 Grid Crash Wagering)
+* **Mechanics**: 5x5 grid with 25 tiles hiding gems and mines. Each uncovered gem increases your cash-out multiplier. Hit a mine and lose your stake!
+* **10% House Edge (90% RTP)**: Mathematically calibrated multipliers ($0.90 / P(k)$) guaranteeing authentic 90% return-to-player across all mine settings.
+* **Configurable Mines**: Choose 1 to 24 mines (presets: 1, 3, 5, 10, 24). More mines equal steeper multiplier climbs up to 22.50x on 1-pick jackpots.
+* **Controls & Features**: Quick bet chips ($1 to $1,000, 1/2, 2x), Random Tile Pick, live next-gem multiplier preview, and cashout celebration splash.
 
 #### 3. Color Prediction (Win Go / Color Parity)
 * **Mechanics**: Famous 30-second live prediction rounds with a 5-second lock countdown.
@@ -95,7 +95,7 @@ Complete with an integrated Payment Gateway (**Arcade Pay** with UPI QR, Cards, 
 
 ## 💳 Integrated Payment Gateway & Cashier (Arcade Pay)
 
-Integrated seamlessly into all wagering games (**Aviator**, **Rocket Launch**, **Color Prediction**, **Roulette Royale**, **Plinko**) and the global navigation:
+Integrated seamlessly into all wagering games (**Aviator**, **Color Prediction**, **Roulette Royale**, **Plinko**, **Casino Mines**) and the global navigation:
 
 * **Payment Channels**:
   * **Instant UPI & QR**: Scannable QR code + copyable UPI ID (`arcadex.pay@okaxis`) supporting PhonePe, Google Pay, Paytm, and BHIM.

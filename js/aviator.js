@@ -34,6 +34,13 @@ class AviatorGame {
         this.initDOM();
     }
 
+    formatMoney(val) {
+        if (window.arcadeWallet && typeof window.arcadeWallet.format === 'function') {
+            return window.arcadeWallet.format(val);
+        }
+        return '$' + Number(val || 0).toFixed(2);
+    }
+
     initDOM() {
         if (!this.canvas) return;
 
@@ -55,8 +62,8 @@ class AviatorGame {
 
         if (this.walletRefillBtn) {
             this.walletRefillBtn.addEventListener('click', () => {
-                window.soundEngine.playClick();
-                window.arcadeWallet.add(500);
+                if (window.soundEngine) window.soundEngine.playClick();
+                if (window.arcadeWallet) window.arcadeWallet.add(500);
             });
         }
 
@@ -86,6 +93,10 @@ class AviatorGame {
 
         if (input) {
             input.addEventListener('change', (e) => {
+                if (this.state === 'FLYING' || p.hasBet) {
+                    input.value = p.stakedAmount || p.betAmount;
+                    return;
+                }
                 let val = parseFloat(e.target.value);
                 if (isNaN(val) || val < 1) val = 1;
                 p.betAmount = Math.round(val);
@@ -96,6 +107,7 @@ class AviatorGame {
         if (quickBtns) {
             quickBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    if (this.state === 'FLYING' || p.hasBet) return;
                     window.soundEngine.playClick();
                     const action = btn.dataset.action;
                     if (action === '2x') p.betAmount *= 2;
@@ -139,10 +151,11 @@ class AviatorGame {
         if (this.state === 'WAITING') {
             // Placing or canceling bet
             if (!p.hasBet) {
-                if (window.arcadeWallet.deduct(p.betAmount)) {
+                if (window.arcadeWallet && window.arcadeWallet.deduct(p.betAmount)) {
                     p.hasBet = true;
                     p.cashedOut = false;
-                    window.soundEngine.playClick();
+                    p.stakedAmount = p.betAmount; // Lock in active stake
+                    if (window.soundEngine) window.soundEngine.playClick();
                     this.updatePanelUI(panelId);
                 } else {
                     if (window.showToast) {
@@ -154,9 +167,11 @@ class AviatorGame {
                 }
             } else {
                 // Cancel bet before round starts
-                window.arcadeWallet.add(p.betAmount);
+                const refund = p.stakedAmount || p.betAmount;
+                if (window.arcadeWallet) window.arcadeWallet.add(refund);
                 p.hasBet = false;
-                window.soundEngine.playClick();
+                p.stakedAmount = 0;
+                if (window.soundEngine) window.soundEngine.playClick();
                 this.updatePanelUI(panelId);
             }
         } else if (this.state === 'FLYING') {
@@ -172,12 +187,13 @@ class AviatorGame {
         if (!p.hasBet || p.cashedOut) return;
 
         p.cashedOut = true;
-        p.winAmount = p.betAmount * this.multiplier;
-        window.arcadeWallet.add(p.winAmount);
-        window.soundEngine.playAviatorCashout();
+        const stake = p.stakedAmount || p.betAmount;
+        p.winAmount = stake * this.multiplier;
+        if (window.arcadeWallet) window.arcadeWallet.add(p.winAmount);
+        if (window.soundEngine) window.soundEngine.playAviatorCashout();
 
         if (window.showToast) {
-            window.showToast('Cashed Out! 💰', `Won +${window.arcadeWallet.format(p.winAmount)} @ ${this.multiplier.toFixed(2)}x`, 'success');
+            window.showToast('Cashed Out! 💰', `Won +${this.formatMoney(p.winAmount)} @ ${this.multiplier.toFixed(2)}x`, 'success');
         }
 
         // Update stats
@@ -197,24 +213,19 @@ class AviatorGame {
     }
 
     generateCrashPoint() {
-        // Authentic crash curve distribution
+        const houseEdge = window.HOUSE_EDGE || 0.10;
         const rand = Math.random();
-        if (rand < 0.08) {
-            // Instant crash
-            return +(1.00 + Math.random() * 0.15).toFixed(2);
-        } else if (rand < 0.55) {
-            // 1.15 to 2.20
-            return +(1.15 + Math.random() * 1.05).toFixed(2);
-        } else if (rand < 0.85) {
-            // 2.20 to 6.50
-            return +(2.20 + Math.random() * 4.30).toFixed(2);
-        } else if (rand < 0.96) {
-            // 6.50 to 20.00
-            return +(6.50 + Math.random() * 13.50).toFixed(2);
-        } else {
-            // Moonshot 20x to 100x+
-            return +(20.00 + Math.random() * 80.00).toFixed(2);
+
+        // 10% House Edge: 10% of rounds crash immediately at 1.00x
+        if (rand < houseEdge) {
+            return 1.00;
         }
+
+        // Industry standard provably fair crash distribution with 10% house edge (90% RTP):
+        // P(crashPoint >= M) = 0.90 / M
+        const raw = (1 - houseEdge) / (1 - rand);
+        const capped = Math.min(500.00, Math.max(1.01, raw));
+        return parseFloat((Math.floor(capped * 100) / 100).toFixed(2));
     }
 
     startWaitingRound() {
@@ -229,6 +240,7 @@ class AviatorGame {
         this.panels.forEach((p, idx) => {
             p.cashedOut = false;
             p.winAmount = 0;
+            p.stakedAmount = 0;
             this.updatePanelUI(idx + 1);
         });
 
@@ -252,7 +264,7 @@ class AviatorGame {
             this.statusDisplay.style.display = 'none';
         }
 
-        window.soundEngine.startAviatorFlight();
+        if (window.soundEngine) window.soundEngine.startAviatorFlight();
 
         this.panels.forEach((p, idx) => {
             this.updatePanelUI(idx + 1);
@@ -261,7 +273,7 @@ class AviatorGame {
 
     crash() {
         this.state = 'CRASHED';
-        window.soundEngine.playAviatorCrash();
+        if (window.soundEngine) window.soundEngine.playAviatorCrash();
 
         // History
         this.history.unshift(this.multiplier);
@@ -275,8 +287,9 @@ class AviatorGame {
         }
 
         this.panels.forEach((p, idx) => {
-            this.updatePanelUI(idx + 1);
             p.hasBet = false; // Bet was lost if not cashed out
+            p.stakedAmount = 0;
+            this.updatePanelUI(idx + 1);
         });
 
         // Pause 3 seconds then new round
@@ -288,24 +301,37 @@ class AviatorGame {
     updatePanelUI(panelId) {
         const p = this.panels[panelId - 1];
         const actionBtn = document.getElementById(`aviator-action-btn-${panelId}`);
+        const input = document.getElementById(`aviator-bet-amount-${panelId}`);
+        const quickBtns = document.querySelectorAll(`.aviator-quick-${panelId}`);
         if (!actionBtn) return;
+
+        // Strictly lock input and multiplier buttons when bet is placed or plane is in flight
+        const isLocked = p.hasBet || this.state === 'FLYING';
+        if (input) input.disabled = isLocked;
+        if (quickBtns) {
+            quickBtns.forEach(btn => {
+                btn.disabled = isLocked;
+                btn.classList.toggle('disabled', isLocked);
+            });
+        }
 
         if (this.state === 'WAITING') {
             if (p.hasBet) {
                 actionBtn.className = 'aviator-btn cancel-btn';
-                actionBtn.innerHTML = `<span>CANCEL</span><small>${window.arcadeWallet.format(p.betAmount)}</small>`;
+                actionBtn.innerHTML = `<span>CANCEL</span><small>${this.formatMoney(p.stakedAmount || p.betAmount)}</small>`;
             } else {
                 actionBtn.className = 'aviator-btn bet-btn';
-                actionBtn.innerHTML = `<span>BET</span><small>${window.arcadeWallet.format(p.betAmount)}</small>`;
+                actionBtn.innerHTML = `<span>BET</span><small>${this.formatMoney(p.betAmount)}</small>`;
             }
         } else if (this.state === 'FLYING') {
             if (p.hasBet && !p.cashedOut) {
                 actionBtn.className = 'aviator-btn cashout-btn pulse';
-                const liveWin = p.betAmount * this.multiplier;
-                actionBtn.innerHTML = `<span>CASH OUT</span><small>${window.arcadeWallet.format(liveWin)}</small>`;
+                const stake = p.stakedAmount || p.betAmount;
+                const liveWin = stake * this.multiplier;
+                actionBtn.innerHTML = `<span>CASH OUT</span><small>${this.formatMoney(liveWin)}</small>`;
             } else if (p.cashedOut) {
                 actionBtn.className = 'aviator-btn won-btn';
-                actionBtn.innerHTML = `<span>WON</span><small>+${window.arcadeWallet.format(p.winAmount)}</small>`;
+                actionBtn.innerHTML = `<span>WON</span><small>+${this.formatMoney(p.winAmount)}</small>`;
             } else {
                 actionBtn.className = 'aviator-btn waiting-btn';
                 actionBtn.innerHTML = `<span>FLYING...</span>`;
@@ -313,7 +339,7 @@ class AviatorGame {
         } else if (this.state === 'CRASHED') {
             if (p.cashedOut) {
                 actionBtn.className = 'aviator-btn won-btn';
-                actionBtn.innerHTML = `<span>WON</span><small>+${window.arcadeWallet.format(p.winAmount)}</small>`;
+                actionBtn.innerHTML = `<span>WON</span><small>+${this.formatMoney(p.winAmount)}</small>`;
             } else {
                 actionBtn.className = 'aviator-btn crashed-btn';
                 actionBtn.innerHTML = `<span>FLEW AWAY</span>`;
@@ -365,11 +391,11 @@ class AviatorGame {
         if (!this.simPlayersTable) return;
         this.simPlayersTable.innerHTML = this.simulatedPlayers.map(p => {
             const statusClass = p.cashedOut ? 'text-emerald' : 'text-muted';
-            const statusText = p.cashedOut ? `+${window.arcadeWallet.format(p.win)} (@${p.targetCashout}x)` : 'In Flight...';
+            const statusText = p.cashedOut ? `+${this.formatMoney(p.win)} (@${p.targetCashout}x)` : 'In Flight...';
             return `
                 <div class="sim-player-row">
                     <span class="player-name"><i class="fa-solid fa-user-astronaut"></i> ${p.name}</span>
-                    <span class="player-bet">${window.arcadeWallet.format(p.bet)}</span>
+                    <span class="player-bet">${this.formatMoney(p.bet)}</span>
                     <span class="player-status ${statusClass}">${statusText}</span>
                 </div>
             `;
@@ -403,7 +429,7 @@ class AviatorGame {
             // Multiplier curve: starts gentle, accelerates exponentially
             this.multiplier = +(1.00 + 0.08 * Math.pow(elapsed, 1.45) + 0.02 * elapsed).toFixed(2);
 
-            window.soundEngine.updateAviatorFlightPitch(this.multiplier);
+            if (window.soundEngine) window.soundEngine.updateAviatorFlightPitch(this.multiplier);
 
             if (this.multiplierDisplay) {
                 this.multiplierDisplay.textContent = `${this.multiplier.toFixed(2)}x`;
@@ -520,26 +546,34 @@ class AviatorGame {
         const startX = 40;
         const startY = h - 50;
 
-        // Compute plane position based on progress
-        const maxMult = Math.max(3.0, this.crashPoint);
-        const progress = Math.min(1.0, (this.multiplier - 1.0) / (maxMult - 0.5));
+        // Visual progress based EXCLUSIVELY on current multiplier - ZERO dependency on crashPoint!
+        // Asymptotic curve: 1.00x -> 0.0, 2.00x -> 0.35, 5.00x -> 0.73, 10.00x -> 0.95
+        const normMult = Math.max(1.0, this.multiplier);
+        const progress = 1.0 - Math.exp(-(normMult - 1.0) / 2.8);
 
-        const targetX = startX + (w - 140) * Math.min(1, progress * 1.15);
-        // Exponential curve
-        const curveFactor = Math.pow(Math.min(1, progress), 1.8);
-        const targetY = startY - (h - 120) * curveFactor;
+        // Maximum visual flight bounds
+        const maxRangeX = w - 140;
+        const maxAltitude = h - 110;
+
+        // Natural aerodynamic float
+        const now = performance.now();
+        const turbulenceX = Math.sin(now * 0.0022) * 3;
+        const turbulenceY = Math.cos(now * 0.0031) * 5;
+
+        const targetX = startX + maxRangeX * progress + turbulenceX;
+        const targetY = startY - maxAltitude * Math.pow(progress, 0.78) + turbulenceY;
 
         this.planeX = targetX;
         this.planeY = targetY;
 
         // Build curve control point
-        const cpX = startX + (targetX - startX) * 0.65;
+        const cpX = startX + (targetX - startX) * 0.55;
         const cpY = startY;
 
         // Fill area under curve
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         const grad = this.ctx.createLinearGradient(0, targetY, 0, h);
-        grad.addColorStop(0, isLight ? 'rgba(225, 29, 72, 0.14)' : 'rgba(244, 63, 94, 0.28)');
+        grad.addColorStop(0, isLight ? 'rgba(225, 29, 72, 0.16)' : 'rgba(244, 63, 94, 0.32)');
         grad.addColorStop(1, 'rgba(225, 29, 72, 0.0)');
 
         this.ctx.beginPath();
@@ -555,9 +589,18 @@ class AviatorGame {
         this.ctx.beginPath();
         this.ctx.moveTo(startX, startY);
         this.ctx.quadraticCurveTo(cpX, cpY, targetX, targetY);
-        this.ctx.strokeStyle = '#e11d48';
-        this.ctx.lineWidth = 3;
+        this.ctx.strokeStyle = '#f43f5e';
+        this.ctx.lineWidth = 3.5;
         this.ctx.stroke();
+
+        // Glowing apex pulse point at the plane
+        this.ctx.beginPath();
+        this.ctx.arc(targetX, targetY, 4.5, 0, Math.PI * 2);
+        this.ctx.fillStyle = '#fb7185';
+        this.ctx.shadowColor = '#f43f5e';
+        this.ctx.shadowBlur = 12;
+        this.ctx.fill();
+        this.ctx.shadowBlur = 0;
     }
 
     drawPlane(w, h) {

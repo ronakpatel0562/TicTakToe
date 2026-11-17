@@ -161,19 +161,14 @@
     100% { transform: scale(1); }
 }
 
-/* Touch D-Pad for Mobile Comfort */
+/* Controls & D-Pad (Accessible on both PC & Mobile) */
 .g2048-dpad {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    margin-top: 0.5rem;
-}
-
-@media (max-width: 600px) {
-    .g2048-dpad {
-        display: flex;
-    }
+    margin-top: 0.6rem;
+    user-select: none;
 }
 
 .dpad-row {
@@ -185,7 +180,7 @@
     width: 56px;
     height: 48px;
     background: var(--bg-surface);
-    border: 1px solid var(--border-color);
+    border: 1.5px solid var(--border-color);
     color: var(--text-primary);
     border-radius: var(--radius-md);
     font-size: 1.2rem;
@@ -195,11 +190,20 @@
     cursor: pointer;
     touch-action: manipulation;
     box-shadow: var(--card-shadow);
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.dpad-btn:hover {
+    border-color: var(--color-accent);
+    background: var(--bg-surface-elevated);
+    transform: translateY(-1px);
 }
 
 .dpad-btn:active {
     background: var(--bg-surface-elevated);
     border-color: var(--color-accent);
+    transform: translateY(1px);
 }
 
 /* Game Overlay */

@@ -8,12 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let minesweeperInstance = null;
     let snakeInstance = null;
     let colorSelectorInstance = null;
-    let rocketInstance = null;
     let connect4Instance = null;
     let plinkoInstance = null;
     let memoryInstance = null;
     let wordleInstance = null;
     let rouletteInstance = null;
+    let minesInstance = null;
 
     // Elements
     const views = {
@@ -21,10 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
         tictactoe: document.getElementById('view-tictactoe'),
         sudoku: document.getElementById('view-sudoku'),
         aviator: document.getElementById('view-aviator'),
-        rocket: document.getElementById('view-rocket'),
         colorselector: document.getElementById('view-colorselector'),
         roulette: document.getElementById('view-roulette'),
         plinko: document.getElementById('view-plinko'),
+        mines: document.getElementById('view-mines'),
         connect4: document.getElementById('view-connect4'),
         minesweeper: document.getElementById('view-minesweeper'),
         game2048: document.getElementById('view-game2048'),
@@ -43,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const cardTTT = document.getElementById('card-tictactoe');
     const cardSudoku = document.getElementById('card-sudoku');
     const cardAviator = document.getElementById('card-aviator');
-    const cardRocket = document.getElementById('card-rocket');
     const cardColorSelector = document.getElementById('card-colorselector');
     const cardRoulette = document.getElementById('card-roulette');
     const cardPlinko = document.getElementById('card-plinko');
+    const cardMines = document.getElementById('card-mines');
     const cardConnect4 = document.getElementById('card-connect4');
     const cardMinesweeper = document.getElementById('card-minesweeper');
     const card2048 = document.getElementById('card-game2048');
@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Redraw canvas if active
         if (aviatorInstance) aviatorInstance.draw();
         if (snakeInstance) snakeInstance.draw();
-        if (rocketInstance) rocketInstance.resizeCanvas();
         if (rouletteInstance) rouletteInstance.resizeCanvas();
         if (plinkoInstance) {
             plinkoInstance.resizeCanvas();
@@ -147,6 +146,11 @@ document.addEventListener('DOMContentLoaded', () => {
             navLobbyBtn.style.display = viewName === 'home' ? 'none' : 'flex';
         }
 
+        // Pause/stop background game loops when navigating away
+        if (snakeInstance && viewName !== 'snake') {
+            snakeInstance.stopLoop();
+        }
+
         // Initialize games on first open or resume
         if (viewName === 'tictactoe') {
             if (!tttInstance) {
@@ -163,16 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (aviatorInstance) aviatorInstance.resizeCanvas();
             }, 60);
-        } else if (viewName === 'rocket') {
-            if (!rocketInstance) {
-                rocketInstance = new window.RocketGame();
-            }
-            setTimeout(() => {
-                if (rocketInstance) rocketInstance.resizeCanvas();
-            }, 60);
         } else if (viewName === 'game2048') {
             if (!game2048Instance) {
                 game2048Instance = new window.Game2048();
+            } else {
+                game2048Instance.render();
+                game2048Instance.updateScoreUI();
             }
         } else if (viewName === 'minesweeper') {
             if (!minesweeperInstance) {
@@ -182,7 +182,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!snakeInstance) {
                 snakeInstance = new window.SnakeGame();
             } else {
-                snakeInstance.startLoop();
+                if (snakeInstance.isGameOver) {
+                    snakeInstance.restart();
+                } else {
+                    snakeInstance.startLoop();
+                }
             }
             setTimeout(() => {
                 if (snakeInstance) snakeInstance.resizeCanvas();
@@ -208,6 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     plinkoInstance.initPegs();
                 }
             }, 60);
+        } else if (viewName === 'mines') {
+            if (!minesInstance) {
+                minesInstance = new window.MinesGame();
+            }
         } else if (viewName === 'memory') {
             if (!memoryInstance) {
                 memoryInstance = new window.MemoryGame();
@@ -220,6 +228,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (viewName === 'roulette') {
             if (!rouletteInstance) {
                 rouletteInstance = new window.RouletteGame();
+            } else {
+                rouletteInstance.activate();
             }
             setTimeout(() => {
                 if (rouletteInstance) rouletteInstance.resizeCanvas();
@@ -239,16 +249,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (viewName !== 'wordle' && wordleInstance) {
             wordleInstance.deactivate();
         }
+        if (viewName !== 'roulette' && rouletteInstance) {
+            rouletteInstance.stop();
+        }
     }
 
     // Bind Home Cards
     if (cardTTT) cardTTT.addEventListener('click', () => switchView('tictactoe'));
     if (cardSudoku) cardSudoku.addEventListener('click', () => switchView('sudoku'));
     if (cardAviator) cardAviator.addEventListener('click', () => switchView('aviator'));
-    if (cardRocket) cardRocket.addEventListener('click', () => switchView('rocket'));
     if (cardColorSelector) cardColorSelector.addEventListener('click', () => switchView('colorselector'));
     if (cardRoulette) cardRoulette.addEventListener('click', () => switchView('roulette'));
     if (cardPlinko) cardPlinko.addEventListener('click', () => switchView('plinko'));
+    if (cardMines) cardMines.addEventListener('click', () => switchView('mines'));
     if (cardConnect4) cardConnect4.addEventListener('click', () => switchView('connect4'));
     if (cardMinesweeper) cardMinesweeper.addEventListener('click', () => switchView('minesweeper'));
     if (card2048) card2048.addEventListener('click', () => switchView('game2048'));
@@ -375,8 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check URL hash if any (e.g. #aviator, #rocket, #connect4, #roulette)
     const validViews = [
-        'tictactoe', 'sudoku', 'aviator', 'rocket', 'colorselector',
-        'roulette', 'plinko', 'connect4', 'minesweeper', 'game2048',
+        'tictactoe', 'sudoku', 'aviator', 'colorselector',
+        'roulette', 'plinko', 'mines', 'connect4', 'minesweeper', 'game2048',
         'snake', 'memory', 'wordle'
     ];
     const hash = window.location.hash.replace('#', '');

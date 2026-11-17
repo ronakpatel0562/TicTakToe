@@ -68,6 +68,18 @@
     color: #000000;
 }
 
+.plinko-bucket.sub-one-bucket {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.25);
+    color: #f59e0b;
+}
+
+.plinko-bucket.high-bucket {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #10b981;
+}
+
 .plinko-bucket.zero-bucket {
     background: rgba(239, 68, 68, 0.12);
     border-color: rgba(239, 68, 68, 0.35);

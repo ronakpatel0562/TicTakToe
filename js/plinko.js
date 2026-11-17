@@ -15,10 +15,12 @@ class PlinkoGame {
         this.betAmount = 10;
         this.risk = 'medium';
 
+        // Calibrated authentic 10% House Edge (90% RTP) Plinko Multipliers
+        // Replaced 0x buckets with partial payouts (0.2x - 0.7x) to eliminate unfair 0x clustering
         this.multipliers = {
-            low: [5.6, 2.0, 1.2, 0.5, 0, 0.5, 1.2, 2.0, 5.6],
-            medium: [13, 3.0, 1.2, 0, 0, 0, 1.2, 3.0, 13],
-            high: [29, 4.0, 0, 0, 0, 0, 0, 4.0, 29]
+            low: [5.6, 2.0, 1.1, 0.7, 0.7, 0.7, 1.1, 2.0, 5.6],   // 90.7% RTP (9.3% House Edge)
+            medium: [13, 3.0, 1.3, 0.5, 0.4, 0.5, 1.3, 3.0, 13],  // 90.16% RTP (9.84% House Edge)
+            high: [29, 4.0, 1.1, 0.3, 0.2, 0.3, 1.1, 4.0, 29]     // 90.31% RTP (9.69% House Edge)
         };
 
         this.init();
@@ -76,11 +78,17 @@ class PlinkoGame {
     renderBuckets() {
         if (!this.bucketsContainer) return;
         const list = this.multipliers[this.risk] || this.multipliers.medium;
-        this.bucketsContainer.innerHTML = list.map((m, idx) => `
-            <div class="plinko-bucket ${m === 0 ? 'zero-bucket' : ''}" id="plinko-b-${idx}" data-idx="${idx}">
-                ${m === 0 ? '0x' : m + 'x'}
-            </div>
-        `).join('');
+        this.bucketsContainer.innerHTML = list.map((m, idx) => {
+            let cls = '';
+            if (m === 0) cls = 'zero-bucket';
+            else if (m < 1.0) cls = 'sub-one-bucket';
+            else if (m >= 3.0) cls = 'high-bucket';
+            return `
+                <div class="plinko-bucket ${cls}" id="plinko-b-${idx}" data-idx="${idx}">
+                    ${m + 'x'}
+                </div>
+            `;
+        }).join('');
     }
 
     bindEvents() {
@@ -189,7 +197,8 @@ class PlinkoGame {
         const bucketIdx = Math.min(multList.length - 1, Math.max(0, Math.floor(b.x / bucketWidth)));
         const mult = multList[bucketIdx];
 
-        const winAmt = b.bet * mult;
+        // Direct payout using authentic house-edged multiplier table (90% RTP)
+        const winAmt = +(b.bet * mult).toFixed(2);
         if (window.arcadeWallet) {
             if (winAmt > 0) {
                 window.arcadeWallet.add(winAmt);
@@ -223,8 +232,19 @@ class PlinkoGame {
         } else if (mult >= 2.0) {
             if (window.soundEngine) window.soundEngine.playAviatorCashout();
             if (mult >= 10.0 && window.triggerConfetti) window.triggerConfetti();
-        } else if (mult > 0 && mult < 1.0) {
+            if (window.showToast) {
+                window.showToast('🎉 Plinko Hit!', `Landed on ${mult}x! Won +$${winAmt.toFixed(2)}`, 'success');
+            }
+        } else if (mult < 1.0) {
             if (window.soundEngine) window.soundEngine.playBounce();
+            if (window.showToast) {
+                window.showToast('Plinko Returned', `Landed on ${mult}x. Returned $${winAmt.toFixed(2)}`, 'info');
+            }
+        } else {
+            if (window.soundEngine) window.soundEngine.playClick();
+            if (window.showToast) {
+                window.showToast('Plinko Hit', `Landed on ${mult}x. Returned $${winAmt.toFixed(2)}`, 'info');
+            }
         }
     }
 

@@ -3,6 +3,7 @@ class SnakeGame {
     constructor() {
         this.canvas = document.getElementById('snake-canvas');
         this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+        this.stage = document.querySelector('.snake-stage') || this.canvas;
 
         this.gridSize = 20; // 20x20 grid
         this.snake = [
@@ -17,8 +18,9 @@ class SnakeGame {
 
         this.score = 0;
         this.highScore = 0;
-        this.speed = 'normal'; // 'slow' (130ms), 'normal' (90ms), 'turbo' (60ms)
-        this.wallMode = 'wrap'; // 'wrap' or 'solid'
+        this.speed = 'normal'; // 'slow' (135ms), 'normal' (90ms), 'turbo' (60ms)
+        this.wallMode = 'solid'; // 'wrap', 'solid', 'cross', 'pillars', 'corners', 'labyrinth'
+        this.walls = new Set();
         this.isGameOver = false;
         this.isPaused = false;
         this.gameInterval = null;
@@ -32,6 +34,7 @@ class SnakeGame {
     initDOM() {
         if (!this.canvas) return;
 
+        this.stage = document.querySelector('.snake-stage') || this.canvas;
         this.scoreElem = document.getElementById('snake-score');
         this.highScoreElem = document.getElementById('snake-best-score');
         this.speedSelector = document.getElementById('snake-speed-select');
@@ -39,8 +42,16 @@ class SnakeGame {
         this.pauseBtn = document.getElementById('snake-pause-btn');
         this.restartBtn = document.getElementById('snake-restart-btn');
         this.overlay = document.getElementById('snake-overlay');
-        this.overlayScore = document.getElementById('snake-overlay-score');
         this.overlayBtn = document.getElementById('snake-overlay-btn');
+        this.goRunScore = document.getElementById('snake-go-run-score');
+        this.goBestScore = document.getElementById('snake-go-best-score');
+        this.goNewBest = document.getElementById('snake-go-newbest');
+        this.goSubtitle = document.getElementById('snake-go-subtitle');
+
+        if (this.wallSelector) {
+            this.wallMode = this.wallSelector.value || 'solid';
+        }
+        this.initWalls();
 
         // Load high score
         const saved = localStorage.getItem('arcade_snake_best');
@@ -64,6 +75,11 @@ class SnakeGame {
         if (this.wallSelector) {
             this.wallSelector.addEventListener('change', (e) => {
                 this.wallMode = e.target.value;
+                this.initWalls();
+                this.restart();
+                if (window.soundEngine && typeof window.soundEngine.playClick === 'function') {
+                    window.soundEngine.playClick();
+                }
             });
         }
 
@@ -73,79 +89,193 @@ class SnakeGame {
 
         if (this.restartBtn) {
             this.restartBtn.addEventListener('click', () => {
-                window.soundEngine.playClick();
+                if (window.soundEngine && typeof window.soundEngine.playClick === 'function') {
+                    window.soundEngine.playClick();
+                }
                 this.restart();
             });
         }
 
         if (this.overlayBtn) {
-            this.overlayBtn.addEventListener('click', () => {
-                window.soundEngine.playClick();
+            this.overlayBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window.soundEngine && typeof window.soundEngine.playClick === 'function') {
+                    window.soundEngine.playClick();
+                }
                 this.restart();
             });
         }
 
-        // Virtual D-Pad
+        if (this.overlay) {
+            this.overlay.addEventListener('click', (e) => {
+                if (e.target === this.overlay) {
+                    if (window.soundEngine && typeof window.soundEngine.playClick === 'function') {
+                        window.soundEngine.playClick();
+                    }
+                    this.restart();
+                }
+            });
+        }
+
+        // Virtual D-Pad for Mobile & Quick Controls
         const dpadBtns = document.querySelectorAll('.snake-dpad-btn');
         if (dpadBtns) {
             dpadBtns.forEach(btn => {
                 const handleDpad = (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     const dir = btn.dataset.dir;
                     if (dir === 'up') this.setDirection(0, -1);
                     else if (dir === 'right') this.setDirection(1, 0);
                     else if (dir === 'down') this.setDirection(0, 1);
                     else if (dir === 'left') this.setDirection(-1, 0);
+                    if (window.soundEngine && typeof window.soundEngine.playClick === 'function') {
+                        window.soundEngine.playClick();
+                    }
                 };
+                btn.addEventListener('pointerdown', handleDpad);
                 btn.addEventListener('touchstart', handleDpad, { passive: false });
                 btn.addEventListener('click', handleDpad);
             });
         }
 
-        // Touch Swipe
-        this.canvas.addEventListener('touchstart', (e) => {
+        // Touch Arena Controls (Continuous Real-Time Swipe + Tap to Turn)
+        const stage = this.stage || this.canvas;
+        let isTouching = false;
+
+        stage.addEventListener('touchstart', (e) => {
             if (e.touches.length > 0) {
+                isTouching = true;
                 this.touchStartX = e.touches[0].clientX;
                 this.touchStartY = e.touches[0].clientY;
             }
         }, { passive: true });
 
-        this.canvas.addEventListener('touchmove', (e) => {
+        stage.addEventListener('touchmove', (e) => {
+            if (!isTouching || e.touches.length === 0) return;
             e.preventDefault();
-        }, { passive: false });
 
-        this.canvas.addEventListener('touchend', (e) => {
-            if (!e.changedTouches.length) return;
-            const dx = e.changedTouches[0].clientX - this.touchStartX;
-            const dy = e.changedTouches[0].clientY - this.touchStartY;
+            const curX = e.touches[0].clientX;
+            const curY = e.touches[0].clientY;
+            const dx = curX - this.touchStartX;
+            const dy = curY - this.touchStartY;
             const absDx = Math.abs(dx);
             const absDy = Math.abs(dy);
 
-            if (Math.max(absDx, absDy) > 25) {
+            // Responsive threshold: 16px of swipe changes direction immediately!
+            if (Math.max(absDx, absDy) > 16) {
                 if (absDx > absDy) {
                     this.setDirection(dx > 0 ? 1 : -1, 0);
                 } else {
                     this.setDirection(0, dy > 0 ? 1 : -1);
                 }
+                this.touchStartX = curX;
+                this.touchStartY = curY;
             }
+        }, { passive: false });
+
+        stage.addEventListener('touchend', () => {
+            isTouching = false;
         }, { passive: true });
 
-        // Keyboard Controls
+        // Tap on arena quadrants to turn (top/bottom/left/right)
+        stage.addEventListener('click', (e) => {
+            if (this.isPaused || this.isGameOver) return;
+            const rect = stage.getBoundingClientRect();
+            const relX = (e.clientX - rect.left) / rect.width - 0.5;
+            const relY = (e.clientY - rect.top) / rect.height - 0.5;
+
+            if (Math.abs(relX) > Math.abs(relY)) {
+                this.setDirection(relX > 0 ? 1 : -1, 0);
+            } else {
+                this.setDirection(0, relY > 0 ? 1 : -1);
+            }
+        });
+
+        // Keyboard Controls (PC: Arrow Keys + WASD + Space/Enter to Reboot)
         window.addEventListener('keydown', (e) => {
             const view = document.getElementById('view-snake');
             if (!view || !view.classList.contains('active')) return;
 
+            if (this.isGameOver) {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    if (window.soundEngine && typeof window.soundEngine.playClick === 'function') {
+                        window.soundEngine.playClick();
+                    }
+                    this.restart();
+                    return;
+                }
+            }
+
             let handled = false;
-            if (e.key === 'ArrowUp' || e.key.toLowerCase() === 'w') { this.setDirection(0, -1); handled = true; }
-            else if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') { this.setDirection(1, 0); handled = true; }
-            else if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') { this.setDirection(0, 1); handled = true; }
-            else if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') { this.setDirection(-1, 0); handled = true; }
-            else if (e.key === ' ') { this.togglePause(); handled = true; }
+            const k = e.key;
+            const code = e.code;
+
+            if (k === 'ArrowUp' || k === 'w' || k === 'W' || code === 'KeyW' || code === 'ArrowUp') {
+                this.setDirection(0, -1); handled = true;
+            } else if (k === 'ArrowRight' || k === 'd' || k === 'D' || code === 'KeyD' || code === 'ArrowRight') {
+                this.setDirection(1, 0); handled = true;
+            } else if (k === 'ArrowDown' || k === 's' || k === 'S' || code === 'KeyS' || code === 'ArrowDown') {
+                this.setDirection(0, 1); handled = true;
+            } else if (k === 'ArrowLeft' || k === 'a' || k === 'A' || code === 'KeyA' || code === 'ArrowLeft') {
+                this.setDirection(-1, 0); handled = true;
+            } else if (k === ' ') {
+                this.togglePause(); handled = true;
+            }
 
             if (handled) e.preventDefault();
         });
 
         this.restart();
+    }
+
+    initWalls() {
+        this.walls = new Set();
+        const addWall = (x, y) => this.walls.add(`${x},${y}`);
+
+        if (this.wallMode === 'cross') {
+            // Vertical arms leaving center (y: 7..13) and ends clear
+            for (let y = 2; y <= 6; y++) addWall(10, y);
+            for (let y = 13; y <= 17; y++) addWall(10, y);
+            // Horizontal arms leaving center (x: 6..14) clear for snake start
+            for (let x = 2; x <= 5; x++) addWall(x, 10);
+            for (let x = 15; x <= 18; x++) addWall(x, 10);
+        } else if (this.wallMode === 'pillars') {
+            // Two vertical laser barrier pillars leaving top, bottom, and center hallway open
+            for (let y = 4; y <= 15; y++) {
+                addWall(5, y);
+                addWall(14, y);
+            }
+        } else if (this.wallMode === 'corners') {
+            // Four corner tactical brackets creating chambers in each corner
+            for (let i = 0; i <= 3; i++) {
+                // Top-left
+                addWall(4 + i, 4); addWall(4, 4 + i);
+                // Top-right
+                addWall(15 - i, 4); addWall(15, 4 + i);
+                // Bottom-left
+                addWall(4 + i, 15); addWall(4, 15 - i);
+                // Bottom-right
+                addWall(15 - i, 15); addWall(15, 15 - i);
+            }
+        } else if (this.wallMode === 'labyrinth') {
+            // Upper dividing line with central doorway (x: 8..11)
+            for (let x = 2; x <= 7; x++) addWall(x, 5);
+            for (let x = 12; x <= 17; x++) addWall(x, 5);
+            // Lower dividing line with central doorway (x: 8..11)
+            for (let x = 2; x <= 7; x++) addWall(x, 14);
+            for (let x = 12; x <= 17; x++) addWall(x, 14);
+            // Side boundary lines creating distinct chambers
+            for (let y = 8; y <= 11; y++) {
+                addWall(4, y);
+                addWall(15, y);
+            }
+        }
+
+        if (this.stage) {
+            this.stage.setAttribute('data-boundary', this.wallMode);
+        }
     }
 
     resizeCanvas() {
@@ -181,9 +311,14 @@ class SnakeGame {
         this.score = 0;
         this.isGameOver = false;
         this.isPaused = false;
+        this.initWalls();
         this.spawnFood();
         this.updateScoreUI();
 
+        if (this.stage) {
+            this.stage.classList.remove('collision-flash');
+            this.stage.setAttribute('data-boundary', this.wallMode);
+        }
         if (this.overlay) this.overlay.classList.remove('active');
         if (this.pauseBtn) this.pauseBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
 
@@ -192,12 +327,16 @@ class SnakeGame {
 
     spawnFood() {
         let valid = false;
-        while (!valid) {
+        let attempts = 0;
+        while (!valid && attempts < 500) {
+            attempts++;
             const rx = Math.floor(Math.random() * this.gridSize);
             const ry = Math.floor(Math.random() * this.gridSize);
-            valid = !this.snake.some(seg => seg.x === rx && seg.y === ry);
-            if (valid) {
+            const onSnake = this.snake.some(seg => seg.x === rx && seg.y === ry);
+            const onWall = this.walls.has(`${rx},${ry}`);
+            if (!onSnake && !onWall) {
                 this.food = { x: rx, y: ry };
+                valid = true;
             }
         }
     }
@@ -228,7 +367,9 @@ class SnakeGame {
                 ? '<i class="fa-solid fa-play"></i> Resume' 
                 : '<i class="fa-solid fa-pause"></i> Pause';
         }
-        window.soundEngine.playClick();
+        if (window.soundEngine && typeof window.soundEngine.playClick === 'function') {
+            window.soundEngine.playClick();
+        }
     }
 
     update() {
@@ -236,20 +377,26 @@ class SnakeGame {
         let newHeadX = this.snake[0].x + this.velocity.x;
         let newHeadY = this.snake[0].y + this.velocity.y;
 
-        // Wall collisions / wrapping
+        // Outer Boundary collisions / wrapping
         if (this.wallMode === 'wrap') {
             newHeadX = (newHeadX + this.gridSize) % this.gridSize;
             newHeadY = (newHeadY + this.gridSize) % this.gridSize;
         } else {
             if (newHeadX < 0 || newHeadX >= this.gridSize || newHeadY < 0 || newHeadY >= this.gridSize) {
-                this.handleDeath();
+                this.handleDeath('PERIMETER BREACH • SOLID BOUNDARY');
                 return;
             }
         }
 
+        // Inner Obstacle Wall collisions
+        if (this.walls.has(`${newHeadX},${newHeadY}`)) {
+            this.handleDeath('IMPACT DETECTED • INTERNAL BARRIER');
+            return;
+        }
+
         // Self collision check
         if (this.snake.some(seg => seg.x === newHeadX && seg.y === newHeadY)) {
-            this.handleDeath();
+            this.handleDeath('SIGNAL OVERLOAD • SELF-COLLISION');
             return;
         }
 
@@ -268,7 +415,9 @@ class SnakeGame {
                 }
             }
             this.updateScoreUI();
-            window.soundEngine.playEat();
+            if (window.soundEngine && typeof window.soundEngine.playEat === 'function') {
+                window.soundEngine.playEat();
+            }
             this.spawnSparks(newHeadX, newHeadY);
             this.spawnFood();
         } else {
@@ -285,13 +434,36 @@ class SnakeGame {
         }
     }
 
-    handleDeath() {
+    handleDeath(reason) {
         this.isGameOver = true;
         this.stopLoop();
-        window.soundEngine.playAviatorCrash();
+        if (window.soundEngine) {
+            if (typeof window.soundEngine.playAviatorCrash === 'function') {
+                window.soundEngine.playAviatorCrash();
+            } else if (typeof window.soundEngine.playClick === 'function') {
+                window.soundEngine.playClick();
+            }
+        }
+
+        // Visual collision flash effect on arena
+        if (this.stage) {
+            this.stage.classList.remove('collision-flash');
+            void this.stage.offsetWidth; // Force DOM reflow to replay animation
+            this.stage.classList.add('collision-flash');
+        }
+
+        const isNewBest = this.score > 0 && this.score >= this.highScore;
+
+        if (this.goSubtitle && reason) {
+            this.goSubtitle.textContent = reason;
+        }
+        if (this.goRunScore) this.goRunScore.textContent = this.score;
+        if (this.goBestScore) this.goBestScore.textContent = this.highScore;
+        if (this.goNewBest) {
+            this.goNewBest.style.display = isNewBest ? 'inline-block' : 'none';
+        }
 
         if (this.overlay) {
-            this.overlayScore.textContent = `Score: ${this.score} • Best: ${this.highScore}`;
             this.overlay.classList.add('active');
         }
 
@@ -351,7 +523,42 @@ class SnakeGame {
             this.ctx.stroke();
         }
 
-        // Draw Food (Clean Solid Orb)
+        // Draw Obstacle Walls (for cross, pillars, corners, labyrinth)
+        if (this.walls.size > 0) {
+            this.walls.forEach(key => {
+                const parts = key.split(',');
+                const wx = parseInt(parts[0], 10);
+                const wy = parseInt(parts[1], 10);
+                const bx = wx * cellW;
+                const by = wy * cellH;
+                const bw = cellW;
+                const bh = cellH;
+
+                this.ctx.save();
+                // Outer wall body - dark obsidian cyber block
+                this.ctx.fillStyle = isLight ? '#cbd5e1' : '#1e293b';
+                this.ctx.fillRect(bx + 1, by + 1, bw - 2, bh - 2);
+
+                // Neon red barrier outline
+                this.ctx.strokeStyle = '#ef4444';
+                this.ctx.lineWidth = 1.5;
+                this.ctx.strokeRect(bx + 1.5, by + 1.5, bw - 3, bh - 3);
+
+                // Hazard warning field
+                this.ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+                this.ctx.fillRect(bx + 3, by + 3, bw - 6, bh - 6);
+
+                // Center laser node
+                this.ctx.fillStyle = '#f87171';
+                this.ctx.beginPath();
+                this.ctx.arc(bx + bw / 2, by + bh / 2, bw * 0.16, 0, Math.PI * 2);
+                this.ctx.fill();
+
+                this.ctx.restore();
+            });
+        }
+
+        // Draw Food (Clean Solid Glowing Orb)
         const fx = this.food.x * cellW + cellW / 2;
         const fy = this.food.y * cellH + cellH / 2;
         const fr = cellW * 0.38;
@@ -390,9 +597,15 @@ class SnakeGame {
                 if (this.velocity.x === 1) { // Moving right
                     eye1X = sx + sw - eyeOffset; eye1Y = sy + eyeOffset;
                     eye2X = sx + sw - eyeOffset; eye2Y = sy + sh - eyeOffset;
+                } else if (this.velocity.x === -1) { // Moving left
+                    eye1X = sx + eyeOffset; eye1Y = sy + eyeOffset;
+                    eye2X = sx + eyeOffset; eye2Y = sy + sh - eyeOffset;
                 } else if (this.velocity.y === 1) { // Moving down
                     eye1X = sx + eyeOffset; eye1Y = sy + sh - eyeOffset;
                     eye2X = sx + sw - eyeOffset; eye2Y = sy + sh - eyeOffset;
+                } else if (this.velocity.y === -1) { // Moving up
+                    eye1X = sx + eyeOffset; eye1Y = sy + eyeOffset;
+                    eye2X = sx + sw - eyeOffset; eye2Y = sy + eyeOffset;
                 }
 
                 this.ctx.beginPath();
