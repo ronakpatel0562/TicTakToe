@@ -321,7 +321,13 @@ class MinesweeperGame {
     handleDetonation(hitR, hitC) {
         this.gameOver = true;
         this.stopTimer();
-        window.soundEngine.playAviatorCrash();
+        if (window.soundEngine) {
+            if (typeof window.soundEngine.playMinesweeperExplosion === 'function') {
+                window.soundEngine.playMinesweeperExplosion();
+            } else if (typeof window.soundEngine.playLoss === 'function') {
+                window.soundEngine.playLoss();
+            }
+        }
 
         if (this.faceBtn) this.faceBtn.innerHTML = '<i class="fa-solid fa-face-dizzy"></i>';
 

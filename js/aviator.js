@@ -31,6 +31,10 @@ class AviatorGame {
         // Simulated community players
         this.simulatedPlayers = [];
 
+        this.isViewActive = true;
+        this.nextRoundTimeout = null;
+        this.animFrameId = null;
+
         this.initDOM();
     }
 
@@ -58,6 +62,8 @@ class AviatorGame {
 
         this.bindPanelEvents(1);
         this.bindPanelEvents(2);
+        this.initAutobet(1);
+        this.initAutobet(2);
         this.renderHistory();
 
         if (this.walletRefillBtn) {
@@ -209,6 +215,10 @@ class AviatorGame {
             window.arcadeWallet.saveStats();
         }
 
+        if (p.autobetEngine && p.autobetEngine.isRunning) {
+            p.autobetEngine.recordResult(true, p.winAmount, stake);
+        }
+
         this.updatePanelUI(panelId);
     }
 
@@ -241,6 +251,25 @@ class AviatorGame {
             p.cashedOut = false;
             p.winAmount = 0;
             p.stakedAmount = 0;
+            p.hasBet = false;
+
+            // Autobet automated placement
+            if (p.autobetEngine && p.autobetEngine.isRunning) {
+                const currentBet = p.autobetEngine.currentBet;
+                const autoMultInput = document.getElementById(`aviator-auto-mult-${idx + 1}`);
+                const targetMult = parseFloat(autoMultInput ? autoMultInput.value : 2.0) || 2.0;
+
+                if (window.arcadeWallet && window.arcadeWallet.deduct(currentBet)) {
+                    p.betAmount = currentBet;
+                    p.hasBet = true;
+                    p.stakedAmount = currentBet;
+                    p.autoCashout = true;
+                    p.autoCashoutVal = targetMult;
+                } else {
+                    this.stopAutobet(idx + 1, 'Insufficient balance');
+                }
+            }
+
             this.updatePanelUI(idx + 1);
         });
 
@@ -254,6 +283,7 @@ class AviatorGame {
     }
 
     startFlight() {
+        if (!this.isViewActive) return;
         this.state = 'FLYING';
         this.startTime = performance.now();
         this.multiplier = 1.00;
@@ -264,7 +294,7 @@ class AviatorGame {
             this.statusDisplay.style.display = 'none';
         }
 
-        if (window.soundEngine) window.soundEngine.startAviatorFlight();
+        if (this.isViewActive && window.soundEngine) window.soundEngine.startAviatorFlight();
 
         this.panels.forEach((p, idx) => {
             this.updatePanelUI(idx + 1);
@@ -273,7 +303,7 @@ class AviatorGame {
 
     crash() {
         this.state = 'CRASHED';
-        if (window.soundEngine) window.soundEngine.playAviatorCrash();
+        if (this.isViewActive && window.soundEngine) window.soundEngine.playAviatorCrash();
 
         // History
         this.history.unshift(this.multiplier);
@@ -287,14 +317,23 @@ class AviatorGame {
         }
 
         this.panels.forEach((p, idx) => {
+            if (p.hasBet && !p.cashedOut) {
+                if (p.autobetEngine && p.autobetEngine.isRunning) {
+                    const stake = p.stakedAmount || p.betAmount;
+                    p.autobetEngine.recordResult(false, 0, stake);
+                }
+            }
             p.hasBet = false; // Bet was lost if not cashed out
             p.stakedAmount = 0;
             this.updatePanelUI(idx + 1);
         });
 
         // Pause 3 seconds then new round
-        setTimeout(() => {
-            this.startWaitingRound();
+        if (this.nextRoundTimeout) clearTimeout(this.nextRoundTimeout);
+        this.nextRoundTimeout = setTimeout(() => {
+            if (this.isViewActive) {
+                this.startWaitingRound();
+            }
         }, 3200);
     }
 
@@ -402,13 +441,47 @@ class AviatorGame {
         }).join('');
     }
 
+    stop() {
+        this.isViewActive = false;
+        if (this.animFrameId) {
+            cancelAnimationFrame(this.animFrameId);
+            this.animFrameId = null;
+        }
+        if (this.nextRoundTimeout) {
+            clearTimeout(this.nextRoundTimeout);
+            this.nextRoundTimeout = null;
+        }
+        if (window.soundEngine) {
+            window.soundEngine.stopAviatorFlight();
+        }
+    }
+
+    start() {
+        if (this.isViewActive) return;
+        this.isViewActive = true;
+        this.resizeCanvas();
+        if (this.state === 'FLYING' || this.state === 'CRASHED') {
+            this.startWaitingRound();
+        } else if (this.state === 'WAITING') {
+            this.waitingStartTime = performance.now();
+        }
+        if (!this.animFrameId) {
+            this.animationLoop();
+        }
+    }
+
     animationLoop() {
-        requestAnimationFrame(() => this.animationLoop());
+        if (!this.isViewActive) {
+            this.animFrameId = null;
+            return;
+        }
         this.update();
         this.draw();
+        this.animFrameId = requestAnimationFrame(() => this.animationLoop());
     }
 
     update() {
+        if (!this.isViewActive) return;
         const now = performance.now();
 
         if (this.state === 'WAITING') {
@@ -680,6 +753,221 @@ class AviatorGame {
             this.ctx.fill();
         }
         this.ctx.restore();
+    }
+
+    initAutobet(panelId) {
+        const p = this.panels[panelId - 1];
+        p.autobetEngine = null;
+
+        // Tab switcher
+        const tabBtns = document.querySelectorAll(`.aviator-panel-tabs[data-panel="${panelId}"] .stake-tab-btn`);
+        const manualBox = document.getElementById(`aviator-manual-panel-${panelId}`);
+        const autoBox = document.getElementById(`aviator-auto-panel-${panelId}`);
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (p.autobetEngine && p.autobetEngine.isRunning) return;
+                if (window.soundEngine) window.soundEngine.playClick();
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const mode = btn.dataset.tab;
+
+                if (mode === 'auto') {
+                    if (manualBox) manualBox.style.display = 'none';
+                    if (autoBox) autoBox.style.display = 'flex';
+                } else {
+                    if (manualBox) manualBox.style.display = 'block';
+                    if (autoBox) autoBox.style.display = 'none';
+                }
+            });
+        });
+
+        // Halve / Double
+        const halfBtn = document.getElementById(`aviator-auto-half-${panelId}`);
+        const doubleBtn = document.getElementById(`aviator-auto-double-${panelId}`);
+        const autoBetInput = document.getElementById(`aviator-auto-bet-${panelId}`);
+
+        if (halfBtn && autoBetInput) {
+            halfBtn.addEventListener('click', () => {
+                if (p.autobetEngine && p.autobetEngine.isRunning) return;
+                let v = parseFloat(autoBetInput.value) || 10;
+                v = Math.max(1, Math.floor(v / 2));
+                autoBetInput.value = v;
+            });
+        }
+        if (doubleBtn && autoBetInput) {
+            doubleBtn.addEventListener('click', () => {
+                if (p.autobetEngine && p.autobetEngine.isRunning) return;
+                let v = parseFloat(autoBetInput.value) || 10;
+                autoBetInput.value = v * 2;
+            });
+        }
+
+        // Presets for Number of Bets
+        const presetBtns = document.querySelectorAll(`#aviator-auto-presets-${panelId} .stake-pill-btn`);
+        const totalBetsInput = document.getElementById(`aviator-auto-total-bets-${panelId}`);
+        const infLabel = document.getElementById(`aviator-auto-inf-label-${panelId}`);
+
+        presetBtns.forEach(pill => {
+            pill.addEventListener('click', () => {
+                if (p.autobetEngine && p.autobetEngine.isRunning) return;
+                if (window.soundEngine) window.soundEngine.playClick();
+                presetBtns.forEach(b => b.classList.remove('active'));
+                pill.classList.add('active');
+                const val = parseInt(pill.dataset.val, 10);
+                if (totalBetsInput) totalBetsInput.value = val;
+                if (infLabel) infLabel.textContent = val === 0 ? '∞' : val;
+            });
+        });
+
+        if (totalBetsInput) {
+            totalBetsInput.addEventListener('input', () => {
+                const val = parseInt(totalBetsInput.value, 10) || 0;
+                if (infLabel) infLabel.textContent = val === 0 ? '∞' : val;
+            });
+        }
+
+        // Segmented On Win / On Loss toggles
+        this.bindSegmentedToggle(`aviator-onwin-toggle-${panelId}`, `aviator-onwin-pct-wrap-${panelId}`);
+        this.bindSegmentedToggle(`aviator-onloss-toggle-${panelId}`, `aviator-onloss-pct-wrap-${panelId}`);
+
+        // Start / Stop Autobet Button
+        const autobetBtn = document.getElementById(`aviator-autobet-btn-${panelId}`);
+        if (autobetBtn) {
+            autobetBtn.addEventListener('click', () => {
+                if (p.autobetEngine && p.autobetEngine.isRunning) {
+                    this.stopAutobet(panelId, 'User stopped autobet');
+                } else {
+                    this.startAutobet(panelId);
+                }
+            });
+        }
+    }
+
+    bindSegmentedToggle(containerId, pctWrapId) {
+        const container = document.getElementById(containerId);
+        const pctWrap = document.getElementById(pctWrapId);
+        if (!container) return;
+
+        const btns = container.querySelectorAll('.stake-segment-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const action = btn.dataset.action;
+                if (pctWrap) {
+                    pctWrap.style.display = action === 'increase' ? 'flex' : 'none';
+                }
+            });
+        });
+    }
+
+    startAutobet(panelId) {
+        const p = this.panels[panelId - 1];
+        const autoBetInput = document.getElementById(`aviator-auto-bet-${panelId}`);
+        const totalBetsInput = document.getElementById(`aviator-auto-total-bets-${panelId}`);
+        const onWinBtn = document.querySelector(`#aviator-onwin-toggle-${panelId} .stake-segment-btn.active`);
+        const onWinPctInput = document.getElementById(`aviator-onwin-pct-${panelId}`);
+        const onLossBtn = document.querySelector(`#aviator-onloss-toggle-${panelId} .stake-segment-btn.active`);
+        const onLossPctInput = document.getElementById(`aviator-onloss-pct-${panelId}`);
+        const stopProfitInput = document.getElementById(`aviator-auto-stop-profit-${panelId}`);
+        const stopLossInput = document.getElementById(`aviator-auto-stop-loss-${panelId}`);
+
+        const baseBet = Math.max(1, parseFloat(autoBetInput ? autoBetInput.value : 10) || 10);
+        const totalBets = parseInt(totalBetsInput ? totalBetsInput.value : 10, 10) || 0;
+        const onWinAction = onWinBtn ? onWinBtn.dataset.action : 'reset';
+        const onWinPercent = parseFloat(onWinPctInput ? onWinPctInput.value : 100) || 100;
+        const onLossAction = onLossBtn ? onLossBtn.dataset.action : 'reset';
+        const onLossPercent = parseFloat(onLossPctInput ? onLossPctInput.value : 100) || 100;
+        const stopOnProfit = parseFloat(stopProfitInput ? stopProfitInput.value : 0) || 0;
+        const stopOnLoss = parseFloat(stopLossInput ? stopLossInput.value : 0) || 0;
+
+        if (window.arcadeWallet && window.arcadeWallet.getBalance() < baseBet) {
+            if (window.showToast) window.showToast('Insufficient Balance', 'Please deposit funds to start Autobet.', 'warning');
+            if (window.paymentGateway) window.paymentGateway.open(baseBet * 5);
+            return;
+        }
+
+        p.autobetEngine = new window.StakeAutobetEngine({
+            baseBet,
+            totalBets,
+            onWinAction,
+            onWinPercent,
+            onLossAction,
+            onLossPercent,
+            stopOnProfit,
+            stopOnLoss,
+            onStart: () => {
+                this.updateAutobetButtonUI(panelId, true);
+            },
+            onStop: (reason) => {
+                this.updateAutobetButtonUI(panelId, false);
+                if (window.showToast) window.showToast(`Autobet Panel ${panelId} Stopped`, reason, 'info');
+            },
+            onUpdate: (state) => {
+                this.updateAutobetLiveStats(panelId, state);
+            }
+        });
+
+        p.autobetEngine.start();
+
+        // If currently in WAITING phase and not bet yet, place immediately
+        if (this.state === 'WAITING' && !p.hasBet) {
+            const autoMultInput = document.getElementById(`aviator-auto-mult-${panelId}`);
+            const targetMult = parseFloat(autoMultInput ? autoMultInput.value : 2.0) || 2.0;
+
+            if (window.arcadeWallet && window.arcadeWallet.deduct(p.autobetEngine.currentBet)) {
+                p.betAmount = p.autobetEngine.currentBet;
+                p.hasBet = true;
+                p.cashedOut = false;
+                p.stakedAmount = p.betAmount;
+                p.autoCashout = true;
+                p.autoCashoutVal = targetMult;
+                this.updatePanelUI(panelId);
+            }
+        }
+    }
+
+    stopAutobet(panelId, reason) {
+        const p = this.panels[panelId - 1];
+        if (p && p.autobetEngine) {
+            p.autobetEngine.stop(reason);
+        }
+        this.updateAutobetButtonUI(panelId, false);
+    }
+
+    updateAutobetButtonUI(panelId, running) {
+        const btn = document.getElementById(`aviator-autobet-btn-${panelId}`);
+        const statsPill = document.getElementById(`aviator-auto-stats-pill-${panelId}`);
+        if (!btn) return;
+
+        if (running) {
+            btn.className = 'stake-autobet-btn stop';
+            btn.innerHTML = `<span><i class="fa-solid fa-stop"></i> STOP AUTOBET ${panelId}</span><small>AUTOPLAY ENGAGED</small>`;
+            if (statsPill) statsPill.classList.add('active');
+        } else {
+            btn.className = 'stake-autobet-btn start';
+            btn.innerHTML = `<span><i class="fa-solid fa-play"></i> START AUTOBET ${panelId}</span><small>AUTO FLIGHT STAKE</small>`;
+        }
+    }
+
+    updateAutobetLiveStats(panelId, state) {
+        const betsEl = document.getElementById(`aviator-auto-stat-bets-${panelId}`);
+        const profitEl = document.getElementById(`aviator-auto-stat-profit-${panelId}`);
+        const autoBetInput = document.getElementById(`aviator-auto-bet-${panelId}`);
+
+        if (autoBetInput) autoBetInput.value = state.currentBet;
+
+        if (betsEl) {
+            const tot = state.totalBets > 0 ? state.totalBets : '∞';
+            betsEl.textContent = `Bet ${state.betsPlaced}/${tot}`;
+        }
+        if (profitEl) {
+            const p = state.sessionNetProfit;
+            const sign = p >= 0 ? '+' : '-';
+            profitEl.textContent = `Net: ${sign}$${Math.abs(p).toFixed(2)}`;
+            profitEl.className = `stats-profit ${p >= 0 ? 'positive' : 'negative'}`;
+        }
     }
 }
 

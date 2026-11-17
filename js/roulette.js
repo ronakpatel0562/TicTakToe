@@ -63,6 +63,7 @@ class RouletteGame {
 
         this.renderHistory();
         this.bindEvents();
+        this.initAutobet();
         this.startCountdown();
         this.animateWheel();
         this.populateSimBets();
@@ -149,16 +150,18 @@ class RouletteGame {
         }
     }
 
-    placeBet(type, val, element) {
+    placeBet(type, val, element, customAmount = null) {
         if (this.isSpinning) {
             if (window.showToast) window.showToast('Wheel Spinning', 'Bets closed for this round! Watching wheel...', 'warning');
             return;
         }
 
+        const betAmt = customAmount || this.selectedChip;
+
         // Check wallet
-        if (!window.arcadeWallet || !window.arcadeWallet.deduct(this.selectedChip)) {
+        if (!window.arcadeWallet || !window.arcadeWallet.deduct(betAmt)) {
             if (window.showToast) window.showToast('Insufficient Balance', 'Please add funds to place bets!', 'warning');
-            if (window.paymentGateway) window.paymentGateway.open(this.selectedChip * 5);
+            if (window.paymentGateway) window.paymentGateway.open(betAmt * 5);
             return;
         }
 
@@ -167,7 +170,7 @@ class RouletteGame {
         this.playerBets.push({
             type,
             val,
-            amount: this.selectedChip
+            amount: betAmt
         });
 
         this.updateBetSummary();
@@ -275,6 +278,15 @@ class RouletteGame {
             this.resultDescEl.textContent = `${colorName}${parity}`;
         }
 
+        // Automated Stake.com Autobet Placement
+        if (this.autobetEngine && this.autobetEngine.isRunning && this.playerBets.length === 0) {
+            setTimeout(() => {
+                if (this.autobetEngine && this.autobetEngine.isRunning && this.playerBets.length === 0 && !this.isSpinning) {
+                    this.placeAutobetStake();
+                }
+            }, 600);
+        }
+
         this.roundTimer = setInterval(() => {
             this.timeLeft--;
 
@@ -369,12 +381,8 @@ class RouletteGame {
             const duration = 4800; // ms
             const startTime = performance.now();
 
-            if (window.soundEngine) {
-                if (typeof window.soundEngine.playRouletteSpin === 'function') {
-                    window.soundEngine.playRouletteSpin();
-                } else if (typeof window.soundEngine.playAviatorTakeoff === 'function') {
-                    window.soundEngine.playAviatorTakeoff();
-                }
+            if (window.soundEngine && typeof window.soundEngine.playRouletteSpin === 'function') {
+                window.soundEngine.playRouletteSpin();
             }
 
             const spinAnim = (currentTime) => {
@@ -389,6 +397,9 @@ class RouletteGame {
                     requestAnimationFrame(spinAnim);
                 } else {
                     this.wheelAngle = targetWheelAngle; // Lock exactly to target
+                    if (window.soundEngine && typeof window.soundEngine.playRouletteBallDrop === 'function') {
+                        window.soundEngine.playRouletteBallDrop();
+                    }
                     this.settleRound();
                 }
             };
@@ -501,8 +512,11 @@ class RouletteGame {
             if (totalPayout > 0 && window.arcadeWallet) {
                 window.arcadeWallet.add(totalPayout);
                 if (window.soundEngine) {
-                    if (typeof window.soundEngine.playWin === 'function') window.soundEngine.playWin();
-                    if (typeof window.soundEngine.playAviatorCashout === 'function') window.soundEngine.playAviatorCashout();
+                    if (typeof window.soundEngine.playRouletteWin === 'function') {
+                        window.soundEngine.playRouletteWin();
+                    } else if (typeof window.soundEngine.playWin === 'function') {
+                        window.soundEngine.playWin();
+                    }
                 }
                 if (window.triggerConfetti) window.triggerConfetti();
                 if (window.showToast) {
@@ -510,13 +524,24 @@ class RouletteGame {
                     window.showToast('🎉 Roulette Winner!', `Won +$${totalPayout.toFixed(2)}${detail}! Pocket: ${winNum}`, 'success');
                 }
             } else if (this.playerBets.length > 0) {
-                if (window.soundEngine && typeof window.soundEngine.playLoss === 'function') {
-                    window.soundEngine.playLoss();
+                if (window.soundEngine) {
+                    if (typeof window.soundEngine.playRouletteLoss === 'function') {
+                        window.soundEngine.playRouletteLoss();
+                    } else if (typeof window.soundEngine.playLoss === 'function') {
+                        window.soundEngine.playLoss();
+                    }
                 }
                 if (window.showToast) {
                     const totalLost = this.playerBets.reduce((sum, b) => sum + b.amount, 0);
                     window.showToast('No Win', `Pocket was ${winNum} (${winColor.toUpperCase()}). -$${totalLost.toFixed(2)}`, 'error');
                 }
+            }
+
+            // Handle Stake Autobet Settlement
+            if (this.autobetEngine && this.autobetEngine.isRunning) {
+                const totalStaked = this.playerBets.reduce((sum, b) => sum + b.amount, 0);
+                const won = totalPayout > totalStaked;
+                this.autobetEngine.recordResult(won, totalPayout, totalStaked);
             }
         } catch (err) {
             console.error('Roulette settle error:', err);
@@ -886,6 +911,232 @@ class RouletteGame {
         this.ctx.stroke();
 
         this.ctx.restore();
+    }
+
+    initAutobet() {
+        this.autobetEngine = null;
+
+        // Tabs
+        const tabBtns = document.querySelectorAll('#roulette-tabs .stake-tab-btn');
+        const liveSection = document.getElementById('roulette-live-section');
+        const autoPanel = document.getElementById('roulette-auto-panel');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const tab = btn.dataset.tab;
+                if (tab === 'auto') {
+                    if (liveSection) liveSection.style.display = 'none';
+                    if (autoPanel) autoPanel.style.display = 'flex';
+                } else {
+                    if (liveSection) liveSection.style.display = 'block';
+                    if (autoPanel) autoPanel.style.display = 'none';
+                }
+            });
+        });
+
+        // Halve / Double
+        const halfBtn = document.getElementById('roulette-auto-half');
+        const doubleBtn = document.getElementById('roulette-auto-double');
+        const betInput = document.getElementById('roulette-auto-bet-input');
+
+        if (halfBtn && betInput) {
+            halfBtn.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) return;
+                let v = parseFloat(betInput.value) || 10;
+                v = Math.max(1, Math.floor(v / 2));
+                betInput.value = v;
+            });
+        }
+        if (doubleBtn && betInput) {
+            doubleBtn.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) return;
+                let v = parseFloat(betInput.value) || 10;
+                betInput.value = v * 2;
+            });
+        }
+
+        // Presets
+        const presetBtns = document.querySelectorAll('#roulette-auto-presets .stake-pill-btn');
+        const totalBetsInput = document.getElementById('roulette-auto-total-bets');
+        const infLabel = document.getElementById('roulette-auto-inf-label');
+
+        presetBtns.forEach(pill => {
+            pill.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) return;
+                if (window.soundEngine) window.soundEngine.playClick();
+                presetBtns.forEach(b => b.classList.remove('active'));
+                pill.classList.add('active');
+                const val = parseInt(pill.dataset.val, 10);
+                if (totalBetsInput) totalBetsInput.value = val;
+                if (infLabel) infLabel.textContent = val === 0 ? '∞' : val;
+            });
+        });
+
+        if (totalBetsInput) {
+            totalBetsInput.addEventListener('input', () => {
+                const val = parseInt(totalBetsInput.value, 10) || 0;
+                if (infLabel) infLabel.textContent = val === 0 ? '∞' : val;
+            });
+        }
+
+        // Segmented On Win / On Loss toggles
+        this.bindSegmentedToggle('roulette-onwin-toggle', 'roulette-onwin-pct-wrap');
+        this.bindSegmentedToggle('roulette-onloss-toggle', 'roulette-onloss-pct-wrap');
+
+        // Start / Stop Autobet Button
+        const autobetBtn = document.getElementById('roulette-autobet-btn');
+        if (autobetBtn) {
+            autobetBtn.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) {
+                    this.stopAutobet('User stopped autobet');
+                } else {
+                    this.startAutobet();
+                }
+            });
+        }
+    }
+
+    bindSegmentedToggle(containerId, pctWrapId) {
+        const container = document.getElementById(containerId);
+        const pctWrap = document.getElementById(pctWrapId);
+        if (!container) return;
+
+        const btns = container.querySelectorAll('.stake-segment-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const action = btn.dataset.action;
+                if (pctWrap) {
+                    pctWrap.style.display = action === 'increase' ? 'flex' : 'none';
+                }
+            });
+        });
+    }
+
+    startAutobet() {
+        const betInput = document.getElementById('roulette-auto-bet-input');
+        const totalBetsInput = document.getElementById('roulette-auto-total-bets');
+        const onWinBtn = document.querySelector('#roulette-onwin-toggle .stake-segment-btn.active');
+        const onWinPctInput = document.getElementById('roulette-onwin-pct-input');
+        const onLossBtn = document.querySelector('#roulette-onloss-toggle .stake-segment-btn.active');
+        const onLossPctInput = document.getElementById('roulette-onloss-pct-input');
+        const stopProfitInput = document.getElementById('roulette-auto-stop-profit');
+        const stopLossInput = document.getElementById('roulette-auto-stop-loss');
+
+        const baseBet = Math.max(1, parseFloat(betInput ? betInput.value : 10) || 10);
+        const totalBets = parseInt(totalBetsInput ? totalBetsInput.value : 10, 10) || 0;
+        const onWinAction = onWinBtn ? onWinBtn.dataset.action : 'reset';
+        const onWinPercent = parseFloat(onWinPctInput ? onWinPctInput.value : 100) || 100;
+        const onLossAction = onLossBtn ? onLossBtn.dataset.action : 'reset';
+        const onLossPercent = parseFloat(onLossPctInput ? onLossPctInput.value : 100) || 100;
+        const stopOnProfit = parseFloat(stopProfitInput ? stopProfitInput.value : 0) || 0;
+        const stopOnLoss = parseFloat(stopLossInput ? stopLossInput.value : 0) || 0;
+
+        if (window.arcadeWallet && window.arcadeWallet.getBalance() < baseBet) {
+            if (window.showToast) window.showToast('Insufficient Balance', 'Please deposit funds to start Autobet.', 'warning');
+            if (window.paymentGateway) window.paymentGateway.open(baseBet * 5);
+            return;
+        }
+
+        this.autobetEngine = new window.StakeAutobetEngine({
+            baseBet,
+            totalBets,
+            onWinAction,
+            onWinPercent,
+            onLossAction,
+            onLossPercent,
+            stopOnProfit,
+            stopOnLoss,
+            onStart: () => {
+                this.updateAutobetButtonUI(true);
+            },
+            onStop: (reason) => {
+                this.updateAutobetButtonUI(false);
+                if (window.showToast) window.showToast('Roulette Autobet Stopped', reason, 'info');
+            },
+            onUpdate: (state) => {
+                this.updateAutobetLiveStats(state);
+            }
+        });
+
+        this.autobetEngine.start();
+
+        // If betting is currently open (timeLeft > 5), place immediately
+        if (!this.isSpinning && this.timeLeft > 5 && this.playerBets.length === 0) {
+            this.placeAutobetStake();
+        }
+    }
+
+    placeAutobetStake() {
+        if (!this.autobetEngine || !this.autobetEngine.isRunning) return;
+        const targetSelect = document.getElementById('roulette-auto-target-select');
+        const target = targetSelect ? targetSelect.value : 'repeat';
+        const currentBet = this.autobetEngine.currentBet;
+
+        if (target === 'repeat') {
+            if (this.playerBets.length === 0) {
+                // If board was empty, default to Red
+                this.placeBet('color', 'red', null, currentBet);
+            }
+        } else if (target === 'red' || target === 'black') {
+            this.placeBet('color', target, null, currentBet);
+        } else if (target === 'even' || target === 'odd') {
+            this.placeBet('parity', target, null, currentBet);
+        } else if (target === 'low' || target === 'high') {
+            this.placeBet('range', target, null, currentBet);
+        } else if (target === 'dozen1') {
+            this.placeBet('dozen', '1', null, currentBet);
+        } else if (target === 'dozen2') {
+            this.placeBet('dozen', '2', null, currentBet);
+        } else if (target === 'dozen3') {
+            this.placeBet('dozen', '3', null, currentBet);
+        } else if (target === 'zero') {
+            this.placeBet('num', '0', null, currentBet);
+        }
+    }
+
+    stopAutobet(reason) {
+        if (this.autobetEngine) {
+            this.autobetEngine.stop(reason);
+        }
+        this.updateAutobetButtonUI(false);
+    }
+
+    updateAutobetButtonUI(running) {
+        const btn = document.getElementById('roulette-autobet-btn');
+        const statsPill = document.getElementById('roulette-auto-stats-pill');
+        if (!btn) return;
+
+        if (running) {
+            btn.className = 'stake-autobet-btn stop';
+            btn.innerHTML = `<span><i class="fa-solid fa-stop"></i> STOP AUTOBET</span><small>AUTO SPINS RUNNING</small>`;
+            if (statsPill) statsPill.classList.add('active');
+        } else {
+            btn.className = 'stake-autobet-btn start';
+            btn.innerHTML = `<span><i class="fa-solid fa-play"></i> START AUTOBET</span><small>AUTO ROULETTE SPINS</small>`;
+        }
+    }
+
+    updateAutobetLiveStats(state) {
+        const betsEl = document.getElementById('roulette-auto-stat-bets');
+        const profitEl = document.getElementById('roulette-auto-stat-profit');
+        const autoBetInput = document.getElementById('roulette-auto-bet-input');
+
+        if (autoBetInput) autoBetInput.value = state.currentBet;
+
+        if (betsEl) {
+            const tot = state.totalBets > 0 ? state.totalBets : '∞';
+            betsEl.textContent = `Spin ${state.betsPlaced}/${tot}`;
+        }
+        if (profitEl) {
+            const p = state.sessionNetProfit;
+            const sign = p >= 0 ? '+' : '-';
+            profitEl.textContent = `Net: ${sign}$${Math.abs(p).toFixed(2)}`;
+            profitEl.className = `stats-profit ${p >= 0 ? 'positive' : 'negative'}`;
+        }
     }
 }
 

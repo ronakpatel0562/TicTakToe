@@ -1,5 +1,5 @@
 // Casino Mines (Pro Crash & Grid Wagering Engine)
-// Provably Fair with Guaranteed 10% House Edge (90% RTP)
+// Provably Fair with Guaranteed 10% House Edge (90% RTP) & Stake.com Autobet System
 
 class MinesGame {
     constructor() {
@@ -12,6 +12,13 @@ class MinesGame {
         this.currentMultiplier = 1.00;
         this.nextMultiplier = 1.00;
         this.houseEdge = window.HOUSE_EDGE || 0.10; // 10% House Edge (90% RTP)
+
+        // Mode: 'manual' or 'auto'
+        this.currentMode = 'manual';
+        this.autoPicks = [0, 6, 12]; // Default 3 diagonal picks
+        this.autobetEngine = null;
+        this.autoTimeout = null;
+        this.isAutoStepping = false;
 
         // DOM elements
         this.betInput = null;
@@ -56,6 +63,7 @@ class MinesGame {
         this.winSplashMult = document.getElementById('mines-win-splash-mult');
 
         this.bindEvents();
+        this.initAutobet();
         this.resetGridUI();
         this.updateStatsDisplay();
         this.updateControlsUI();
@@ -147,6 +155,322 @@ class MinesGame {
         }
     }
 
+    initAutobet() {
+        // Tab switcher
+        const tabBtns = document.querySelectorAll('#mines-tabs .stake-tab-btn');
+        const manualBox = document.getElementById('mines-manual-controls');
+        const autoBox = document.getElementById('mines-auto-controls');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (this.isPlaying || (this.autobetEngine && this.autobetEngine.isRunning)) return;
+                if (window.soundEngine) window.soundEngine.playClick();
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                this.currentMode = btn.dataset.tab;
+
+                if (this.currentMode === 'auto') {
+                    if (manualBox) manualBox.style.display = 'none';
+                    if (autoBox) autoBox.style.display = 'flex';
+                } else {
+                    if (manualBox) manualBox.style.display = 'block';
+                    if (autoBox) autoBox.style.display = 'none';
+                }
+                this.resetGridUI();
+            });
+        });
+
+        // Auto Halve & Double
+        const halfBtn = document.getElementById('mines-auto-half');
+        const doubleBtn = document.getElementById('mines-auto-double');
+        const autoBetInput = document.getElementById('mines-auto-bet-input');
+
+        if (halfBtn && autoBetInput) {
+            halfBtn.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) return;
+                let v = parseFloat(autoBetInput.value) || 10;
+                v = Math.max(1, Math.floor(v / 2));
+                autoBetInput.value = v;
+            });
+        }
+        if (doubleBtn && autoBetInput) {
+            doubleBtn.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) return;
+                let v = parseFloat(autoBetInput.value) || 10;
+                autoBetInput.value = v * 2;
+            });
+        }
+
+        // Auto Presets for Number of Bets
+        const presetBtns = document.querySelectorAll('#mines-auto-presets .stake-pill-btn');
+        const totalBetsInput = document.getElementById('mines-auto-total-bets');
+        const infLabel = document.getElementById('mines-auto-inf-label');
+
+        presetBtns.forEach(p => {
+            p.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) return;
+                if (window.soundEngine) window.soundEngine.playClick();
+                presetBtns.forEach(b => b.classList.remove('active'));
+                p.classList.add('active');
+                const val = parseInt(p.dataset.val, 10);
+                if (totalBetsInput) totalBetsInput.value = val;
+                if (infLabel) infLabel.textContent = val === 0 ? '∞' : val;
+            });
+        });
+
+        if (totalBetsInput) {
+            totalBetsInput.addEventListener('input', () => {
+                const val = parseInt(totalBetsInput.value, 10) || 0;
+                if (infLabel) infLabel.textContent = val === 0 ? '∞' : val;
+            });
+        }
+
+        // On Win / On Loss toggles
+        this.bindSegmentedToggle('mines-onwin-toggle', 'mines-onwin-pct-wrap');
+        this.bindSegmentedToggle('mines-onloss-toggle', 'mines-onloss-pct-wrap');
+
+        // Pick Random / Clear Auto Tiles
+        const autoRandBtn = document.getElementById('mines-auto-random-pick-btn');
+        const autoClearBtn = document.getElementById('mines-auto-clear-picks-btn');
+
+        if (autoRandBtn) {
+            autoRandBtn.addEventListener('click', () => {
+                if (this.isPlaying || (this.autobetEngine && this.autobetEngine.isRunning)) return;
+                if (window.soundEngine) window.soundEngine.playClick();
+                this.pickRandomAutoTiles(3);
+            });
+        }
+        if (autoClearBtn) {
+            autoClearBtn.addEventListener('click', () => {
+                if (this.isPlaying || (this.autobetEngine && this.autobetEngine.isRunning)) return;
+                if (window.soundEngine) window.soundEngine.playClick();
+                this.clearAutoTiles();
+            });
+        }
+
+        // Start / Stop Autobet Button
+        const autobetBtn = document.getElementById('mines-autobet-btn');
+        if (autobetBtn) {
+            autobetBtn.addEventListener('click', () => {
+                if (this.autobetEngine && this.autobetEngine.isRunning) {
+                    this.stopAutobet('User stopped autobet');
+                } else {
+                    this.startAutobet();
+                }
+            });
+        }
+
+        this.updateAutoPicksCount();
+    }
+
+    bindSegmentedToggle(containerId, pctWrapId) {
+        const container = document.getElementById(containerId);
+        const pctWrap = document.getElementById(pctWrapId);
+        if (!container) return;
+
+        const btns = container.querySelectorAll('.stake-segment-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const action = btn.dataset.action;
+                if (pctWrap) {
+                    pctWrap.style.display = action === 'increase' ? 'flex' : 'none';
+                }
+            });
+        });
+    }
+
+    toggleAutoTile(index) {
+        if (this.isPlaying || (this.autobetEngine && this.autobetEngine.isRunning)) return;
+        const pos = this.autoPicks.indexOf(index);
+        const minesSelect = document.getElementById('mines-auto-mines-select');
+        const currentMines = minesSelect ? parseInt(minesSelect.value, 10) : 3;
+        const maxPicks = 25 - currentMines;
+
+        if (pos > -1) {
+            this.autoPicks.splice(pos, 1);
+        } else {
+            if (this.autoPicks.length >= maxPicks) {
+                if (window.showToast) window.showToast('Max Safe Picks', `You can select at most ${maxPicks} tiles with ${currentMines} mines.`, 'warning');
+                return;
+            }
+            this.autoPicks.push(index);
+        }
+        if (window.soundEngine) window.soundEngine.playClick();
+        this.resetGridUI();
+        this.updateAutoPicksCount();
+    }
+
+    pickRandomAutoTiles(count = 3) {
+        this.autoPicks = [];
+        const indices = Array.from({ length: this.gridSize }, (_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        this.autoPicks = indices.slice(0, count);
+        this.resetGridUI();
+        this.updateAutoPicksCount();
+    }
+
+    clearAutoTiles() {
+        this.autoPicks = [];
+        this.resetGridUI();
+        this.updateAutoPicksCount();
+    }
+
+    updateAutoPicksCount() {
+        const countEl = document.getElementById('mines-auto-tiles-count');
+        if (countEl) {
+            countEl.textContent = `${this.autoPicks.length} Picked`;
+        }
+    }
+
+    startAutobet() {
+        if (this.isPlaying) return;
+
+        // Ensure user has picked at least 1 tile
+        if (this.autoPicks.length === 0) {
+            this.pickRandomAutoTiles(3);
+        }
+
+        const autoBetInput = document.getElementById('mines-auto-bet-input');
+        const minesSelect = document.getElementById('mines-auto-mines-select');
+        const totalBetsInput = document.getElementById('mines-auto-total-bets');
+        const onWinBtn = document.querySelector('#mines-onwin-toggle .stake-segment-btn.active');
+        const onWinPctInput = document.getElementById('mines-onwin-pct-input');
+        const onLossBtn = document.querySelector('#mines-onloss-toggle .stake-segment-btn.active');
+        const onLossPctInput = document.getElementById('mines-onloss-pct-input');
+        const stopProfitInput = document.getElementById('mines-auto-stop-profit');
+        const stopLossInput = document.getElementById('mines-auto-stop-loss');
+
+        const baseBet = Math.max(1, parseFloat(autoBetInput ? autoBetInput.value : 10) || 10);
+        this.totalMines = parseInt(minesSelect ? minesSelect.value : 3, 10);
+        const totalBets = parseInt(totalBetsInput ? totalBetsInput.value : 10, 10) || 0;
+        const onWinAction = onWinBtn ? onWinBtn.dataset.action : 'reset';
+        const onWinPercent = parseFloat(onWinPctInput ? onWinPctInput.value : 100) || 100;
+        const onLossAction = onLossBtn ? onLossBtn.dataset.action : 'reset';
+        const onLossPercent = parseFloat(onLossPctInput ? onLossPctInput.value : 100) || 100;
+        const stopOnProfit = parseFloat(stopProfitInput ? stopProfitInput.value : 0) || 0;
+        const stopOnLoss = parseFloat(stopLossInput ? stopLossInput.value : 0) || 0;
+
+        if (window.arcadeWallet && window.arcadeWallet.getBalance() < baseBet) {
+            if (window.showToast) window.showToast('Insufficient Balance', 'Please refill your balance before starting Autobet.', 'warning');
+            if (window.paymentGateway) window.paymentGateway.open(baseBet * 5);
+            return;
+        }
+
+        this.autobetEngine = new window.StakeAutobetEngine({
+            baseBet,
+            totalBets,
+            onWinAction,
+            onWinPercent,
+            onLossAction,
+            onLossPercent,
+            stopOnProfit,
+            stopOnLoss,
+            onStart: () => {
+                this.updateAutobetButtonUI(true);
+            },
+            onStop: (reason) => {
+                this.updateAutobetButtonUI(false);
+                if (window.showToast) window.showToast('Autobet Stopped', reason, 'info');
+            },
+            onUpdate: (state) => {
+                this.updateAutobetLiveStats(state);
+            }
+        });
+
+        this.autobetEngine.start();
+        this.executeAutoRound();
+    }
+
+    stopAutobet(reason) {
+        if (this.autoTimeout) {
+            clearTimeout(this.autoTimeout);
+            this.autoTimeout = null;
+        }
+        if (this.autobetEngine) {
+            this.autobetEngine.stop(reason);
+        }
+        this.updateAutobetButtonUI(false);
+    }
+
+    updateAutobetButtonUI(running) {
+        const btn = document.getElementById('mines-autobet-btn');
+        const statsPill = document.getElementById('mines-auto-stats-pill');
+        if (!btn) return;
+
+        if (running) {
+            btn.className = 'stake-autobet-btn stop';
+            btn.innerHTML = `<span><i class="fa-solid fa-stop"></i> STOP AUTOBET</span><small>AUTORUN IN PROGRESS</small>`;
+            if (statsPill) statsPill.classList.add('active');
+        } else {
+            btn.className = 'stake-autobet-btn start';
+            btn.innerHTML = `<span><i class="fa-solid fa-play"></i> START AUTOBET</span><small>STAKE AUTO WAGER</small>`;
+        }
+    }
+
+    updateAutobetLiveStats(state) {
+        const betsEl = document.getElementById('mines-auto-stat-bets');
+        const profitEl = document.getElementById('mines-auto-stat-profit');
+        const autoBetInput = document.getElementById('mines-auto-bet-input');
+
+        if (autoBetInput) autoBetInput.value = state.currentBet;
+
+        if (betsEl) {
+            const tot = state.totalBets > 0 ? state.totalBets : '∞';
+            betsEl.textContent = `Bet ${state.betsPlaced}/${tot}`;
+        }
+        if (profitEl) {
+            const p = state.sessionNetProfit;
+            const sign = p >= 0 ? '+' : '-';
+            profitEl.textContent = `Net: ${sign}$${Math.abs(p).toFixed(2)}`;
+            profitEl.className = `stats-profit ${p >= 0 ? 'positive' : 'negative'}`;
+        }
+    }
+
+    executeAutoRound() {
+        if (!this.autobetEngine || !this.autobetEngine.isRunning) return;
+
+        this.betAmount = this.autobetEngine.currentBet;
+        this.startRound();
+
+        if (!this.isPlaying) {
+            // Failed to start round (e.g. balance deduction failed)
+            this.stopAutobet('Balance depleted');
+            return;
+        }
+
+        // Sequentially flip the chosen auto tiles
+        const picks = [...this.autoPicks];
+        let step = 0;
+        this.isAutoStepping = true;
+
+        const stepReveal = () => {
+            if (!this.isPlaying || !this.isAutoStepping) return;
+            if (step < picks.length) {
+                const tileIdx = picks[step];
+                step++;
+                this.pickTile(tileIdx);
+
+                // If still playing and not a mine hit, schedule next tile
+                if (this.isPlaying && step < picks.length) {
+                    setTimeout(stepReveal, 140);
+                } else if (this.isPlaying && step >= picks.length) {
+                    // All chosen tiles uncovered safely! Auto Cashout!
+                    this.isAutoStepping = false;
+                    setTimeout(() => {
+                        if (this.isPlaying) this.cashOut();
+                    }, 140);
+                }
+            }
+        };
+
+        setTimeout(stepReveal, 150);
+    }
+
     syncPresetPills() {
         if (!this.presetBtns) return;
         this.presetBtns.forEach(pill => {
@@ -155,11 +479,6 @@ class MinesGame {
         });
     }
 
-    /**
-     * Exact 10% House Edge (90% RTP) Multiplier Calculator
-     * P(k) = Product_{i=0}^{k-1} (25 - M - i) / (25 - i)
-     * Multiplier = (1 - HouseEdge) / P(k) = 0.90 / P(k)
-     */
     calculateMultiplier(minesCount, gemsPicked) {
         if (gemsPicked <= 0) return 1.00;
         const total = 25;
@@ -175,7 +494,6 @@ class MinesGame {
         const fairMult = 1.0 / prob;
         const netMult = rtp * fairMult;
 
-        // Ensure at least 1.01x and format to 2 decimal places
         const rounded = Math.floor(netMult * 100) / 100;
         return Math.max(1.01, parseFloat(rounded.toFixed(2)));
     }
@@ -250,6 +568,21 @@ class MinesGame {
         for (let i = 0; i < this.gridSize; i++) {
             const tileEl = document.createElement('div');
             tileEl.className = 'mines-tile';
+            tileEl.dataset.index = i;
+
+            if (this.currentMode === 'auto') {
+                const pickIdx = this.autoPicks.indexOf(i);
+                if (pickIdx > -1) {
+                    tileEl.classList.add('auto-selected');
+                    tileEl.setAttribute('data-order', pickIdx + 1);
+                    tileEl.innerHTML = `<i class="fa-solid fa-crosshairs" style="color:#06b6d4; font-size:1.1rem;"></i>`;
+                }
+
+                tileEl.addEventListener('click', () => {
+                    this.toggleAutoTile(i);
+                });
+            }
+
             this.gridContainer.appendChild(tileEl);
         }
     }
@@ -332,6 +665,7 @@ class MinesGame {
 
     gameOver(won, hitIndex = null, winAmount = 0) {
         this.isPlaying = false;
+        this.isAutoStepping = false;
 
         // Reveal all remaining unpicked tiles
         this.tiles.forEach(t => {
@@ -366,12 +700,14 @@ class MinesGame {
                 window.triggerConfetti();
             }
 
-            if (window.showToast) {
-                window.showToast(
-                    '🎉 Mines Cashed Out!',
-                    `Won +${this.formatMoney(winAmount)} (${this.currentMultiplier.toFixed(2)}x) with ${this.revealedGemsCount} gems safe!`,
-                    'success'
-                );
+            if (!this.autobetEngine || !this.autobetEngine.isRunning) {
+                if (window.showToast) {
+                    window.showToast(
+                        '🎉 Mines Cashed Out!',
+                        `Won +${this.formatMoney(winAmount)} (${this.currentMultiplier.toFixed(2)}x) with ${this.revealedGemsCount} gems safe!`,
+                        'success'
+                    );
+                }
             }
 
             // Show celebratory win splash badge
@@ -379,12 +715,9 @@ class MinesGame {
                 this.winSplashAmount.textContent = `+${this.formatMoney(winAmount)}`;
                 this.winSplashMult.textContent = `@ ${this.currentMultiplier.toFixed(2)}x Multiplier`;
                 this.winSplash.classList.add('active');
-                setTimeout(() => {
-                    if (this.winSplash) this.winSplash.classList.remove('active');
-                }, 3200);
             }
 
-            // Stats
+            // Update arcade wallet stats
             if (window.arcadeWallet && window.arcadeWallet.stats && window.arcadeWallet.stats.mines) {
                 window.arcadeWallet.stats.mines.totalBets++;
                 window.arcadeWallet.stats.mines.totalWon += winAmount;
@@ -397,8 +730,11 @@ class MinesGame {
                 window.arcadeWallet.saveStats();
             }
         } else {
-            if (window.showToast) {
-                window.showToast('💥 Mine Hit!', `Stepped on a mine. Lost -$${this.betAmount.toFixed(2)}`, 'error');
+            // Mine blast failure
+            if (!this.autobetEngine || !this.autobetEngine.isRunning) {
+                if (window.showToast) {
+                    window.showToast('💥 Mine Hit!', `Stepped on a mine. Lost -$${this.betAmount.toFixed(2)}`, 'error');
+                }
             }
             if (window.arcadeWallet && window.arcadeWallet.stats && window.arcadeWallet.stats.mines) {
                 window.arcadeWallet.stats.mines.totalBets++;
@@ -408,10 +744,19 @@ class MinesGame {
 
         this.updateControlsUI();
         this.updateStatsDisplay();
+
+        // Handle Autobet Continuation
+        if (this.autobetEngine && this.autobetEngine.isRunning) {
+            const shouldContinue = this.autobetEngine.recordResult(won, winAmount, this.betAmount);
+            if (shouldContinue) {
+                this.autoTimeout = setTimeout(() => {
+                    this.executeAutoRound();
+                }, 600);
+            }
+        }
     }
 
     updateControlsUI() {
-        // Inputs disabled while playing
         if (this.betInput) this.betInput.disabled = this.isPlaying;
         if (this.minesSelect) this.minesSelect.disabled = this.isPlaying;
         if (this.quickBtns) {
@@ -424,7 +769,6 @@ class MinesGame {
             this.randomBtn.disabled = !this.isPlaying;
         }
 
-        // Main action button text and appearance
         if (this.mainBtn) {
             if (!this.isPlaying) {
                 this.mainBtn.className = 'mines-main-btn start-btn';

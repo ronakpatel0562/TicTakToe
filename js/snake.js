@@ -438,8 +438,10 @@ class SnakeGame {
         this.isGameOver = true;
         this.stopLoop();
         if (window.soundEngine) {
-            if (typeof window.soundEngine.playAviatorCrash === 'function') {
-                window.soundEngine.playAviatorCrash();
+            if (typeof window.soundEngine.playSnakeDeath === 'function') {
+                window.soundEngine.playSnakeDeath();
+            } else if (typeof window.soundEngine.playLoss === 'function') {
+                window.soundEngine.playLoss();
             } else if (typeof window.soundEngine.playClick === 'function') {
                 window.soundEngine.playClick();
             }

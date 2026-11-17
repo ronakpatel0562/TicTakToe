@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="css/memory.css">
     <link rel="stylesheet" href="css/wordle.css">
     <link rel="stylesheet" href="css/payment.css">
+    <link rel="stylesheet" href="css/stake-autobet.css?v=1.0">
     <!-- Razorpay Checkout Gateway SDK (For live/test integration) -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
@@ -707,66 +708,274 @@
 
                             <!-- Bet Panel 1 -->
                             <div class="aviator-bet-panel">
-                                <div class="panel-header">
-                                    <span class="panel-title"><i class="fa-solid fa-ticket"></i> Bet Panel 1</span>
-                                    <label class="auto-cashout-toggle">
-                                        <input type="checkbox" id="aviator-auto-check-1">
-                                        Auto Cash:
-                                        <input type="number" id="aviator-auto-val-1" value="2.00" step="0.10" min="1.05"
-                                            disabled>
-                                    </label>
+                                <div class="stake-tabs aviator-panel-tabs" data-panel="1">
+                                    <button type="button" class="stake-tab-btn active" data-tab="manual"><i class="fa-solid fa-hand"></i> Manual 1</button>
+                                    <button type="button" class="stake-tab-btn" data-tab="auto"><i class="fa-solid fa-robot"></i> Auto 1</button>
                                 </div>
-                                <div class="bet-input-action-row">
-                                    <div class="bet-stepper">
-                                        <input type="number" id="aviator-bet-amount-1" class="bet-amount-input"
-                                            value="10" min="1">
-                                        <div class="bet-quick-buttons">
-                                            <button class="aviator-quick-1" data-action="1">$1</button>
-                                            <button class="aviator-quick-1" data-action="5">$5</button>
-                                            <button class="aviator-quick-1" data-action="10">$10</button>
-                                            <button class="aviator-quick-1" data-action="25">$25</button>
-                                            <button class="aviator-quick-1" data-action="50">$50</button>
-                                            <button class="aviator-quick-1" data-action="100">$100</button>
-                                            <button class="aviator-quick-1" data-action="half">½</button>
-                                            <button class="aviator-quick-1" data-action="2x">2×</button>
+
+                                <!-- Manual Panel 1 -->
+                                <div id="aviator-manual-panel-1">
+                                    <div class="panel-header">
+                                        <span class="panel-title"><i class="fa-solid fa-ticket"></i> Bet Panel 1</span>
+                                        <label class="auto-cashout-toggle">
+                                            <input type="checkbox" id="aviator-auto-check-1">
+                                            Auto Cash:
+                                            <input type="number" id="aviator-auto-val-1" value="2.00" step="0.10" min="1.05"
+                                                disabled>
+                                        </label>
+                                    </div>
+                                    <div class="bet-input-action-row">
+                                        <div class="bet-stepper">
+                                            <input type="number" id="aviator-bet-amount-1" class="bet-amount-input"
+                                                value="10" min="1">
+                                            <div class="bet-quick-buttons">
+                                                <button class="aviator-quick-1" data-action="1">$1</button>
+                                                <button class="aviator-quick-1" data-action="5">$5</button>
+                                                <button class="aviator-quick-1" data-action="10">$10</button>
+                                                <button class="aviator-quick-1" data-action="25">$25</button>
+                                                <button class="aviator-quick-1" data-action="50">$50</button>
+                                                <button class="aviator-quick-1" data-action="100">$100</button>
+                                                <button class="aviator-quick-1" data-action="half">½</button>
+                                                <button class="aviator-quick-1" data-action="2x">2×</button>
+                                            </div>
+                                        </div>
+                                        <button id="aviator-action-btn-1" class="aviator-btn bet-btn">
+                                            <span>BET</span>
+                                            <small>$10.00</small>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Auto Panel 1 (Stake.com Style) -->
+                                <div id="aviator-auto-panel-1" class="stake-auto-panel" style="display:none;">
+                                    <div class="stake-field">
+                                        <div class="stake-field-header">
+                                            <span><i class="fa-solid fa-coins"></i> Bet Amount</span>
+                                            <div class="stake-quick-actions">
+                                                <button type="button" class="stake-btn-micro" id="aviator-auto-half-1">½</button>
+                                                <button type="button" class="stake-btn-micro" id="aviator-auto-double-1">2×</button>
+                                            </div>
+                                        </div>
+                                        <div class="stake-input-wrap">
+                                            <span class="prefix">$</span>
+                                            <input type="number" id="aviator-auto-bet-1" value="10" min="1" step="1">
                                         </div>
                                     </div>
-                                    <button id="aviator-action-btn-1" class="aviator-btn bet-btn">
-                                        <span>BET</span>
-                                        <small>$10.00</small>
+
+                                    <div class="stake-field">
+                                        <div class="stake-field-header">
+                                            <span><i class="fa-solid fa-crosshairs" style="color:#06b6d4;"></i> Auto Cashout Multiplier</span>
+                                        </div>
+                                        <div class="stake-input-wrap">
+                                            <input type="number" id="aviator-auto-mult-1" value="2.00" step="0.10" min="1.05">
+                                            <span class="suffix">x</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="stake-field">
+                                        <div class="stake-field-header"><span>Number of Bets</span></div>
+                                        <div class="stake-input-wrap">
+                                            <input type="number" id="aviator-auto-total-bets-1" value="10" min="0" placeholder="0 = ∞">
+                                            <span class="suffix" id="aviator-auto-inf-label-1">10</span>
+                                        </div>
+                                        <div class="stake-preset-pills" id="aviator-auto-presets-1">
+                                            <button type="button" class="stake-pill-btn active" data-val="10">10</button>
+                                            <button type="button" class="stake-pill-btn" data-val="25">25</button>
+                                            <button type="button" class="stake-pill-btn" data-val="50">50</button>
+                                            <button type="button" class="stake-pill-btn" data-val="100">100</button>
+                                            <button type="button" class="stake-pill-btn" data-val="0">∞</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="stake-limits-row">
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>On Win</span></div>
+                                            <div class="stake-segmented-row" id="aviator-onwin-toggle-1">
+                                                <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                                <button type="button" class="stake-segment-btn" data-action="increase">+%</button>
+                                            </div>
+                                        </div>
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>On Loss</span></div>
+                                            <div class="stake-segmented-row" id="aviator-onloss-toggle-1">
+                                                <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                                <button type="button" class="stake-segment-btn" data-action="increase">+%</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="stake-limits-row">
+                                        <div class="stake-input-wrap stake-percent-input-row" id="aviator-onwin-pct-wrap-1" style="display:none;">
+                                            <input type="number" id="aviator-onwin-pct-1" value="100" min="0">
+                                            <span class="suffix">%</span>
+                                        </div>
+                                        <div class="stake-input-wrap stake-percent-input-row" id="aviator-onloss-pct-wrap-1" style="display:none;">
+                                            <input type="number" id="aviator-onloss-pct-1" value="100" min="0">
+                                            <span class="suffix">%</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="stake-limits-row">
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>Stop Profit</span></div>
+                                            <div class="stake-input-wrap">
+                                                <span class="prefix">$</span>
+                                                <input type="number" id="aviator-auto-stop-profit-1" value="0" min="0" placeholder="0 = off">
+                                            </div>
+                                        </div>
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>Stop Loss</span></div>
+                                            <div class="stake-input-wrap">
+                                                <span class="prefix">$</span>
+                                                <input type="number" id="aviator-auto-stop-loss-1" value="0" min="0" placeholder="0 = off">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="aviator-auto-stats-pill-1" class="stake-live-stats">
+                                        <span class="stats-left"><i class="fa-solid fa-chart-line"></i> <span id="aviator-auto-stat-bets-1">Bet 0/10</span></span>
+                                        <span id="aviator-auto-stat-profit-1" class="stats-profit positive">Net: $0.00</span>
+                                    </div>
+
+                                    <button type="button" id="aviator-autobet-btn-1" class="stake-autobet-btn start">
+                                        <span><i class="fa-solid fa-play"></i> START AUTOBET 1</span>
+                                        <small>AUTO FLIGHT STAKE</small>
                                     </button>
                                 </div>
                             </div>
 
                             <!-- Bet Panel 2 -->
                             <div class="aviator-bet-panel">
-                                <div class="panel-header">
-                                    <span class="panel-title"><i class="fa-solid fa-ticket"></i> Bet Panel 2</span>
-                                    <label class="auto-cashout-toggle">
-                                        <input type="checkbox" id="aviator-auto-check-2">
-                                        Auto Cash:
-                                        <input type="number" id="aviator-auto-val-2" value="1.50" step="0.10" min="1.05"
-                                            disabled>
-                                    </label>
+                                <div class="stake-tabs aviator-panel-tabs" data-panel="2">
+                                    <button type="button" class="stake-tab-btn active" data-tab="manual"><i class="fa-solid fa-hand"></i> Manual 2</button>
+                                    <button type="button" class="stake-tab-btn" data-tab="auto"><i class="fa-solid fa-robot"></i> Auto 2</button>
                                 </div>
-                                <div class="bet-input-action-row">
-                                    <div class="bet-stepper">
-                                        <input type="number" id="aviator-bet-amount-2" class="bet-amount-input"
-                                            value="20" min="1">
-                                        <div class="bet-quick-buttons">
-                                            <button class="aviator-quick-2" data-action="1">$1</button>
-                                            <button class="aviator-quick-2" data-action="5">$5</button>
-                                            <button class="aviator-quick-2" data-action="10">$10</button>
-                                            <button class="aviator-quick-2" data-action="25">$25</button>
-                                            <button class="aviator-quick-2" data-action="50">$50</button>
-                                            <button class="aviator-quick-2" data-action="100">$100</button>
-                                            <button class="aviator-quick-2" data-action="half">½</button>
-                                            <button class="aviator-quick-2" data-action="2x">2×</button>
+
+                                <!-- Manual Panel 2 -->
+                                <div id="aviator-manual-panel-2">
+                                    <div class="panel-header">
+                                        <span class="panel-title"><i class="fa-solid fa-ticket"></i> Bet Panel 2</span>
+                                        <label class="auto-cashout-toggle">
+                                            <input type="checkbox" id="aviator-auto-check-2">
+                                            Auto Cash:
+                                            <input type="number" id="aviator-auto-val-2" value="1.50" step="0.10" min="1.05"
+                                                disabled>
+                                        </label>
+                                    </div>
+                                    <div class="bet-input-action-row">
+                                        <div class="bet-stepper">
+                                            <input type="number" id="aviator-bet-amount-2" class="bet-amount-input"
+                                                value="20" min="1">
+                                            <div class="bet-quick-buttons">
+                                                <button class="aviator-quick-2" data-action="1">$1</button>
+                                                <button class="aviator-quick-2" data-action="5">$5</button>
+                                                <button class="aviator-quick-2" data-action="10">$10</button>
+                                                <button class="aviator-quick-2" data-action="25">$25</button>
+                                                <button class="aviator-quick-2" data-action="50">$50</button>
+                                                <button class="aviator-quick-2" data-action="100">$100</button>
+                                                <button class="aviator-quick-2" data-action="half">½</button>
+                                                <button class="aviator-quick-2" data-action="2x">2×</button>
+                                            </div>
+                                        </div>
+                                        <button id="aviator-action-btn-2" class="aviator-btn bet-btn">
+                                            <span>BET</span>
+                                            <small>$20.00</small>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Auto Panel 2 (Stake.com Style) -->
+                                <div id="aviator-auto-panel-2" class="stake-auto-panel" style="display:none;">
+                                    <div class="stake-field">
+                                        <div class="stake-field-header">
+                                            <span><i class="fa-solid fa-coins"></i> Bet Amount</span>
+                                            <div class="stake-quick-actions">
+                                                <button type="button" class="stake-btn-micro" id="aviator-auto-half-2">½</button>
+                                                <button type="button" class="stake-btn-micro" id="aviator-auto-double-2">2×</button>
+                                            </div>
+                                        </div>
+                                        <div class="stake-input-wrap">
+                                            <span class="prefix">$</span>
+                                            <input type="number" id="aviator-auto-bet-2" value="20" min="1" step="1">
                                         </div>
                                     </div>
-                                    <button id="aviator-action-btn-2" class="aviator-btn bet-btn">
-                                        <span>BET</span>
-                                        <small>$20.00</small>
+
+                                    <div class="stake-field">
+                                        <div class="stake-field-header">
+                                            <span><i class="fa-solid fa-crosshairs" style="color:#06b6d4;"></i> Auto Cashout Multiplier</span>
+                                        </div>
+                                        <div class="stake-input-wrap">
+                                            <input type="number" id="aviator-auto-mult-2" value="1.50" step="0.10" min="1.05">
+                                            <span class="suffix">x</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="stake-field">
+                                        <div class="stake-field-header"><span>Number of Bets</span></div>
+                                        <div class="stake-input-wrap">
+                                            <input type="number" id="aviator-auto-total-bets-2" value="10" min="0" placeholder="0 = ∞">
+                                            <span class="suffix" id="aviator-auto-inf-label-2">10</span>
+                                        </div>
+                                        <div class="stake-preset-pills" id="aviator-auto-presets-2">
+                                            <button type="button" class="stake-pill-btn active" data-val="10">10</button>
+                                            <button type="button" class="stake-pill-btn" data-val="25">25</button>
+                                            <button type="button" class="stake-pill-btn" data-val="50">50</button>
+                                            <button type="button" class="stake-pill-btn" data-val="100">100</button>
+                                            <button type="button" class="stake-pill-btn" data-val="0">∞</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="stake-limits-row">
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>On Win</span></div>
+                                            <div class="stake-segmented-row" id="aviator-onwin-toggle-2">
+                                                <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                                <button type="button" class="stake-segment-btn" data-action="increase">+%</button>
+                                            </div>
+                                        </div>
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>On Loss</span></div>
+                                            <div class="stake-segmented-row" id="aviator-onloss-toggle-2">
+                                                <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                                <button type="button" class="stake-segment-btn" data-action="increase">+%</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="stake-limits-row">
+                                        <div class="stake-input-wrap stake-percent-input-row" id="aviator-onwin-pct-wrap-2" style="display:none;">
+                                            <input type="number" id="aviator-onwin-pct-2" value="100" min="0">
+                                            <span class="suffix">%</span>
+                                        </div>
+                                        <div class="stake-input-wrap stake-percent-input-row" id="aviator-onloss-pct-wrap-2" style="display:none;">
+                                            <input type="number" id="aviator-onloss-pct-2" value="100" min="0">
+                                            <span class="suffix">%</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="stake-limits-row">
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>Stop Profit</span></div>
+                                            <div class="stake-input-wrap">
+                                                <span class="prefix">$</span>
+                                                <input type="number" id="aviator-auto-stop-profit-2" value="0" min="0" placeholder="0 = off">
+                                            </div>
+                                        </div>
+                                        <div class="stake-field">
+                                            <div class="stake-field-header"><span>Stop Loss</span></div>
+                                            <div class="stake-input-wrap">
+                                                <span class="prefix">$</span>
+                                                <input type="number" id="aviator-auto-stop-loss-2" value="0" min="0" placeholder="0 = off">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="aviator-auto-stats-pill-2" class="stake-live-stats">
+                                        <span class="stats-left"><i class="fa-solid fa-chart-line"></i> <span id="aviator-auto-stat-bets-2">Bet 0/10</span></span>
+                                        <span id="aviator-auto-stat-profit-2" class="stats-profit positive">Net: $0.00</span>
+                                    </div>
+
+                                    <button type="button" id="aviator-autobet-btn-2" class="stake-autobet-btn start">
+                                        <span><i class="fa-solid fa-play"></i> START AUTOBET 2</span>
+                                        <small>AUTO FLIGHT STAKE</small>
                                     </button>
                                 </div>
                             </div>
@@ -1114,8 +1323,118 @@
                             </div>
                         </div>
 
-                        <!-- Betting Board -->
-                        <div class="cp-bet-container">
+                        <!-- Stake.com Tabs: Manual vs Auto -->
+                        <div class="stake-tabs" id="cp-tabs" style="margin: 0.85rem 0 0.5rem 0;">
+                            <button type="button" class="stake-tab-btn active" data-tab="manual"><i class="fa-solid fa-hand"></i> Manual Board</button>
+                            <button type="button" class="stake-tab-btn" data-tab="auto"><i class="fa-solid fa-robot"></i> Auto Bet</button>
+                        </div>
+
+                        <!-- Auto Bet Panel (Stake.com Style) -->
+                        <div id="cp-auto-panel" class="stake-auto-panel" style="display:none; margin-bottom: 1rem;">
+                            <!-- Auto Target Preset -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>Auto Target Selection</span></div>
+                                <div class="mines-select-row">
+                                    <select id="cp-auto-target-select" class="mines-select">
+                                        <option value="green" selected>Join Green (2.0x • 1, 3, 7, 9)</option>
+                                        <option value="red">Join Red (2.0x • 2, 4, 6, 8)</option>
+                                        <option value="violet">Join Violet (4.5x • 0, 5)</option>
+                                        <option value="small">Small (2.0x • 0, 1, 2, 3, 4)</option>
+                                        <option value="big">Big (2.0x • 5, 6, 7, 8, 9)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Bet Per Round -->
+                            <div class="stake-field">
+                                <div class="stake-field-header">
+                                    <span><i class="fa-solid fa-coins"></i> Bet Per Round</span>
+                                    <div class="stake-quick-actions">
+                                        <button type="button" class="stake-btn-micro" id="cp-auto-half">½</button>
+                                        <button type="button" class="stake-btn-micro" id="cp-auto-double">2×</button>
+                                    </div>
+                                </div>
+                                <div class="stake-input-wrap">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="cp-auto-bet-input" value="10" min="1" step="1">
+                                </div>
+                            </div>
+
+                            <!-- Number of Rounds -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>Number of Rounds</span></div>
+                                <div class="stake-input-wrap">
+                                    <input type="number" id="cp-auto-total-bets" value="10" min="0" placeholder="0 = ∞">
+                                    <span class="suffix" id="cp-auto-inf-label">10</span>
+                                </div>
+                                <div class="stake-preset-pills" id="cp-auto-presets">
+                                    <button type="button" class="stake-pill-btn" data-val="5">5</button>
+                                    <button type="button" class="stake-pill-btn active" data-val="10">10</button>
+                                    <button type="button" class="stake-pill-btn" data-val="25">25</button>
+                                    <button type="button" class="stake-pill-btn" data-val="50">50</button>
+                                    <button type="button" class="stake-pill-btn" data-val="0">∞</button>
+                                </div>
+                            </div>
+
+                            <!-- On Win -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>On Win</span></div>
+                                <div class="stake-segmented-row" id="cp-onwin-toggle">
+                                    <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                    <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                                </div>
+                                <div class="stake-input-wrap stake-percent-input-row" id="cp-onwin-pct-wrap" style="display:none;">
+                                    <input type="number" id="cp-onwin-pct-input" value="100" min="0">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+
+                            <!-- On Loss -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>On Loss</span></div>
+                                <div class="stake-segmented-row" id="cp-onloss-toggle">
+                                    <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                    <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                                </div>
+                                <div class="stake-input-wrap stake-percent-input-row" id="cp-onloss-pct-wrap" style="display:none;">
+                                    <input type="number" id="cp-onloss-pct-input" value="100" min="0">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+
+                            <!-- Stop on Profit / Stop on Loss -->
+                            <div class="stake-limits-row">
+                                <div class="stake-field">
+                                    <div class="stake-field-header"><span>Stop Profit</span></div>
+                                    <div class="stake-input-wrap">
+                                        <span class="prefix">$</span>
+                                        <input type="number" id="cp-auto-stop-profit" value="0" min="0" placeholder="0 = off">
+                                    </div>
+                                </div>
+                                <div class="stake-field">
+                                    <div class="stake-field-header"><span>Stop Loss</span></div>
+                                    <div class="stake-input-wrap">
+                                        <span class="prefix">$</span>
+                                        <input type="number" id="cp-auto-stop-loss" value="0" min="0" placeholder="0 = off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Session Stats -->
+                            <div id="cp-auto-stats-pill" class="stake-live-stats">
+                                <span class="stats-left"><i class="fa-solid fa-chart-line"></i> <span id="cp-auto-stat-bets">Round 0/10</span></span>
+                                <span id="cp-auto-stat-profit" class="stats-profit positive">Net: $0.00</span>
+                            </div>
+
+                            <!-- Start Autobet Button -->
+                            <button type="button" id="cp-autobet-btn" class="stake-autobet-btn start">
+                                <span><i class="fa-solid fa-play"></i> START AUTOBET</span>
+                                <small>AUTO COLOR PREDICTION</small>
+                            </button>
+                        </div>
+
+                        <!-- Manual Betting Board -->
+                        <div class="cp-bet-container" id="cp-manual-container">
                             <!-- 3 Primary Colors -->
                             <div class="cp-colors-row">
                                 <button class="cp-btn-color cp-btn-green selected" data-color="green">
@@ -1283,80 +1602,219 @@
                         <span class="mines-badge-rtp">90% RTP</span>
                     </div>
 
-                    <!-- Bet Amount Field -->
-                    <div class="mines-field-group">
-                        <label class="mines-field-label" for="mines-bet-input">
-                            <span>Bet Amount</span>
-                            <span style="font-size:0.72rem; color:var(--text-muted);">Min: $1</span>
-                        </label>
-                        <div class="mines-input-row">
-                            <span class="mines-currency-prefix">$</span>
-                            <input type="number" id="mines-bet-input" class="mines-bet-input" value="10" min="1"
-                                step="1">
+                    <!-- Stake.com Style Tabs -->
+                    <div class="stake-tabs" id="mines-tabs">
+                        <button type="button" class="stake-tab-btn active" data-tab="manual"><i class="fa-solid fa-hand"></i> Manual</button>
+                        <button type="button" class="stake-tab-btn" data-tab="auto"><i class="fa-solid fa-robot"></i> Auto</button>
+                    </div>
+
+                    <!-- Manual Controls -->
+                    <div id="mines-manual-controls">
+                        <!-- Bet Amount Field -->
+                        <div class="mines-field-group">
+                            <label class="mines-field-label" for="mines-bet-input">
+                                <span>Bet Amount</span>
+                                <span style="font-size:0.72rem; color:var(--text-muted);">Min: $1</span>
+                            </label>
+                            <div class="mines-input-row">
+                                <span class="mines-currency-prefix">$</span>
+                                <input type="number" id="mines-bet-input" class="mines-bet-input" value="10" min="1"
+                                    step="1">
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Quick Bet Chips -->
-                    <div class="mines-quick-chips">
-                        <button class="mines-quick-btn" data-action="1">$1</button>
-                        <button class="mines-quick-btn" data-action="5">$5</button>
-                        <button class="mines-quick-btn" data-action="10">$10</button>
-                        <button class="mines-quick-btn" data-action="25">$25</button>
-                        <button class="mines-quick-btn" data-action="50">$50</button>
-                        <button class="mines-quick-btn" data-action="100">$100</button>
-                        <button class="mines-quick-btn" data-action="500">$500</button>
-                        <button class="mines-quick-btn" data-action="1000">$1000</button>
-                        <button class="mines-quick-btn" data-action="half">½</button>
-                        <button class="mines-quick-btn" data-action="2x">2×</button>
-                    </div>
-
-                    <!-- Mines Count Field -->
-                    <div class="mines-field-group" style="margin-top:0.25rem;">
-                        <label class="mines-field-label" for="mines-count-select">
-                            <span>Mines Count</span>
-                            <span style="font-size:0.72rem; color:#f59e0b;">Higher Mines = Bigger Mult</span>
-                        </label>
-                        <div class="mines-select-row">
-                            <select id="mines-count-select" class="mines-select">
-                                <option value="1">1 Mine (Safe: 24)</option>
-                                <option value="2">2 Mines (Safe: 23)</option>
-                                <option value="3" selected>3 Mines (Safe: 22)</option>
-                                <option value="4">4 Mines (Safe: 21)</option>
-                                <option value="5">5 Mines (Safe: 20)</option>
-                                <option value="6">6 Mines (Safe: 19)</option>
-                                <option value="7">7 Mines (Safe: 18)</option>
-                                <option value="8">8 Mines (Safe: 17)</option>
-                                <option value="9">9 Mines (Safe: 16)</option>
-                                <option value="10">10 Mines (Safe: 15)</option>
-                                <option value="12">12 Mines (Safe: 13)</option>
-                                <option value="15">15 Mines (Safe: 10)</option>
-                                <option value="20">20 Mines (Safe: 5)</option>
-                                <option value="24">24 Mines (Safe: 1 Jackpot)</option>
-                            </select>
+                        <!-- Quick Bet Chips -->
+                        <div class="mines-quick-chips">
+                            <button class="mines-quick-btn" data-action="1">$1</button>
+                            <button class="mines-quick-btn" data-action="5">$5</button>
+                            <button class="mines-quick-btn" data-action="10">$10</button>
+                            <button class="mines-quick-btn" data-action="25">$25</button>
+                            <button class="mines-quick-btn" data-action="50">$50</button>
+                            <button class="mines-quick-btn" data-action="100">$100</button>
+                            <button class="mines-quick-btn" data-action="500">$500</button>
+                            <button class="mines-quick-btn" data-action="1000">$1000</button>
+                            <button class="mines-quick-btn" data-action="half">½</button>
+                            <button class="mines-quick-btn" data-action="2x">2×</button>
                         </div>
-                    </div>
 
-                    <!-- Preset Mines Pills -->
-                    <div class="mines-presets">
-                        <button class="mines-preset-pill" data-mines="1">1</button>
-                        <button class="mines-preset-pill active" data-mines="3">3</button>
-                        <button class="mines-preset-pill" data-mines="5">5</button>
-                        <button class="mines-preset-pill" data-mines="10">10</button>
-                        <button class="mines-preset-pill" data-mines="24">24</button>
-                    </div>
+                        <!-- Mines Count Field -->
+                        <div class="mines-field-group" style="margin-top:0.25rem;">
+                            <label class="mines-field-label" for="mines-count-select">
+                                <span>Mines Count</span>
+                                <span style="font-size:0.72rem; color:#f59e0b;">Higher Mines = Bigger Mult</span>
+                            </label>
+                            <div class="mines-select-row">
+                                <select id="mines-count-select" class="mines-select">
+                                    <option value="1">1 Mine (Safe: 24)</option>
+                                    <option value="2">2 Mines (Safe: 23)</option>
+                                    <option value="3" selected>3 Mines (Safe: 22)</option>
+                                    <option value="4">4 Mines (Safe: 21)</option>
+                                    <option value="5">5 Mines (Safe: 20)</option>
+                                    <option value="6">6 Mines (Safe: 19)</option>
+                                    <option value="7">7 Mines (Safe: 18)</option>
+                                    <option value="8">8 Mines (Safe: 17)</option>
+                                    <option value="9">9 Mines (Safe: 16)</option>
+                                    <option value="10">10 Mines (Safe: 15)</option>
+                                    <option value="12">12 Mines (Safe: 13)</option>
+                                    <option value="15">15 Mines (Safe: 10)</option>
+                                    <option value="20">20 Mines (Safe: 5)</option>
+                                    <option value="24">24 Mines (Safe: 1 Jackpot)</option>
+                                </select>
+                            </div>
+                        </div>
 
-                    <!-- Secondary Random Pick -->
-                    <div class="mines-secondary-actions" style="margin-top:0.25rem;">
-                        <button id="mines-random-pick-btn" class="mines-random-btn" disabled>
-                            <i class="fa-solid fa-dice"></i> Pick Random Tile
+                        <!-- Preset Mines Pills -->
+                        <div class="mines-presets">
+                            <button class="mines-preset-pill" data-mines="1">1</button>
+                            <button class="mines-preset-pill active" data-mines="3">3</button>
+                            <button class="mines-preset-pill" data-mines="5">5</button>
+                            <button class="mines-preset-pill" data-mines="10">10</button>
+                            <button class="mines-preset-pill" data-mines="24">24</button>
+                        </div>
+
+                        <!-- Secondary Random Pick -->
+                        <div class="mines-secondary-actions" style="margin-top:0.25rem;">
+                            <button id="mines-random-pick-btn" class="mines-random-btn" disabled>
+                                <i class="fa-solid fa-dice"></i> Pick Random Tile
+                            </button>
+                        </div>
+
+                        <!-- Main Bet / Cashout Button -->
+                        <button id="mines-main-action-btn" class="mines-main-btn start-btn">
+                            <span>BET $10.00</span>
+                            <small>START MINES ROUND</small>
                         </button>
                     </div>
 
-                    <!-- Main Bet / Cashout Button -->
-                    <button id="mines-main-action-btn" class="mines-main-btn start-btn">
-                        <span>BET $10.00</span>
-                        <small>START MINES ROUND</small>
-                    </button>
+                    <!-- Autobet Controls (Stake.com Style) -->
+                    <div id="mines-auto-controls" class="stake-auto-panel" style="display:none;">
+                        <!-- Bet Amount -->
+                        <div class="stake-field">
+                            <div class="stake-field-header">
+                                <span><i class="fa-solid fa-coins"></i> Bet Amount</span>
+                                <div class="stake-quick-actions">
+                                    <button type="button" class="stake-btn-micro" id="mines-auto-half">½</button>
+                                    <button type="button" class="stake-btn-micro" id="mines-auto-double">2×</button>
+                                </div>
+                            </div>
+                            <div class="stake-input-wrap">
+                                <span class="prefix">$</span>
+                                <input type="number" id="mines-auto-bet-input" value="10" min="1" step="1">
+                            </div>
+                        </div>
+
+                        <!-- Mines Count Selection -->
+                        <div class="stake-field">
+                            <div class="stake-field-header">
+                                <span><i class="fa-solid fa-bomb" style="color:#f43f5e;"></i> Mines Count</span>
+                            </div>
+                            <div class="mines-select-row">
+                                <select id="mines-auto-mines-select" class="mines-select">
+                                    <option value="1">1 Mine</option>
+                                    <option value="2">2 Mines</option>
+                                    <option value="3" selected>3 Mines</option>
+                                    <option value="4">4 Mines</option>
+                                    <option value="5">5 Mines</option>
+                                    <option value="10">10 Mines</option>
+                                    <option value="24">24 Mines</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Auto Tile Selection -->
+                        <div class="stake-field">
+                            <div class="stake-field-header">
+                                <span><i class="fa-solid fa-crosshairs" style="color:#06b6d4;"></i> Auto Tiles</span>
+                                <strong id="mines-auto-tiles-count" style="color:#06b6d4; font-size:0.75rem;">0 Picked</strong>
+                            </div>
+                            <div class="stake-sub-btn-row">
+                                <button type="button" id="mines-auto-random-pick-btn" class="stake-sub-btn">
+                                    <i class="fa-solid fa-dice"></i> Pick Random
+                                </button>
+                                <button type="button" id="mines-auto-clear-picks-btn" class="stake-sub-btn">
+                                    <i class="fa-solid fa-eraser"></i> Clear Picks
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Number of Bets -->
+                        <div class="stake-field">
+                            <div class="stake-field-header">
+                                <span><i class="fa-solid fa-repeat"></i> Number of Bets</span>
+                            </div>
+                            <div class="stake-input-wrap">
+                                <input type="number" id="mines-auto-total-bets" value="10" min="0" placeholder="0 = ∞">
+                                <span class="suffix" id="mines-auto-inf-label">10</span>
+                            </div>
+                            <div class="stake-preset-pills" id="mines-auto-presets">
+                                <button type="button" class="stake-pill-btn active" data-val="10">10</button>
+                                <button type="button" class="stake-pill-btn" data-val="25">25</button>
+                                <button type="button" class="stake-pill-btn" data-val="50">50</button>
+                                <button type="button" class="stake-pill-btn" data-val="100">100</button>
+                                <button type="button" class="stake-pill-btn" data-val="0">∞</button>
+                            </div>
+                        </div>
+
+                        <!-- On Win -->
+                        <div class="stake-field">
+                            <div class="stake-field-header">
+                                <span>On Win</span>
+                            </div>
+                            <div class="stake-segmented-row" id="mines-onwin-toggle">
+                                <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                            </div>
+                            <div class="stake-input-wrap stake-percent-input-row" id="mines-onwin-pct-wrap" style="display:none;">
+                                <input type="number" id="mines-onwin-pct-input" value="100" min="0">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+
+                        <!-- On Loss -->
+                        <div class="stake-field">
+                            <div class="stake-field-header">
+                                <span>On Loss</span>
+                            </div>
+                            <div class="stake-segmented-row" id="mines-onloss-toggle">
+                                <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                            </div>
+                            <div class="stake-input-wrap stake-percent-input-row" id="mines-onloss-pct-wrap" style="display:none;">
+                                <input type="number" id="mines-onloss-pct-input" value="100" min="0">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+
+                        <!-- Stop on Profit / Stop on Loss -->
+                        <div class="stake-limits-row">
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>Stop Profit</span></div>
+                                <div class="stake-input-wrap">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="mines-auto-stop-profit" value="0" min="0" placeholder="0 = off">
+                                </div>
+                            </div>
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>Stop Loss</span></div>
+                                <div class="stake-input-wrap">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="mines-auto-stop-loss" value="0" min="0" placeholder="0 = off">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Session Stats -->
+                        <div id="mines-auto-stats-pill" class="stake-live-stats">
+                            <span class="stats-left"><i class="fa-solid fa-chart-line"></i> <span id="mines-auto-stat-bets">Bet 0/10</span></span>
+                            <span id="mines-auto-stat-profit" class="stats-profit positive">Net: $0.00</span>
+                        </div>
+
+                        <!-- Start Autobet Button -->
+                        <button type="button" id="mines-autobet-btn" class="stake-autobet-btn start">
+                            <span><i class="fa-solid fa-play"></i> START AUTOBET</span>
+                            <small>STAKE AUTO WAGER</small>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Right: 5x5 Tiles Grid & Stats -->
@@ -1511,37 +1969,154 @@
                             <i class="fa-solid fa-sliders"></i> Drop Controls
                         </div>
 
-                        <!-- Risk Selector -->
-                        <div class="plinko-field">
-                            <label for="plinko-risk-select">Volatility / Risk:</label>
-                            <select id="plinko-risk-select" class="plinko-select">
-                                <option value="low">Low (Up to 5.6x)</option>
-                                <option value="medium" selected>Medium (Up to 13x)</option>
-                                <option value="high">High (Up to 29x)</option>
-                            </select>
+                        <!-- Stake.com Tabs -->
+                        <div class="stake-tabs" id="plinko-tabs">
+                            <button type="button" class="stake-tab-btn active" data-tab="manual"><i class="fa-solid fa-hand"></i> Manual</button>
+                            <button type="button" class="stake-tab-btn" data-tab="auto"><i class="fa-solid fa-robot"></i> Auto</button>
                         </div>
 
-                        <!-- Bet Input -->
-                        <div class="plinko-field">
-                            <label for="plinko-bet-input">Bet Per Ball ($):</label>
-                            <div class="plinko-input-wrap">
-                                <span>$</span>
-                                <input type="number" id="plinko-bet-input" value="10" min="1" step="1">
+                        <!-- Manual Controls -->
+                        <div id="plinko-manual-controls">
+                            <!-- Risk Selector -->
+                            <div class="plinko-field">
+                                <label for="plinko-risk-select">Volatility / Risk:</label>
+                                <select id="plinko-risk-select" class="plinko-select">
+                                    <option value="low">Low (Up to 5.6x)</option>
+                                    <option value="medium" selected>Medium (Up to 13x)</option>
+                                    <option value="high">High (Up to 29x)</option>
+                                </select>
                             </div>
+
+                            <!-- Bet Input -->
+                            <div class="plinko-field">
+                                <label for="plinko-bet-input">Bet Per Ball ($):</label>
+                                <div class="plinko-input-wrap">
+                                    <span>$</span>
+                                    <input type="number" id="plinko-bet-input" value="10" min="1" step="1">
+                                </div>
+                            </div>
+
+                            <!-- Quick Chips -->
+                            <div class="plinko-chips-grid">
+                                <button class="plinko-chip-btn" data-amount="5">$5</button>
+                                <button class="plinko-chip-btn active" data-amount="10">$10</button>
+                                <button class="plinko-chip-btn" data-amount="25">$25</button>
+                                <button class="plinko-chip-btn" data-amount="50">$50</button>
+                            </div>
+
+                            <!-- Drop Action Button -->
+                            <button id="plinko-drop-btn" class="plinko-drop-btn">
+                                <i class="fa-solid fa-circle-down"></i> DROP BALL
+                            </button>
                         </div>
 
-                        <!-- Quick Chips -->
-                        <div class="plinko-chips-grid">
-                            <button class="plinko-chip-btn" data-amount="5">$5</button>
-                            <button class="plinko-chip-btn active" data-amount="10">$10</button>
-                            <button class="plinko-chip-btn" data-amount="25">$25</button>
-                            <button class="plinko-chip-btn" data-amount="50">$50</button>
-                        </div>
+                        <!-- Auto Controls (Stake.com Style) -->
+                        <div id="plinko-auto-controls" class="stake-auto-panel" style="display:none;">
+                            <!-- Bet Per Ball -->
+                            <div class="stake-field">
+                                <div class="stake-field-header">
+                                    <span><i class="fa-solid fa-coins"></i> Bet Per Ball</span>
+                                    <div class="stake-quick-actions">
+                                        <button type="button" class="stake-btn-micro" id="plinko-auto-half">½</button>
+                                        <button type="button" class="stake-btn-micro" id="plinko-auto-double">2×</button>
+                                    </div>
+                                </div>
+                                <div class="stake-input-wrap">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="plinko-auto-bet-input" value="10" min="1" step="1">
+                                </div>
+                            </div>
 
-                        <!-- Drop Action Button -->
-                        <button id="plinko-drop-btn" class="plinko-drop-btn">
-                            <i class="fa-solid fa-circle-down"></i> DROP BALL
-                        </button>
+                            <!-- Risk Selector -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>Volatility / Risk</span></div>
+                                <div class="mines-select-row">
+                                    <select id="plinko-auto-risk-select" class="mines-select">
+                                        <option value="low">Low (Up to 5.6x)</option>
+                                        <option value="medium" selected>Medium (Up to 13x)</option>
+                                        <option value="high">High (Up to 29x)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Number of Bets -->
+                            <div class="stake-field">
+                                <div class="stake-field-header">
+                                    <span><i class="fa-solid fa-repeat"></i> Number of Bets</span>
+                                </div>
+                                <div class="stake-input-wrap">
+                                    <input type="number" id="plinko-auto-total-bets" value="10" min="0" placeholder="0 = ∞">
+                                    <span class="suffix" id="plinko-auto-inf-label">10</span>
+                                </div>
+                                <div class="stake-preset-pills" id="plinko-auto-presets">
+                                    <button type="button" class="stake-pill-btn active" data-val="10">10</button>
+                                    <button type="button" class="stake-pill-btn" data-val="25">25</button>
+                                    <button type="button" class="stake-pill-btn" data-val="50">50</button>
+                                    <button type="button" class="stake-pill-btn" data-val="100">100</button>
+                                    <button type="button" class="stake-pill-btn" data-val="0">∞</button>
+                                </div>
+                            </div>
+
+                            <!-- On Win -->
+                            <div class="stake-field">
+                                <div class="stake-field-header">
+                                    <span>On Win (> 1.0x)</span>
+                                </div>
+                                <div class="stake-segmented-row" id="plinko-onwin-toggle">
+                                    <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                    <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                                </div>
+                                <div class="stake-input-wrap stake-percent-input-row" id="plinko-onwin-pct-wrap" style="display:none;">
+                                    <input type="number" id="plinko-onwin-pct-input" value="100" min="0">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+
+                            <!-- On Loss -->
+                            <div class="stake-field">
+                                <div class="stake-field-header">
+                                    <span>On Loss (< 1.0x)</span>
+                                </div>
+                                <div class="stake-segmented-row" id="plinko-onloss-toggle">
+                                    <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                    <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                                </div>
+                                <div class="stake-input-wrap stake-percent-input-row" id="plinko-onloss-pct-wrap" style="display:none;">
+                                    <input type="number" id="plinko-onloss-pct-input" value="100" min="0">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+
+                            <!-- Stop on Profit / Stop on Loss -->
+                            <div class="stake-limits-row">
+                                <div class="stake-field">
+                                    <div class="stake-field-header"><span>Stop Profit</span></div>
+                                    <div class="stake-input-wrap">
+                                        <span class="prefix">$</span>
+                                        <input type="number" id="plinko-auto-stop-profit" value="0" min="0" placeholder="0 = off">
+                                    </div>
+                                </div>
+                                <div class="stake-field">
+                                    <div class="stake-field-header"><span>Stop Loss</span></div>
+                                    <div class="stake-input-wrap">
+                                        <span class="prefix">$</span>
+                                        <input type="number" id="plinko-auto-stop-loss" value="0" min="0" placeholder="0 = off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Session Stats -->
+                            <div id="plinko-auto-stats-pill" class="stake-live-stats">
+                                <span class="stats-left"><i class="fa-solid fa-chart-line"></i> <span id="plinko-auto-stat-bets">Drop 0/10</span></span>
+                                <span id="plinko-auto-stat-profit" class="stats-profit positive">Net: $0.00</span>
+                            </div>
+
+                            <!-- Start Autobet Button -->
+                            <button type="button" id="plinko-autobet-btn" class="stake-autobet-btn start">
+                                <span><i class="fa-solid fa-play"></i> START AUTOBET</span>
+                                <small>AUTO PLINKO DROPS</small>
+                            </button>
+                        </div>
 
                         <div class="plinko-hint">
                             <i class="fa-solid fa-circle-info"></i> Each ball bounces down 8 rows of pins into
@@ -1808,13 +2383,132 @@
                         </div>
                     </div>
 
-                    <!-- Right: Live Community Players Feed -->
+                    <!-- Right: Live Community Players Feed & Stake Auto Bet -->
                     <div class="roulette-side-card">
-                        <div class="roulette-side-title">
-                            <i class="fa-solid fa-users" style="color:var(--color-accent);"></i>
-                            <span>Live Table Players</span>
+                        <!-- Stake Tabs: Live Table vs Auto Bet -->
+                        <div class="stake-tabs" id="roulette-tabs">
+                            <button type="button" class="stake-tab-btn active" data-tab="live"><i class="fa-solid fa-users"></i> Live Table</button>
+                            <button type="button" class="stake-tab-btn" data-tab="auto"><i class="fa-solid fa-robot"></i> Auto Bet</button>
                         </div>
-                        <div id="roulette-sim-bets" class="roulette-bets-list"></div>
+
+                        <!-- Live Community Players Feed -->
+                        <div id="roulette-live-section">
+                            <div class="roulette-side-title">
+                                <i class="fa-solid fa-users" style="color:var(--color-accent);"></i>
+                                <span>Live Table Players</span>
+                            </div>
+                            <div id="roulette-sim-bets" class="roulette-bets-list"></div>
+                        </div>
+
+                        <!-- Auto Bet Panel (Stake.com Style) -->
+                        <div id="roulette-auto-panel" class="stake-auto-panel" style="display:none; padding:0.25rem 0;">
+                            <!-- Auto Target Preset -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>Auto Target Selection</span></div>
+                                <div class="mines-select-row">
+                                    <select id="roulette-auto-target-select" class="mines-select">
+                                        <option value="repeat" selected>Repeat Current Board Bets</option>
+                                        <option value="red">Red (2.0x)</option>
+                                        <option value="black">Black (2.0x)</option>
+                                        <option value="even">Even (2.0x)</option>
+                                        <option value="odd">Odd (2.0x)</option>
+                                        <option value="low">Low 1-18 (2.0x)</option>
+                                        <option value="high">High 19-36 (2.0x)</option>
+                                        <option value="dozen1">1st 12 (3.0x)</option>
+                                        <option value="dozen2">2nd 12 (3.0x)</option>
+                                        <option value="dozen3">3rd 12 (3.0x)</option>
+                                        <option value="zero">Green Zero 0 (36.0x)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Bet Per Spin -->
+                            <div class="stake-field">
+                                <div class="stake-field-header">
+                                    <span><i class="fa-solid fa-coins"></i> Bet Per Spin</span>
+                                    <div class="stake-quick-actions">
+                                        <button type="button" class="stake-btn-micro" id="roulette-auto-half">½</button>
+                                        <button type="button" class="stake-btn-micro" id="roulette-auto-double">2×</button>
+                                    </div>
+                                </div>
+                                <div class="stake-input-wrap">
+                                    <span class="prefix">$</span>
+                                    <input type="number" id="roulette-auto-bet-input" value="10" min="1" step="1">
+                                </div>
+                            </div>
+
+                            <!-- Number of Spins -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>Number of Spins</span></div>
+                                <div class="stake-input-wrap">
+                                    <input type="number" id="roulette-auto-total-bets" value="10" min="0" placeholder="0 = ∞">
+                                    <span class="suffix" id="roulette-auto-inf-label">10</span>
+                                </div>
+                                <div class="stake-preset-pills" id="roulette-auto-presets">
+                                    <button type="button" class="stake-pill-btn active" data-val="10">10</button>
+                                    <button type="button" class="stake-pill-btn" data-val="25">25</button>
+                                    <button type="button" class="stake-pill-btn" data-val="50">50</button>
+                                    <button type="button" class="stake-pill-btn" data-val="100">100</button>
+                                    <button type="button" class="stake-pill-btn" data-val="0">∞</button>
+                                </div>
+                            </div>
+
+                            <!-- On Win -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>On Win</span></div>
+                                <div class="stake-segmented-row" id="roulette-onwin-toggle">
+                                    <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                    <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                                </div>
+                                <div class="stake-input-wrap stake-percent-input-row" id="roulette-onwin-pct-wrap" style="display:none;">
+                                    <input type="number" id="roulette-onwin-pct-input" value="100" min="0">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+
+                            <!-- On Loss -->
+                            <div class="stake-field">
+                                <div class="stake-field-header"><span>On Loss</span></div>
+                                <div class="stake-segmented-row" id="roulette-onloss-toggle">
+                                    <button type="button" class="stake-segment-btn active" data-action="reset">Reset</button>
+                                    <button type="button" class="stake-segment-btn" data-action="increase">Increase By %</button>
+                                </div>
+                                <div class="stake-input-wrap stake-percent-input-row" id="roulette-onloss-pct-wrap" style="display:none;">
+                                    <input type="number" id="roulette-onloss-pct-input" value="100" min="0">
+                                    <span class="suffix">%</span>
+                                </div>
+                            </div>
+
+                            <!-- Stop on Profit / Stop on Loss -->
+                            <div class="stake-limits-row">
+                                <div class="stake-field">
+                                    <div class="stake-field-header"><span>Stop Profit</span></div>
+                                    <div class="stake-input-wrap">
+                                        <span class="prefix">$</span>
+                                        <input type="number" id="roulette-auto-stop-profit" value="0" min="0" placeholder="0 = off">
+                                    </div>
+                                </div>
+                                <div class="stake-field">
+                                    <div class="stake-field-header"><span>Stop Loss</span></div>
+                                    <div class="stake-input-wrap">
+                                        <span class="prefix">$</span>
+                                        <input type="number" id="roulette-auto-stop-loss" value="0" min="0" placeholder="0 = off">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Session Stats -->
+                            <div id="roulette-auto-stats-pill" class="stake-live-stats">
+                                <span class="stats-left"><i class="fa-solid fa-chart-line"></i> <span id="roulette-auto-stat-bets">Spin 0/10</span></span>
+                                <span id="roulette-auto-stat-profit" class="stats-profit positive">Net: $0.00</span>
+                            </div>
+
+                            <!-- Start Autobet Button -->
+                            <button type="button" id="roulette-autobet-btn" class="stake-autobet-btn start">
+                                <span><i class="fa-solid fa-play"></i> START AUTOBET</span>
+                                <small>AUTO ROULETTE SPINS</small>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2035,6 +2729,7 @@
     <script src="js/audio.js?v=4.0"></script>
     <script src="js/wallet.js?v=4.0"></script>
     <script src="js/payment.js?v=4.0"></script>
+    <script src="js/stake-autobet.js?v=1.0"></script>
     <script src="js/tictactoe.js"></script>
     <script src="js/sudoku.js"></script>
     <script src="js/aviator.js?v=4.0"></script>

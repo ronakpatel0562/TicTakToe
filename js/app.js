@@ -163,6 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (viewName === 'aviator') {
             if (!aviatorInstance) {
                 aviatorInstance = new window.AviatorGame();
+            } else {
+                aviatorInstance.start();
             }
             setTimeout(() => {
                 if (aviatorInstance) aviatorInstance.resizeCanvas();
@@ -237,8 +239,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Pause/stop background processes when switching away
-        if (viewName !== 'aviator' && window.soundEngine) {
-            window.soundEngine.stopAviatorFlight();
+        if (viewName !== 'aviator') {
+            if (aviatorInstance) aviatorInstance.stop();
+            if (window.soundEngine && typeof window.soundEngine.stopAllContinuousSounds === 'function') {
+                window.soundEngine.stopAllContinuousSounds();
+            }
         }
         if (viewName !== 'snake' && snakeInstance && !snakeInstance.isGameOver) {
             snakeInstance.stopLoop();

@@ -399,7 +399,13 @@ class PaymentGateway {
         }
 
         // Celebrate
-        if (window.soundEngine) window.soundEngine.playAviatorCashout();
+        if (window.soundEngine) {
+            if (typeof window.soundEngine.playPaymentSuccess === 'function') {
+                window.soundEngine.playPaymentSuccess();
+            } else if (typeof window.soundEngine.playWin === 'function') {
+                window.soundEngine.playWin();
+            }
+        }
         if (window.triggerConfetti) window.triggerConfetti();
 
         // Populate Receipt
